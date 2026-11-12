@@ -133,7 +133,7 @@ Rules:
   - Routes can run planet to space storage and space storage to space storage (between systems, with FND_PERMIT).
   - When a route breaks (no ship, blocked, a closed planet), the space storage keeps feeding the connection for a while.
   - Clicking a space storage shows its stock per commodity with the 5-line rating bar and its connections.
-Routes and Sell orders at a planet use only that planet's own storage; the Space Storage feeds workshops, link upkeep and Storage Links (the 2026-11-01 backup draw was removed by owner request 2026-11-12, T364). The old gate of draft 1 (visit all of system 1) is gone.
+Routes and Sell orders at a planet use only that planet's own storage; the Space Storage feeds workshops, link upkeep, Storage Links and the routes you send from it (T373: a Send to... on a good row of its view, next planet clicked is the destination, a route whose source is the storage; it needs stock or a planned inflow, takes stock out, pays trip and upkeep only, awards no skill points; the delivery planet's Sell order pays as for any route) (the 2026-11-01 backup draw was removed by owner request 2026-11-12, T364). The old gate of draft 1 (visit all of system 1) is gone.
 Storage Link: a goods-only bridge between the Space Storages of two systems (game/storage_link.gd, design/proposals/2026-11-05-storage-link.md). It needs Space Storage, an open system 2 and the goods it costs to be visible (rule storage_link in data/availability.json). Standing orders move stock each cycle without a ship; upkeep is paid in goods; a link goes dormant when upkeep fails and can collapse. Built in the working tree on 2026-11-05 and not yet run in play. Numbers: balance.json link_* keys.
 
 ========================================

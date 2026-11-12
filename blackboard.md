@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 18:30 run: T365 T366 T367
-- Summary: T366 (wing popup as framed banner cards, BannerArt moved to game/banner_art.gd) and T367 (dead world card: no Mine and send button, the tile toggles mining, right click opens the goods popup, one hint line) are done and committed; the start skill points drop by one (new key skill_points_home 1) and the Space Storage panel lost its next-cycle line (separate commits); the six wing pictures were redone as simple 480x160 banners. T365 (skill screen connector lines) was STOPPED by the owner before it finished.
-- Why this task: owner reports and requests 2026-11-12.
-- Approach: ui-programmer agents; T365 killed mid-run by the main session at the owner's request, only T365 touched.
-- Agent prompts: Agent tool, ui-programmer, briefs read from schedule.json T365, T366, T367.
-- Worked: T366 and T367 renders looked at; no objective breakage.
-- Failed / did not work: T365 not finished: game/skill_screen.gd holds its partial, uncommitted edits (about 220 added lines), no test, no handoff, never rendered by the main session.
-- Files and commits: see git log on main for T366 and T367.
-- Left to do: owner to decide on T365: restart it, keep the partial edits, or revert game/skill_screen.gd (git checkout game/skill_screen.gd); the skill screen lines still cross until then.
-
 ## 2026-11-12 19:10 run: T365 (main session)
 - Summary: Skill screen prerequisite lines redone by the main session after the ui-programmer's attempt was stopped (its partial edit reverted): thin orthogonal routes (1 px locked, 1.5 px learned), down into the gap under the parent, across, down a clear lane beside any node in the way, across above the child, into it; two nodes on one line join side to side; routes cached per layout (cell rects fingerprinted at draw), the learn animation only recolours. Old mid-row horizontals and the clip-through-nodes code are gone.
 - Why this task: owner report 2026-11-12 ('lines visibly not matching, many lines intersect'); owner asked the main session to do it after the agent's version could not open the window.
@@ -75,3 +65,13 @@
 - Failed / did not work: BIO tree not viewed; MIN_16 sits on the wrapped second line of its tier (two per line), so it looks lower than the middle.
 - Files and commits: see git log on main for T370-T372.
 - Left to do: owner to tune the placeholders (economy-designer only on request); Russian for every new id when translation resumes; EV98 penalty uses attar at Voltara.
+
+## 2026-11-12 22:30 run: T373
+- Summary: A Space Storage can be the source of a normal route (negative source = the station of that system, from_station mirrors to_station): Send to... on each good row of the storage panel, then click a planet; it takes only that storage's stock, travels from the station marker, pays trip and upkeep only, no level bonus, no skill points; hubs count it as manual cover, raids skip it; the panel lists 'Sent out from here' with Remove; the planet card shows 'From Space Storage' with units and reasons. Planet routes still never draw the storage.
+- Why this task: owner decision 2026-11-12 ('Space Storage as a route source: yes').
+- Approach: one gameplay-programmer task including the UI.
+- Agent prompts: Agent tool, gameplay-programmer, brief read from schedule.json T373; handoff handoffs/gameplay-programmer/2026-11-12-T373.json.
+- Worked: renders of the panel, the map line and the planet card looked at; the settle moved 20 energy from the station as projected.
+- Failed / did not work: the Russian SS_LBL_STOCK_RULE still shows the old wording (translation paused).
+- Files and commits: see git log on main for T373.
+- Left to do: route upgrade on a station lane does nothing (no level bonus): owner to say if it should be refused; Russian for the new ids.

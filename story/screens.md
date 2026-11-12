@@ -392,7 +392,7 @@ TIP_NULLCORE_WHY | 110 | Tip card, why line | That ship has a lower trip cost an
 
 ### Storage and systems
 TIP_SPACE_STORAGE | 110 | Tip card line; trigger: Space Storage is learned | Space Storage is one big store for each system. Planet storage feeds it slowly.
-TIP_SPACE_STORAGE_WHY | 110 | Tip card, why line | Workshops, link upkeep and Storage Links use it. Click its station to see stock.
+TIP_SPACE_STORAGE_WHY | 120 | Tip card, why line | Workshops, link upkeep, Storage Links and routes you send from it take stock out. Click its station to see stock.
 TIP_LINK | 110 | Tip card line; trigger: the Storage Link becomes available | A Storage Link joins the Space Storages of two systems. It moves goods only, never credits.
 TIP_LINK_WHY | 110 | Tip card, why line | It costs goods to build and energy each cycle. With no energy it goes dormant, and may collapse.
 TIP_PERMIT | 110 | Tip card line; trigger: Permit Charter is learned | Buy the permit in the galaxy view. Click a closed system to see its price.
@@ -439,7 +439,17 @@ SS_LBL_CAPACITY | 48 | Space Storage view, capacity line | Capacity: {cap} per c
 LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Space Storage
 
 ## Storage projection (added 2026-11-03)
-SS_LBL_STOCK_RULE | 110 | Space Storage view, under the capacity line: the rule for delivered goods | Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it.
+SS_LBL_STOCK_RULE | 140 | Space Storage view, under the capacity line: the rule for delivered goods | Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it.
+SS_BTN_SEND | 16 | Space Storage view, button on a good row: start a route out of the storage | Send to...
+SS_TIP_SEND | 90 | Space Storage view, tooltip on Send to... | Send this good from the Space Storage to a planet: click the planet on the map next.
+SS_TIP_SEND_NONE | 70 | Space Storage view, tooltip on a disabled Send to... | Nothing to send: none in stock and none on its way.
+SS_LBL_ROUTES_OUT | 24 | Space Storage view, title of the list of routes sent out of this storage | Sent out from here
+SS_LBL_ROUTE_OUT_LINE | 40 | Space Storage view, one outgoing route; {good}, {planet}, {n} units per cycle | {good} to {planet}, {n} / cycle
+SS_BTN_ROUTE_REMOVE | 16 | Space Storage view, button that removes an outgoing route | Remove
+RT_ERR_STATION_TO_STATION | 60 | Refusal when a Space Storage route is aimed at a Space Storage | A Space Storage cannot send to a Space Storage.
+RT_ERR_STATION_NONE | 80 | Refusal when a Space Storage route is made for a good it does not hold and none is coming | This Space Storage has none of this good and none is on its way.
+LBL_CONN_WHY_STATION_NO_STOCK | 110 | Planet card, Connections, muted line under a lane from a Space Storage that has none of the good; {good} | The Space Storage has no {good}. Send some into it, or remove this route.
+LBL_CONN_WHY_STATION_SHARED | 110 | Planet card, Connections, muted line under a lane from a Space Storage whose stock other lanes take first; {good} | Other lanes take the Space Storage's {good} first. Send more into it.
 TIP_NC_UPKEEP | 40 | Next cycle tooltip, entry, storage link upkeep takes from this stock; {n} | Link upkeep -{n}
 LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next cycle: +{in} -{out} = {after}
 

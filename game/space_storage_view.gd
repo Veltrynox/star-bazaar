@@ -66,7 +66,7 @@ func refresh() -> void:
 	var cl := Label.new()
 	cl.text = StoryText.get_or("SS_LBL_CAPACITY", "Capacity: {cap} per commodity", {"cap": cap})
 	box.add_child(cl)
-	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it."))
+	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it."))
 	rule.name = "StockRule"
 	rule.add_theme_color_override("font_color", Ui.col("ink_muted"))
 	box.add_child(rule)
@@ -85,11 +85,62 @@ func refresh() -> void:
 		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
+		var sb := Button.new()  # T373: start a route out of the storage; the next planet clicked is the destination
+		sb.name = "Send_" + str(c)
+		sb.theme_type_variation = "ButtonSmall"
+		sb.text = StoryText.get_or("SS_BTN_SEND", "Send to...")
+		var can_send: bool = main.engine.station_can_send(system_id, str(c))
+		sb.disabled = not can_send
+		sb.tooltip_text = StoryText.get_or("SS_TIP_SEND", "Send this good from the Space Storage to a planet: click the planet on the map next.") if can_send else StoryText.get_or("SS_TIP_SEND_NONE", "Nothing to send: none in stock and none on its way.")
+		sb.pressed.connect(_on_send.bind(str(c)))
+		row.add_child(sb)
 		row.tooltip_text = GoodInfo.block(str(c))  # hover: what the good is and how it is used
 		box.add_child(row)
+	_routes_out()
 	_fabric_rows()
 	_build_blocks()
 	size = Vector2.ZERO
+
+## T373: Send to... pressed: the view gives way to the map and the next planet clicked becomes the destination (main.begin_station_send).
+func _on_send(c: String) -> void:
+	var r: Dictionary = main.begin_station_send(system_id, c)
+	if not r["ok"]:
+		main.post_notice_now(str(r["reason"]))
+		return
+	close_view()
+
+## T373: the routes that start at this Space Storage, one row per ship with a Remove button (only shown when there are some).
+func _routes_out() -> void:
+	var mine: Array = []
+	for rec in main.engine.routes:
+		if main.engine.from_station(rec) and -int(rec["a"]) == system_id and Availability.good(str(rec["c"])):
+			mine.append(rec)
+	if mine.is_empty():
+		return
+	box.add_child(HSeparator.new())
+	var t := Label.new()
+	t.name = "RoutesOutTitle"
+	t.text = StoryText.get_or("SS_LBL_ROUTES_OUT", "Sent out from here")
+	t.theme_type_variation = "LabelStrong"
+	box.add_child(t)
+	for rec in mine:
+		var id := int(rec["id"])
+		var line := HBoxContainer.new()
+		line.name = "RouteOut_%d" % id
+		line.add_theme_constant_override("separation", 8)
+		box.add_child(line)
+		var ll := Label.new()
+		ll.text = StoryText.get_or("SS_LBL_ROUTE_OUT_LINE", "{good} to {planet}, {n} / cycle", {"good": Ui.good_name(str(rec["c"])), "planet": main.planet_name(int(rec["b"])), "n": main.route_units(rec)})
+		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ll.custom_minimum_size = Vector2(190, 0)
+		ll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(ll)
+		var rb := Button.new()
+		rb.name = "RouteOutRemove_%d" % id
+		rb.theme_type_variation = "ButtonSmall"
+		rb.text = StoryText.get_or("SS_BTN_ROUTE_REMOVE", "Remove")
+		rb.pressed.connect(func(): main._remove_requested(id); refresh())
+		line.add_child(rb)
 
 ## Fabric block, only in system 1 once MIN_1 is learned: build button with the cost, then the recipe and its status.
 func _fabric_rows() -> void:

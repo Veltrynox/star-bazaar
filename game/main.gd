@@ -747,6 +747,8 @@ func reach_system() -> void:
 func system_of(planet: int) -> int:
 	if Clusters.is_node(planet):  # T156: a cluster node belongs to its system
 		return clusters.system_of(Clusters.index_of(planet))
+	if planet < 0:  # T373: a Space Storage as a route source, -system id
+		return -planet
 	return int(map.planets[planet].get("system", 1)) if planet >= 0 and planet < map.planets.size() else 1
 
 ## Appends the planets of a system to the live map (no-op for system 1 or planets already present).
@@ -1261,7 +1263,8 @@ func _on_planet_clicked(index: int) -> void:
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(dst)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
 			if stop >= 0:
 				post_notice(stop_line(stop, dst))  # N9
-			route_margin_notice(pending_planet, dst, str(r["c"]))  # low-margin warning, base game
+			if not is_station_src(pending_planet):
+				route_margin_notice(pending_planet, dst, str(r["c"]))  # low-margin warning, base game
 			_route_beat(pending_planet, dst)
 			if not quick:
 				selected_planet = dst
@@ -1375,6 +1378,10 @@ func _on_route_clicked(id: int) -> void:
 			selected_planet = -1
 			planet_panel.visible = false
 			space_storage_view.open_for(sid)
+		return
+	if RouteEngine.from_station(engine.routes[i]):  # T373: the lane starts at a Space Storage: show the destination planet with this route selected
+		selected_planet = int(engine.routes[i]["b"])
+		planet_panel.show_planet(selected_planet, id)
 		return
 	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
@@ -1581,7 +1588,7 @@ func cancel_pending() -> void:
 
 ## " Or click the Space Storage station." (leading space) when the pending send's system has a station, else "". Shared by the top line and the planet panel.
 func pending_station_hint() -> String:
-	if pending.is_empty() or not station_systems.has(system_of(int(pending["planet"]))):
+	if pending.is_empty() or is_station_src(int(pending["planet"])) or not station_systems.has(system_of(int(pending["planet"]))):
 		return ""
 	return " " + StoryText.get_or("LBL_PENDING_OR_STATION", "Or click the Space Storage station.")
 
@@ -1600,7 +1607,7 @@ func _pending_changed() -> void:
 ## P1: one line per reachable destination: margin per unit now, and after the price events end when one moves it.
 func pending_margin_lines() -> Array:
 	var out: Array = []
-	if pending.is_empty() or Clusters.is_node(int(pending["planet"])):  # a cluster source has no planet margin lines
+	if pending.is_empty() or Clusters.is_node(int(pending["planet"])) or is_station_src(int(pending["planet"])):  # a cluster or station source has no planet margin lines
 		return out
 	var src := int(pending["planet"])
 	var c := str(pending["c"])
@@ -1746,6 +1753,12 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	var r: Dictionary = engine.check_connection(src, dst, c)
 	if not r["ok"]:
 		return r
+	if is_station_src(src):  # T373: a Space Storage source needs its post; the delivery planet's trade must be open too
+		if not space_post_open(-src) or (dst >= 0 and not system_trade_open(dst)):
+			return {"ok": false, "reason": trade_locked_reason()}
+		if free_ships() <= 0:
+			return {"ok": false, "reason": StoryText.get_text("NOT_SHIP_FREE")}
+		return {"ok": true, "reason": ""}
 	if Clusters.is_node(src) and not open_systems.has(system_of(src)):  # T156: a cluster of a system without a permit
 		return {"ok": false, "reason": trade_locked_reason()}
 	if not system_trade_open(src) or (dst >= 0 and not system_trade_open(dst)) or (dst < 0 and not space_post_open(-dst)):
@@ -1789,6 +1802,23 @@ func upgrade_route(id: int) -> Dictionary:
 	engine.set_lane_level(int(rec["a"]), int(rec["b"]), str(rec["c"]), 2)
 	_after_change()
 	return r
+
+## T373: true for a route source that is a Space Storage (src = -system id; a cluster node is <= -1000).
+static func is_station_src(src: int) -> bool:
+	return src < 0 and not Clusters.is_node(src)
+
+## T373: "Send to..." on a Space Storage row: the same pending state as a planet's Send to..., source = the station (-system id).
+## The next planet clicked becomes the destination (_on_planet_clicked -> send_stock_buying). {ok, reason}.
+func begin_station_send(sid: int, c: String) -> Dictionary:
+	if game_over or not space_post_open(sid):
+		return {"ok": false, "reason": trade_locked_reason()}
+	if not engine.station_can_send(sid, c):
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_STATION_NONE", "This Space Storage has none of this good and none is on its way.")}
+	if not pending.is_empty():
+		cancel_pending()
+	pending = {"planet": station_dst(sid), "c": c}
+	_pending_changed()
+	return {"ok": true, "reason": ""}
 
 ## Destination value for a send to the Space Storage of system sid: pass it as `dst` to send_stock / can_connect.
 static func station_dst(sid: int) -> int:
@@ -1918,7 +1948,7 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 			tip_signal("upgrade")  # T353: the refused click is the moment to teach the upgrade
 		return r
 	var rec: Dictionary = engine.new_record(src, dst, c)
-	var mining := Clusters.is_node(src)
+	var mining := Clusters.is_node(src) or is_station_src(src)  # T373: a Space Storage source earns no planet or pair points either
 	rec["stop"] = stop if stop >= 0 and engine.stop_candidates(src, dst, c).has(stop) else -1  # N9
 	rec["id"] = engine.next_id
 	rec["ship"] = pick_ship(src, dst, c)  # T58
@@ -1926,7 +1956,7 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	rec["fresh"] = clampf(1.0 - cycle_elapsed / _cycle_seconds(), 0.0, 1.0)
 	engine.routes.append(rec)
 	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts (a station is no planet)
-		if dst >= 0:
+		if dst >= 0 and not is_station_src(src):
 			_award_planet(dst)
 	else:
 		_award_route(src, dst)
@@ -2086,6 +2116,15 @@ func lane_hint(rec: Dictionary) -> String:
 		if engine.clusters == null or engine.clusters.left(Clusters.index_of(int(rec["a"]))) <= 0:
 			return StoryText.get_or("LBL_CONN_WHY_CLUSTER_EMPTY", "The asteroid cluster is empty. Remove this route.")
 		return StoryText.get_or("LBL_CONN_WHY_CLUSTER_SHARED", "Another ship took this cycle's ore. It loads again next cycle.")
+	if engine.from_station(rec):  # T373: the Space Storage is the source: stock comes only from what is delivered into it
+		if other_out_units(rec) > 0:
+			return StoryText.get_or("LBL_CONN_WHY_STATION_SHARED", "Other lanes take the Space Storage's {good} first. Send more into it.", {"good": g})
+		var sin := 0
+		for pt in lane_projection(str(rec["src"]), c)["parts"]:
+			if pt["dir"] == "in":
+				sin += int(pt["n"])
+		if storage.amount(str(rec["src"]), c) + sin <= 0:
+			return StoryText.get_or("LBL_CONN_WHY_STATION_NO_STOCK", "The Space Storage has no {good}. Send some into it, or remove this route.", {"good": g})
 	if other_out_units(rec) > 0:
 		return StoryText.get_or("LBL_CONN_WHY_SHARED", "Other lanes and Sell orders take {planet}'s {good} first. Send more there or turn Buy on.", {"planet": src_n, "good": g})
 	var inflow := 0

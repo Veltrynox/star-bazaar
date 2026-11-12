@@ -73,7 +73,7 @@ func _touches(rec: Dictionary, sys: int) -> bool:
 func lanes_in(sys: int) -> Array:
 	var out: Array = []
 	for rec in main.engine.routes:
-		if not RouteEngine.has_core(rec) and not RouteEngine.from_cluster(rec) and _touches(rec, sys):
+		if not RouteEngine.has_core(rec) and not RouteEngine.from_cluster(rec) and not RouteEngine.from_station(rec) and _touches(rec, sys):
 			out.append(rec)
 	return out
 

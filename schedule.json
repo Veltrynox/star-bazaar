@@ -4108,6 +4108,30 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T373",
+      "title": "Space Storage as a route source: Send to from the storage panel",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 50,
+      "window": "Owner decision 2026-11-12: Space Storage becomes a route source.",
+      "brief": "Owner decision 2026-11-12: 'Space Storage should become a route source: yes'. Context: since T364 planet routes and Sell orders no longer draw on a Space Storage, so stock delivered to a Space Storage can only leave through workshops, link upkeep and Storage Links. The owner wants the player to send it out on purpose with a normal route. BUILD: (1) Engine (game/route_engine.gd): a route whose SOURCE is a Space Storage. Mirror the existing station destination convention (new_record ~line 66: a negative dst_planet means the station of system -dst; to_station(rec) is b < 0): a negative src_planet means the Space Storage of system -a; src key = storage.system_key(-a). Add from_station(rec) next to to_station / from_cluster and make every place that reads rec['a'] as a planet handle it: check_connection (a station source: Space Storage of an open system with stock or a planned inflow, destination a planet in the SAME system, or another system's planet only with permit_routes as for planets; never station to the same station), src_available (stock of that station key, nothing else), src_open (station: always open while the system is open), units_per_cycle and the lane geometry (the trip is from the station's map position: find how the map positions a station, e.g. map.station_marker_pos(sid) or the station node, and use the same point for trip length / travel and for drawing the route line), project_storage (the out part of the station key and the in part of the destination; no backup anywhere), the cycle settle (_settle_one and the forecast), payouts (a route from a station sells at the destination like any route into a planet with a Sell order, and the station stock has no buy price: cost is trip and upkeep only), saving and loading routes (from_array: keep station sources), hub and split code must ignore station sources unless trivially compatible (say which). Skill points: a station source never awards planet or pair points. (2) UI: the Space Storage panel (game/space_storage_view.gd) gets per good row a small 'Send to...' button (or a right click on the row, matching how a planet's goods popup starts Send to: reuse main.begin_buy_and_send / the existing pending-send flow, generalised to a station source, do not write a second flow), then the next planet clicked becomes the destination exactly like a planet send; the pending hint names the Space Storage. A good with 0 stock and no inflow shows the button disabled with a short reason tooltip. The planet card's Connections list shows a station-source lane as 'From Space Storage' with its units per cycle and reasons like other lanes (T369 code), and the station panel lists its outgoing routes with a remove button the way its links are listed. (3) Text: new ids in story/screens.md (English only, translation paused), rebuild with python3 tools/build_story.py; update the Space Storage panel line SS_LBL_STOCK_RULE and TIP_SPACE_STORAGE_WHY to say routes you send from the storage take stock out; gdd.md Space Storage paragraph and gdd-skills.md section 4 updated in the same words. (4) Render check per CLAUDE.md: scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that builds a main with Space Storage learned and stock in system:1, makes a station-source route to a planet, saves PNGs of the station panel and of the map line; Read them; fix objective breakage only. Tests (own function): a station-source route moves stock from the station to the planet in the settle and in project_storage the same amount; a planet route still never draws the station; the route survives a save round trip; check_connection refuses a station with nothing to send and a station to itself. Do not change any balance number. Do not run the test suite, do not commit. Handoff handoffs/gameplay-programmer/2026-11-12-T373.json with the PNG paths.",
+      "size": "M",
+      "touches": [
+        "game/route_engine.gd",
+        "game/main.gd",
+        "game/space_storage_view.gd",
+        "game/planet_panel.gd",
+        "game/map.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "gdd.md",
+        "gdd-skills.md",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

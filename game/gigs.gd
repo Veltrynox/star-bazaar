@@ -281,6 +281,10 @@ func map_obstacles(sys: int) -> Dictionary:
 				pa = Vector3(float(cc["x"]), 0.0, float(cc["y"])) * mp.MAP_UNIT_SCALE
 		elif a >= 0 and a < mp.positions.size() and int(mp.planets[a].get("system", 1)) == sys:
 			pa = mp.positions[a]
+		elif a < 0:  # T373: a route from a Space Storage starts at the station
+			var sst = mp.stations.get(-a)
+			if sst != null and -a == sys:
+				pa = sst.position
 		if b < 0:
 			var st = mp.stations.get(-b)
 			if st != null and -b == sys:

@@ -1407,8 +1407,8 @@
   },
   {
    "id": "TIP_SPACE_STORAGE_WHY",
-   "text": "Workshops, link upkeep and Storage Links use it. Click its station to see stock.",
-   "max": 110,
+   "text": "Workshops, link upkeep, Storage Links and routes you send from it take stock out. Click its station to see stock.",
+   "max": 120,
    "place": "Tip card, why line"
   },
   {
@@ -1605,9 +1605,69 @@
   },
   {
    "id": "SS_LBL_STOCK_RULE",
-   "text": "Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it.",
-   "max": 110,
+   "text": "Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it.",
+   "max": 140,
    "place": "Space Storage view, under the capacity line: the rule for delivered goods"
+  },
+  {
+   "id": "SS_BTN_SEND",
+   "text": "Send to...",
+   "max": 16,
+   "place": "Space Storage view, button on a good row: start a route out of the storage"
+  },
+  {
+   "id": "SS_TIP_SEND",
+   "text": "Send this good from the Space Storage to a planet: click the planet on the map next.",
+   "max": 90,
+   "place": "Space Storage view, tooltip on Send to..."
+  },
+  {
+   "id": "SS_TIP_SEND_NONE",
+   "text": "Nothing to send: none in stock and none on its way.",
+   "max": 70,
+   "place": "Space Storage view, tooltip on a disabled Send to..."
+  },
+  {
+   "id": "SS_LBL_ROUTES_OUT",
+   "text": "Sent out from here",
+   "max": 24,
+   "place": "Space Storage view, title of the list of routes sent out of this storage"
+  },
+  {
+   "id": "SS_LBL_ROUTE_OUT_LINE",
+   "text": "{good} to {planet}, {n} / cycle",
+   "max": 40,
+   "place": "Space Storage view, one outgoing route; {good}, {planet}, {n} units per cycle"
+  },
+  {
+   "id": "SS_BTN_ROUTE_REMOVE",
+   "text": "Remove",
+   "max": 16,
+   "place": "Space Storage view, button that removes an outgoing route"
+  },
+  {
+   "id": "RT_ERR_STATION_TO_STATION",
+   "text": "A Space Storage cannot send to a Space Storage.",
+   "max": 60,
+   "place": "Refusal when a Space Storage route is aimed at a Space Storage"
+  },
+  {
+   "id": "RT_ERR_STATION_NONE",
+   "text": "This Space Storage has none of this good and none is on its way.",
+   "max": 80,
+   "place": "Refusal when a Space Storage route is made for a good it does not hold and none is coming"
+  },
+  {
+   "id": "LBL_CONN_WHY_STATION_NO_STOCK",
+   "text": "The Space Storage has no {good}. Send some into it, or remove this route.",
+   "max": 110,
+   "place": "Planet card, Connections, muted line under a lane from a Space Storage that has none of the good; {good}"
+  },
+  {
+   "id": "LBL_CONN_WHY_STATION_SHARED",
+   "text": "Other lanes take the Space Storage's {good} first. Send more into it.",
+   "max": 110,
+   "place": "Planet card, Connections, muted line under a lane from a Space Storage whose stock other lanes take first; {good}"
   },
   {
    "id": "TIP_NC_UPKEEP",

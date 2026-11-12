@@ -53,6 +53,7 @@ func _run() -> void:
 	await _test_ship_look()
 	await _test_next_cycle()
 	await _test_station_energy_outflow()
+	await _test_station_source_route()
 	await _test_good_info()
 	await _test_notice_queue()
 	await _test_systems()
@@ -9190,6 +9191,48 @@ func _test_lane_net_label() -> void:
 ## Owner bug 2026-11-04: Space Storage "Next cycle: +18 -18 = 0" with no lane out of the station. The Sell order at the
 ## destination planet (Ashgate) drew the station when its own stock was short. T364: that draw is gone; the Sell order at Ashgate and the
 ## route out of Voltara no longer take anything from the station, and the projection has no backup parts.
+## T373: a route whose source is a Space Storage (a = -system id) takes stock out of the station and puts it into the planet.
+func _test_station_source_route() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 7000
+	Skills.learned.append("FND_STORAGE")
+	m.learned_skills.append("FND_STORAGE")
+	for k in ["planet:0", "planet:1", "planet:2", "system:1"]:
+		m.storage.ensure(k)
+	var e = m.engine
+	e.routes.clear()
+	e.local = {}
+	m.storage.add("system:1", "energy", 40)
+	check(bool(e.check_connection(-1, 1, "energy")["ok"]), "station source: a storage with stock may send to a planet of its system")
+	check(not bool(e.check_connection(-1, -1, "energy")["ok"]), "station source: a station never sends to a station")
+	check(not bool(e.check_connection(-1, 1, "food")["ok"]), "station source: no stock and nothing on its way is refused")
+	var rec: Dictionary = e.new_record(-1, 1, "energy")
+	check(str(rec["src"]) == "system:1" and RouteEngine.from_station(rec) and not RouteEngine.from_cluster(rec), "station source: the record's src is the station key")
+	rec["id"] = 1
+	e.routes.append(rec)
+	e.next_id = 2
+	var pr_s: Dictionary = e.project_storage("system:1", "energy", m.cash)
+	var pr_p: Dictionary = e.project_storage("planet:1", "energy", m.cash)
+	var moved := int(pr_s["out"])
+	check(moved > 0 and int(pr_p["in"]) == moved, "station source: project_storage shows the same units leaving the station and entering the planet", "%d %d" % [moved, int(pr_p["in"])])
+	var st0: int = m.storage.amount("system:1", "energy")
+	var pl0: int = m.storage.amount("planet:1", "energy")
+	m._settle_routes()
+	check(st0 - m.storage.amount("system:1", "energy") == moved and m.storage.amount("planet:1", "energy") - pl0 == moved, "station source: the settle moves the projected units from the station to the planet", "%d -> %d" % [st0, m.storage.amount("system:1", "energy")])
+	var saved: Array = e.to_array()
+	e.from_array(saved, 5)
+	check(e.routes.size() == 1 and int(e.routes[0]["a"]) == -1 and str(e.routes[0]["src"]) == "system:1", "station source: the route survives a save round trip")
+	e.routes.clear()
+	var pr: Dictionary = e.new_record(2, 1, "energy")  # a planet route with an empty source never draws the station
+	pr["id"] = 2
+	e.routes.append(pr)
+	var st1: int = m.storage.amount("system:1", "energy")
+	m._settle_routes()
+	check(m.storage.amount("system:1", "energy") == st1, "station source: a planet route never draws the station")
+	await _free_main(m)
+
 func _test_station_energy_outflow() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()

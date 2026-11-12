@@ -718,7 +718,9 @@ func _node_system(n: int) -> int:
 	if n <= -1000:
 		var c := _cluster_by_node(n)
 		return int(c["system"]) if not c.is_empty() else -1
-	return int(planets[n].get("system", 1)) if n >= 0 and n < planets.size() else -1
+	if n < 0:  # T373: a Space Storage as a route source, -system id
+		return -n
+	return int(planets[n].get("system", 1)) if n < planets.size() else -1
 
 ## Suns as route obstacles: [[world position, radius], ...] (route_offset.gd). One per open system.
 func sun_list() -> Array:
@@ -745,7 +747,13 @@ func set_routes(routes: Array) -> void:
 				continue
 			start_pos = Vector3(float(cc["x"]), 0.0, float(cc["y"])) * MAP_UNIT_SCALE
 			start_r = float(cc["radius"]) * MAP_UNIT_SCALE
-		elif a < 0 or a >= positions.size():
+		elif a < 0:  # T373: a route from a Space Storage (a = -system id): the line starts at the station, in the delivery planet's system
+			var sst = stations.get(-a)
+			if sst == null or b < 0:
+				continue
+			start_pos = sst.position
+			start_r = 0.0
+		elif a >= positions.size():
 			continue
 		else:
 			start_pos = positions[a]

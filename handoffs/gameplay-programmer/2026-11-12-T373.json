@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T373",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/map.gd",
+    "game/space_storage_view.gd",
+    "game/raids.gd",
+    "game/gigs.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "gdd.md",
+    "gdd-skills.md",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "story/ru SS_LBL_STOCK_RULE and TIP_SPACE_STORAGE_WHY need a Haiku re-translation; the 10 new ids have no Russian yet (translation paused).",
+    "Station lanes are never hit by raids and get no level bonus (an upgrade does nothing on them); say if an upgrade should be refused there."
+  ],
+  "handoff": "A Space Storage is now a route source. Engine: negative src_planet = -system id (RouteEngine.from_station, check_connection -> _check_from_station, station_can_send = stock or a route delivering the good into it). src key = system:N, so src_available, project_storage, forecast and _settle_one work unchanged; src_open true; level bonus 0; no planet or pair points; hubs only count it as manual cover; raids skip it; best_open_lane skips it. Main: begin_station_send(sid, c) sets pending planet = -sid, so the existing planet-click flow makes the route (system_of, can_connect, _connect, lane_hint handle it). Space Storage view: Send to... per good row (disabled with a reason tooltip when no stock or inflow), and a Sent out from here list with Remove. Planet card shows From Space Storage with units and reasons. Map: line starts at the station (map._node_system fix). Tests: _test_station_source_route (not run). PNGs in wt/_scratch: t373_panel_after.png, t373_map.png, t373_card.png, t373_panel_before.png.",
+  "details": {
+    "pngs": [
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t373_panel_before.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t373_panel_after.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t373_map.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t373_card.png"
+    ],
+    "render_bug_found_and_fixed": "route line from the station was hidden (map._node_system returned -1 for a station source)",
+    "scratch_script": "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t373_shot.gd"
+  }
+}

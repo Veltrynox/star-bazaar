@@ -67,6 +67,8 @@ func new_record(src_planet: int, dst_planet: int, c: String) -> Dictionary:
 	# Manual Space Storage: a negative dst_planet is a station, -system id; dst is then that system's Space Storage key.
 	var dkey: String = storage.system_key(-dst_planet) if dst_planet < 0 else "planet:%d" % dst_planet
 	var skey := "planet:%d" % src_planet
+	if src_planet < 0 and not Clusters.is_node(src_planet):  # T373: a negative src_planet is a Space Storage, -system id
+		skey = storage.system_key(-src_planet)
 	if Clusters.is_node(src_planet):  # T156: a cluster is the source; "a" holds its node id
 		skey = "cluster:%s" % (str(clusters.items[Clusters.index_of(src_planet)]["id"]) if clusters != null and clusters.valid(Clusters.index_of(src_planet)) else "?")
 	return {"id": 0, "src": skey, "dst": dkey,
@@ -124,7 +126,7 @@ func level_bonus(rec: Dictionary, units: int) -> int:
 	var lv := int(rec.get("level", 1))
 	if lv < 2 or units <= 0:
 		return 0
-	if int(rec["b"]) < 0:  # a send to Space Storage sells nothing
+	if int(rec["b"]) < 0 or from_station(rec):  # a send to Space Storage sells nothing; a station stock has no buy price (T373)
 		return 0
 	var per: int = sold_price(int(rec["b"]), str(rec["c"])) - local_price(int(rec["a"]), str(rec["c"]), "buy")
 	if per <= 0 or local_price(int(rec["a"]), str(rec["c"]), "buy") < 0:
@@ -551,6 +553,8 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> Dictionary:
 	if Clusters.is_node(src):
 		return check_cluster(src, dst, c, new_route)
+	if src < 0:  # T373: a Space Storage is the source
+		return _check_from_station(-src, dst, c, new_route)
 	if dst < 0:  # manual Space Storage: dst = -system id
 		return _check_station(src, -dst, c)
 	if src == dst or src < 0 or dst < 0 or src >= trade.planets.size() or dst >= trade.planets.size():
@@ -618,9 +622,47 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 static func from_cluster(rec) -> bool:
 	return typeof(rec) == TYPE_DICTIONARY and Clusters.is_node(int(rec.get("a", -1)))
 
-## T156: the source end is open: a planet that is not closed, or a cluster (clusters are never closed).
+## T373: true when the route starts at a Space Storage (a = -system id, same sign convention as to_station for b).
+static func from_station(rec) -> bool:
+	if typeof(rec) != TYPE_DICTIONARY:
+		return false
+	var a := int(rec.get("a", 0))
+	return a < 0 and not Clusters.is_node(a)
+
+## T156: the source end is open: a planet that is not closed, a cluster or a Space Storage (neither is ever closed).
 func src_open(rec: Dictionary) -> bool:
-	return true if from_cluster(rec) else planet_open(int(rec["a"]))
+	return true if (from_cluster(rec) or from_station(rec)) else planet_open(int(rec["a"]))
+
+## T373: a Send from the Space Storage of system sid to planet dst. The storage must hold c now or a route must be delivering c to it;
+## the planet may be in another system only with the permit routes skill. A station never sends to a station. Main checks the open post.
+func _check_from_station(sid: int, dst: int, c: String, new_route: bool) -> Dictionary:
+	if not Availability.storage("space_storage"):
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_PICK_SOURCE", "Pick a planet to send from.")}
+	if dst < 0:
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_STATION_TO_STATION", "A Space Storage cannot send to a Space Storage.")}
+	if dst >= trade.planets.size():
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_PICK_DEST", "Pick a planet to deliver to.")}
+	if not _can_trade(c):
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_UNKNOWN_GOOD", "Unknown commodity.")}
+	if not planet_open(dst):
+		return {"ok": false, "reason": StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")}
+	if dead_lock_reason(dst) != "":
+		return {"ok": false, "reason": dead_lock_reason(dst)}
+	if new_route and not station_can_send(sid, c):
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_STATION_NONE", "This Space Storage has none of this good and none is on its way.")}
+	if int(trade.planets[dst].get("system", 1)) != sid and not Skills.unlocked("permit_routes"):
+		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
+	return {"ok": true, "reason": ""}
+
+## T373: the Space Storage of system sid holds c, or a route delivers c into it (a planned inflow).
+func station_can_send(sid: int, c: String) -> bool:
+	var key: String = storage.system_key(sid)
+	if storage.amount(key, c) > 0:
+		return true
+	for r in routes:
+		if str(r["dst"]) == key and str(r["c"]) == c:
+			return true
+	return false
 
 ## T156: units a cluster may still give this cycle: its yield cap shared by every ship, never more than is left.
 func cluster_available(node: int) -> int:
@@ -766,7 +808,7 @@ func planned_units(rec: Dictionary) -> int:
 func _route_cap(rec: Dictionary) -> int:
 	var c := str(rec["c"])
 	var eff := 1.0
-	var lane_end := int(rec["b"]) if from_cluster(rec) else int(rec["a"])  # T156: an ore lane has no source planet; debris at the delivery planet counts
+	var lane_end := int(rec["b"]) if (from_cluster(rec) or from_station(rec)) else int(rec["a"])  # T156: an ore lane has no source planet; debris at the delivery planet counts
 	if debris_planets.has(lane_end) and not Skills.event_immune(Markets.market_of(c), "debris"):  # T98: debris at the source planet; MIL_3 makes Military goods immune
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if raids != null:  # T296: a raid malus on this lane (the Null Core ship is immune)
@@ -1342,6 +1384,8 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 ## minus fixed_cost), scaled by (window - travel_cycles) / window: the idle transit cycles are taken out of the
 ## closure window. setup_lost is true when the route carries an upgrade, which a moved ship loses.
 func best_open_lane(rec: Dictionary, window: int) -> Dictionary:
+	if from_station(rec):  # T373: a station route keeps its source; the player removes it
+		return {}
 	var c := str(rec["c"])
 	var idle: float = trade.travel_cycles()
 	if window <= 0 or float(window) <= idle:
