@@ -561,14 +561,52 @@ func _explore_open() -> Array:
 			out.append(i)
 	return out
 
+## True when one of `open` can still be acted on now: not a surveyed dead world whose platform skill is missing.
+func _explore_workable(open: Array) -> bool:
+	for i in open:
+		var pid := str(_planets()[i].get("id", ""))
+		if not (_is_dead(pid) and discovered(pid) and not can_platform(pid)):
+			return true
+	return false
+
+## Next stop in another open system: {index} of the workable planet nearest that system's entry point, systems in
+## open_systems order; {} when no other open system has work. The flight crosses through the exit points as any order does.
+func _explore_next_system() -> Dictionary:
+	var ps := _planets()
+	for sid in main.open_systems:
+		if int(sid) == _sys:
+			continue
+		var entry := Geometry.exit_point(main, int(sid), _sys)
+		var best := -1
+		var best_d := INF
+		for i in ps.size():
+			if main.system_of(i) != int(sid):
+				continue
+			var pid := str(ps[i].get("id", ""))
+			if established(pid) or (_is_dead(pid) and discovered(pid) and not can_platform(pid)):
+				continue
+			var d := Vector2(_planet_pos(i).x - entry.x, _planet_pos(i).z - entry.z).length()
+			if d < best_d:
+				best_d = d
+				best = i
+		if best >= 0:
+			return {"index": best}
+	return {}
+
 ## One decision of the mode while the ship is idle. Returns true when the ship got something to do (flight or build), false to
 ## wait (no cash, no skill) or when the mode ended (everything stands: exploration_done is emitted once).
 func _explore_tick() -> bool:
 	var open := _explore_open()
-	if open.is_empty():
-		_explore = false
-		exploration_done.emit()
-		return false
+	if not _explore_workable(open):  # nothing left to do here: go on to the next open system that still has work (owner 2026-11-12)
+		var nxt := _explore_next_system()
+		if nxt.is_empty():
+			_explore = false
+			exploration_done.emit()
+			return false
+		_self_order = true
+		var ok := request_fly({"kind": "planet", "pos": _planet_pos(int(nxt["index"])), "index": int(nxt["index"])}) == ""
+		_self_order = false
+		return ok
 	_self_order = true
 	var started := false
 	var best := -1

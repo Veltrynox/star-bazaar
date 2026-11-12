@@ -6465,9 +6465,9 @@
   },
   {
    "id": "NOT_EXPLORE_DONE",
-   "text": "Exploration complete. Every world in this system is surveyed and established.",
+   "text": "Exploration complete. Every world in your open systems is surveyed and established.",
    "max": 110,
-   "place": "Notice, exploration mode finished: every world of the system is surveyed and established"
+   "place": "Notice, exploration mode finished: every world of every open system is surveyed and established"
   },
   {
    "id": "NOT_FIELD_SURVEYED",

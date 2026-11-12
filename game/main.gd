@@ -4301,6 +4301,7 @@ func _on_exploration_done() -> void:
 	post_notice(StoryText.get_text("NOT_EXPLORE_DONE"))
 	save_now()
 	_refresh_panel()
+	on_flight_changed()  # the mode turned itself off: the explore button unpresses at once, also while paused
 
 func _on_flight_build_cancelled(_planet_id: String) -> void:
 	post_notice_now(StoryText.get_or("NOT_POST_LEAVE", "Leaving cancels the build."))
