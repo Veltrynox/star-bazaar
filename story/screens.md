@@ -353,7 +353,7 @@ TIP_PLATFORM | 110 | Tip card line; trigger: the Flagship first arrives at a dea
 TIP_PLATFORM_WHY | 110 | Tip card, why line | Once it stands you can mine there and route what it gives. Mining needs Prospecting.
 TIP_EXPLORE | 110 | Tip card line; trigger: the Ships panel is opened first while an unknown world is left in the system | Exploration mode flies the Flagship to each unknown world here and builds its post.
 TIP_EXPLORE_WHY | 110 | Tip card, why line | Each post costs credits, so it waits at a world while cash is short. Press the button again to stop.
-TIP_DOCK | 110 | Tip card line; trigger: the dock sheet opens for the first time | Dock and trade lets the Flagship buy and sell by hand. Its hold has limited room.
+TIP_DOCK | 110 | Tip card line; trigger: the dock sheet opens for the first time | Dock lets the Flagship load goods from this world's storage and unload them there. The hold has limited room.
 TIP_DOCK_WHY | 110 | Tip card, why line | Unload to storage moves goods into Company storage here. Time is paused while you are docked.
 TIP_BOOST | 110 | Tip card line; trigger: the Flagship first flies with energy in its hold | Boost burns energy from the hold for a short burst of speed. Hold B to use it.
 TIP_BOOST_WHY | 110 | Tip card, why line | Use it on straight legs to beat a deadline. Turning stays slow, and charges refill slowly.
@@ -1543,7 +1543,7 @@ FLAGSHIP_DOCKED | 60 | Ship panel, docked at a world; {planet} | Tessarine docke
 LBL_HOLD | 24 | Ship panel and dock sheet, the Flagship's hold | Hold
 LBL_HOLD_FILL | 40 | Ship panel readout; {n} units held, {m} room in total | Hold: {n} of {m}
 LBL_HOLD_EMPTY | 24 | Dock sheet, a hold row with nothing in it | Empty
-BTN_DOCK | 24 | Planet panel and right-click menu, opens the dock sheet (the Flagship must be at an established world) | Dock and trade
+BTN_DOCK | 24 | Planet panel and right-click menu, opens the dock sheet (the Flagship must be at an established world) | Dock
 LBL_DOCK_TITLE | 40 | Dock sheet heading; {planet} | Dock at {planet}
 LBL_DOCK_HOLD | 24 | Dock sheet, column or block heading for the hold | In the hold
 LBL_DOCK_WORLD | 24 | Dock sheet, column or block heading for the world's market | At this world
@@ -1552,12 +1552,12 @@ BTN_LOAD_STORAGE | 24 | Dock sheet, moves goods from Company storage here into t
 BTN_DOCK_CLOSE | 24 | Dock sheet, closes it and lets the clock run | Undock
 LBL_DOCK_PAUSED | 60 | Dock sheet, small line: time stands still while it is open | Time is paused while you are docked.
 LBL_DOCK_STORAGE_ROW | 40 | Dock sheet, the Company storage line of a good; {n} units | Company storage: {n}
-NOT_DOCK_HOLD_FULL | 110 | Notice, Buy refused or cut short because the hold is full | The hold is full. Sell or unload first.
+NOT_DOCK_HOLD_FULL | 110 | Notice, Buy refused or cut short because the hold is full | The hold is full. Unload first.
 NOT_DOCK_STORAGE_FULL | 110 | Notice, Unload refused or cut short because Company storage here is full | Company storage here is full.
 NOT_DOCK_NO_STOCK | 110 | Notice, Load refused because Company storage here has none of that good | Company storage here has none of that.
 NOT_DOCK_NO_POST | 110 | Notice, dock pressed at a world with no trading post | Establish a trading post here to dock and trade.
 NOT_DOCK_FAR | 110 | Notice, dock pressed while the Flagship is away from the world | Fly the Flagship here first.
-LBL_DOCK_HOLD_FULL | 60 | Dock sheet, line under the hold when it is full | The hold is full. Buy is limited to the room left.
+LBL_DOCK_HOLD_FULL | 60 | Dock sheet, line under the hold when it is full | The hold is full. Loading is limited to the room left.
 BTN_BOOST | 24 | Ship panel and flight hud, boost button (also a held key) | Boost
 LBL_BOOST_HINT | 110 | Tooltip of the boost button | Faster on straight legs. Burns energy from the hold. Turning stays slow.
 LBL_BOOST_CHARGES | 40 | Flight hud, boost gauge; {n} charges left | Boost: {n} left

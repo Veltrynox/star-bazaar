@@ -1233,7 +1233,7 @@
   },
   {
    "id": "TIP_DOCK",
-   "text": "Dock and trade lets the Flagship buy and sell by hand. Its hold has limited room.",
+   "text": "Dock lets the Flagship load goods from this world's storage and unload them there. The hold has limited room.",
    "max": 110,
    "place": "Tip card line; trigger: the dock sheet opens for the first time"
   },
@@ -7209,7 +7209,7 @@
   },
   {
    "id": "BTN_DOCK",
-   "text": "Dock and trade",
+   "text": "Dock",
    "max": 24,
    "place": "Planet panel and right-click menu, opens the dock sheet (the Flagship must be at an established world)"
   },
@@ -7263,7 +7263,7 @@
   },
   {
    "id": "NOT_DOCK_HOLD_FULL",
-   "text": "The hold is full. Sell or unload first.",
+   "text": "The hold is full. Unload first.",
    "max": 110,
    "place": "Notice, Buy refused or cut short because the hold is full"
   },
@@ -7293,7 +7293,7 @@
   },
   {
    "id": "LBL_DOCK_HOLD_FULL",
-   "text": "The hold is full. Buy is limited to the room left.",
+   "text": "The hold is full. Loading is limited to the room left.",
    "max": 60,
    "place": "Dock sheet, line under the hold when it is full"
   },
@@ -11285,19 +11285,19 @@
    "id": "END_MIN_PICKUP_TITLE",
    "text": "The Man Who Picked Up",
    "max": 40,
-   "place": "End screen heading, Marek, many rush orders and quick routes"
+   "place": "End screen heading, Marek, many signals and salvage answered"
   },
   {
    "id": "END_MIN_PICKUP",
-   "text": "When the call came, Marek answered. A rush order at Ashgate, a late food run at Tillam, a world short on energy and asking only once. He did not always have the hold for it. He made the hold. The Bazaar opened on a long list of small yeses. Nobody will carve them into a wall. The people who got their goods on time will remember, which is how a name lasts here. The old yard man sends a note. It has one line. It says, you picked up.",
+   "text": "When the call came, Marek answered. A signal out of the dark past Ashgate, a drifting pod off Tillam, a voice asking only once. He did not always have the fuel for it. He found the fuel. The Bazaar opened on a long list of small yeses. Nobody will carve them into a wall. The ones who were answered will remember, which is how a name lasts here. The old yard man sends a note. It has one line. It says, you picked up.",
    "max": 1000,
-   "place": "End screen body, Marek, many rush orders and quick routes"
+   "place": "End screen body, Marek, many signals and salvage answered"
   },
   {
    "id": "EPI_MIN_PICKUP",
-   "text": "Every rush order on the board has the same reply scratched under it, in Marek's hand. It says, on its way.",
+   "text": "Every signal on the board has the same reply scratched under it, in Marek's hand. It says, on its way.",
    "max": 140,
-   "place": "Epilogue 1, Marek, rush orders and quick routes"
+   "place": "Epilogue 1, Marek, many signals and salvage answered"
   },
   {
    "id": "END_MIN_THIN_TITLE",
@@ -11357,19 +11357,19 @@
    "id": "END_LUX_FULLTABLE_TITLE",
    "text": "A Seat Always Free",
    "max": 40,
-   "place": "End screen heading, Idris, rush orders filled in time"
+   "place": "End screen heading, Idris, signals and salvage answered, few missed"
   },
   {
    "id": "END_LUX_FULLTABLE",
-   "text": "Every order that came to the board was filled before its time ran out. Buyers learned that when Idris said yes, the goods arrived, and they stopped asking twice. One table at the Bazaar stays empty at the end of the night. It is kept for whoever needs a good by morning. Idris does not call it a plan. He calls it manners.",
+   "text": "Nothing sat unanswered on the board. Every signal found a ship, and every pod found a dock. Those who called learned that when Idris said yes, someone came, and they stopped asking twice. One table at the Bazaar stays empty at the end of the night. It is kept for whoever needs a good by morning. Idris does not call it a plan. He calls it manners.",
    "max": 1000,
-   "place": "End screen body, Idris, rush orders filled in time"
+   "place": "End screen body, Idris, signals and salvage answered, few missed"
   },
   {
    "id": "EPI_LUX_FULLTABLE",
    "text": "The empty table has a card on it. The card is blank on purpose, and someone fills it in each morning.",
    "max": 140,
-   "place": "Epilogue 1, Idris, rush orders filled in time"
+   "place": "Epilogue 1, Idris, signals and salvage answered, few missed"
   },
   {
    "id": "END_LUX_CORNER_TITLE",
@@ -11411,19 +11411,19 @@
    "id": "END_MIL_NOIDLE_TITLE",
    "text": "No Hull Sat Still",
    "max": 40,
-   "place": "End screen heading, Sela, rush orders filled in time"
+   "place": "End screen heading, Sela, signals and salvage answered, few missed"
   },
   {
    "id": "END_MIL_NOIDLE",
-   "text": "Not one order died on the board. Not one hull waited for a stamp it could have bought. Sela flew the worst lanes in the rim, and she learned there what a ship costs when it stands still. Now every ship moves. The Bazaar opened on time, and for once nobody checked the sky for what was coming. Sela did, from habit. She stood at the window until the last hull left the dock. Then she sat down.",
+   "text": "Not one signal faded on the board. Not one hull waited for a stamp it could have bought. Sela flew the worst lanes in the rim, and she learned there what a ship costs when it stands still. Now every ship moves. The Bazaar opened on time, and for once nobody checked the sky for what was coming. Sela did, from habit. She stood at the window until the last hull left the dock. Then she sat down.",
    "max": 1000,
-   "place": "End screen body, Sela, rush orders filled in time"
+   "place": "End screen body, Sela, signals and salvage answered, few missed"
   },
   {
    "id": "EPI_MIL_NOIDLE",
    "text": "The dock bell rings for a departure, not an arrival. Sela says it is the only bell worth a thought.",
    "max": 140,
-   "place": "Epilogue 1, Sela, rush orders filled in time"
+   "place": "Epilogue 1, Sela, signals and salvage answered, few missed"
   },
   {
    "id": "END_MIL_HARD_TITLE",
@@ -12375,7 +12375,7 @@
   },
   {
    "id": "EV60_BODY",
-   "text": "Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it, and a rush order may follow.",
+   "text": "Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -12387,7 +12387,7 @@
   },
   {
    "id": "EV61_BODY",
-   "text": "Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here, and a rush order may follow.",
+   "text": "Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -12399,7 +12399,7 @@
   },
   {
    "id": "EV62_BODY",
-   "text": "Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.",
+   "text": "Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },

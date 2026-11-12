@@ -202,14 +202,14 @@ The grey worlds are working now. Platforms sit on rock that nobody listed as hom
 EPI_MIN_DEEP | 140 | Epilogue 1, Marek, platforms and a deep Minerals tree
 A lamp burns on a platform nobody visits. The crew who keep it call it the porch.
 
-END_MIN_PICKUP_TITLE | 40 | End screen heading, Marek, many rush orders and quick routes
+END_MIN_PICKUP_TITLE | 40 | End screen heading, Marek, many signals and salvage answered
 The Man Who Picked Up
 
-END_MIN_PICKUP | 1000 | End screen body, Marek, many rush orders and quick routes
-When the call came, Marek answered. A rush order at Ashgate, a late food run at Tillam, a world short on energy and asking only once. He did not always have the hold for it. He made the hold. The Bazaar opened on a long list of small yeses. Nobody will carve them into a wall. The people who got their goods on time will remember, which is how a name lasts here. The old yard man sends a note. It has one line. It says, you picked up.
+END_MIN_PICKUP | 1000 | End screen body, Marek, many signals and salvage answered
+When the call came, Marek answered. A signal out of the dark past Ashgate, a drifting pod off Tillam, a voice asking only once. He did not always have the fuel for it. He found the fuel. The Bazaar opened on a long list of small yeses. Nobody will carve them into a wall. The ones who were answered will remember, which is how a name lasts here. The old yard man sends a note. It has one line. It says, you picked up.
 
-EPI_MIN_PICKUP | 140 | Epilogue 1, Marek, rush orders and quick routes
-Every rush order on the board has the same reply scratched under it, in Marek's hand. It says, on its way.
+EPI_MIN_PICKUP | 140 | Epilogue 1, Marek, many signals and salvage answered
+Every signal on the board has the same reply scratched under it, in Marek's hand. It says, on its way.
 
 END_MIN_THIN_TITLE | 40 | End screen heading, Marek, a small fleet
 The Thin Fleet
@@ -238,13 +238,13 @@ The hangar is loud. Ships come and go all day, one for each lane, and Idris gree
 EPI_LUX_FLEET | 140 | Epilogue 1, Idris, a large fleet
 Pilots pass in the corridor and nod at each other. It is the sound of a company that is never alone.
 
-END_LUX_FULLTABLE_TITLE | 40 | End screen heading, Idris, rush orders filled in time
+END_LUX_FULLTABLE_TITLE | 40 | End screen heading, Idris, signals and salvage answered, few missed
 A Seat Always Free
 
-END_LUX_FULLTABLE | 1000 | End screen body, Idris, rush orders filled in time
-Every order that came to the board was filled before its time ran out. Buyers learned that when Idris said yes, the goods arrived, and they stopped asking twice. One table at the Bazaar stays empty at the end of the night. It is kept for whoever needs a good by morning. Idris does not call it a plan. He calls it manners.
+END_LUX_FULLTABLE | 1000 | End screen body, Idris, signals and salvage answered, few missed
+Nothing sat unanswered on the board. Every signal found a ship, and every pod found a dock. Those who called learned that when Idris said yes, someone came, and they stopped asking twice. One table at the Bazaar stays empty at the end of the night. It is kept for whoever needs a good by morning. Idris does not call it a plan. He calls it manners.
 
-EPI_LUX_FULLTABLE | 140 | Epilogue 1, Idris, rush orders filled in time
+EPI_LUX_FULLTABLE | 140 | Epilogue 1, Idris, signals and salvage answered, few missed
 The empty table has a card on it. The card is blank on purpose, and someone fills it in each morning.
 
 END_LUX_CORNER_TITLE | 40 | End screen heading, Idris, few worlds, known well
@@ -265,13 +265,13 @@ A ship was taken, and the crew felt the dock go quiet. Sela went to see the empt
 EPI_MIL_SCARS | 140 | Epilogue 1, Sela, a ship was repossessed
 She still checks the empty berth before every long flight. The lamp is always lit.
 
-END_MIL_NOIDLE_TITLE | 40 | End screen heading, Sela, rush orders filled in time
+END_MIL_NOIDLE_TITLE | 40 | End screen heading, Sela, signals and salvage answered, few missed
 No Hull Sat Still
 
-END_MIL_NOIDLE | 1000 | End screen body, Sela, rush orders filled in time
-Not one order died on the board. Not one hull waited for a stamp it could have bought. Sela flew the worst lanes in the rim, and she learned there what a ship costs when it stands still. Now every ship moves. The Bazaar opened on time, and for once nobody checked the sky for what was coming. Sela did, from habit. She stood at the window until the last hull left the dock. Then she sat down.
+END_MIL_NOIDLE | 1000 | End screen body, Sela, signals and salvage answered, few missed
+Not one signal faded on the board. Not one hull waited for a stamp it could have bought. Sela flew the worst lanes in the rim, and she learned there what a ship costs when it stands still. Now every ship moves. The Bazaar opened on time, and for once nobody checked the sky for what was coming. Sela did, from habit. She stood at the window until the last hull left the dock. Then she sat down.
 
-EPI_MIL_NOIDLE | 140 | Epilogue 1, Sela, rush orders filled in time
+EPI_MIL_NOIDLE | 140 | Epilogue 1, Sela, signals and salvage answered, few missed
 The dock bell rings for a departure, not an arrival. Sela says it is the only bell worth a thought.
 
 END_MIL_HARD_TITLE | 40 | End screen heading, Sela, many worlds explored and settled

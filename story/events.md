@@ -145,13 +145,13 @@ EV28 | Voltara's foundry wants rock | [price up: Voltara, ore] | P
 Voltara's foundry ordered more rock than the Plan had dreamed of. Ore at Voltara costs more and pays more. Every shortcut the founders took lies under the furnace floor, and the furnace wants more. Prospecting lets routes start at asteroid clusters, where the rock is free.
 
 EV60 | Energy runs short at Voltara | [shortage: Voltara, energy] | Q
-Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it, and a rush order may follow.
+Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it.
 
 EV61 | Food runs short at Tillam | [shortage: Tillam, food] | Q
-Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here, and a rush order may follow.
+Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here.
 
 EV62 | Food runs short at Ashgate | [shortage: Ashgate, food] | Q
-Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.
+Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price.
 
 EV63 | Traffic jams at Tillam | [congestion: Tillam] | Q
 A line of convoys waits outside Tillam's docks for a slot nobody can promise. Lanes that touch Tillam cost more per trip for a few cycles. Ride it out or send the ships elsewhere.
