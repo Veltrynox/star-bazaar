@@ -1746,8 +1746,9 @@ func _check_upkeep_highlight(m: Control, tag: String, cbr: Rect2) -> void:
 	var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
 	var lines: Array = []
 	for n in m.cash_forecast.box.get_children():
-		if n is Label and (n as Label).text.contains(up):
-			lines.append((n as Label).get_global_rect())
+		var row_text := (n as Label).text if n is Label else ((n as RichTextLabel).get_parsed_text() if n is RichTextLabel else "")  # forecast rows with icons are rich labels
+		if row_text.contains(up):
+			lines.append((n as Control).get_global_rect())
 	if lines.is_empty():
 		check(hl.is_equal_approx(cbr), tag + "T333b: no Ship upkeep line, so the outline stays on the cash box (fallback)", str([hl, cbr]))
 		return

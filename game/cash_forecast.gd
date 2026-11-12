@@ -48,7 +48,7 @@ func _input(event: InputEvent) -> void:
 
 ## A forecast row where every good's name is drawn as its icon (owner 2026-11-12); "(energy)" becomes just the icon.
 ## The line texts themselves keep the names (tests and the no-earn warning read them).
-func _icon_line(text: String, color: Color) -> RichTextLabel:
+func _icon_line(text: String, color: Color, credit: bool = false) -> RichTextLabel:
 	var rt := RichTextLabel.new()
 	rt.fit_content = true
 	rt.scroll_active = false
@@ -93,6 +93,9 @@ func _icon_line(text: String, color: Color) -> RichTextLabel:
 		else:
 			rt.add_text(low.substr(hit, hit_len))
 		at = end
+	if credit and Ui.icon("credit") != null:
+		rt.add_text(" ")
+		rt.add_image(Ui.icon("credit"), px, px, color, INLINE_ALIGNMENT_CENTER)
 	box.add_child(rt)
 	return rt
 
@@ -126,19 +129,19 @@ func route_income_lines() -> Array:
 ## A waiting route shows what it really moves (0 when nothing fits).
 func route_expense_lines() -> Array:
 	var out: Array = []
+	var upkeep := 0  # every ship's upkeep this cycle (moving, idle lanes, ships on no route), shown as one line
 	for r in main.engine.forecast(main.cash)["routes"]:
 		var base := "%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), Ui.good_name(str(r["c"])).to_lower()]
 		if bool(r["moves"]):
 			out.append([StoryText.get_or("FC_TRIP_COST", "{route} trip cost", {"route": base}), int(r["trip"])])
-			out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"])])
+			upkeep += int(r["upkeep"])
 		else:
-			if int(r.get("idle_upkeep", 0)) > 0:  # the ship is paid even when the lane idles
-				out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["idle_upkeep"])])
+			upkeep += int(r.get("idle_upkeep", 0))  # the ship is paid even when the lane idles
 		if not bool(r["moves"]) and str(r["status"]) != "running":
 			out.append([StoryText.get_or("FC_ROUTE_STATUS", "{route} {status}", {"route": base, "status": StoryText.get_or("FC_STATUS_" + str(r["status"]).to_upper(), str(r["status"]))}), 0])
-	var idle := int(main.engine.forecast(main.cash).get("idle_ships_cost", 0))
-	if idle > 0:
-		out.append([StoryText.get_or("FC_IDLE_UPKEEP", "Idle ships upkeep"), idle])
+	upkeep += int(main.engine.forecast(main.cash).get("idle_ships_cost", 0))
+	if upkeep > 0:  # owner 2026-11-12: one Ship upkeep line for the whole fleet, not one per route
+		out.append([StoryText.get_text("LBL_SHIP_UPKEEP"), upkeep])
 	return out
 
 ## Names of moving routes that earn nothing and cost money: no sale at the destination, no route bonus, and
@@ -223,7 +226,7 @@ func refresh() -> void:
 	if outcome.is_empty():
 		_line("  " + StoryText.get_or("FC_NONE", "none"), RED)
 	for l in outcome:
-		_icon_line("  %s: -%d" % [l[0], int(l[1])], RED)
+		_icon_line("  %s: -%d" % [l[0], int(l[1])], RED, str(l[0]) == StoryText.get_text("LBL_SHIP_UPKEEP"))
 	for nm in no_earn_routes():
 		var w := _line(StoryText.get_or("LBL_FC_NO_EARN", "{route} earns nothing: it only moves stock to storage.", {"route": nm}), Ui.col("signal_warn"))
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
