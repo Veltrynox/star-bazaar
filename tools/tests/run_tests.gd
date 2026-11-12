@@ -50,6 +50,7 @@ func _run() -> void:
 	await _test_events()
 	await _test_ships()
 	await _test_ship_ceo()
+	await _test_ship_look()
 	await _test_next_cycle()
 	await _test_station_energy_outflow()
 	await _test_good_info()
@@ -3803,6 +3804,38 @@ func _test_next_cycle() -> void:
 	await _free_main(m)
 
 ## Ship types and CEOs (goal ship-ceo-skills-resources): multipliers, stats, perks, floor, save round-trip, old save.
+func _test_ship_look() -> void:
+	_wipe_user()
+	var SG = load("res://game/save_game.gd")
+	var SL = load("res://game/ship_look.gd")
+	var want := {"shape": "rings", "palette": "void", "hue": 0.4}
+	SG.pending_ceo = "ceo_man_02"
+	SG.pending_portrait = "ceo_man_02"
+	SG.pending_ship = "dart"
+	SG.pending_look = want.duplicate()
+	var m: Control = await _new_main()
+	check(m.ship_look == want, "ship look: pending_look is kept in main.ship_look", str(m.ship_look))
+	check(SG.pending_look.is_empty(), "ship look: pending_look is used once")
+	var st: Dictionary = m.collect_state().duplicate(true)
+	check(st.get("ship_look") == want, "ship look: saved in the state", str(st.get("ship_look")))
+	check(SG.VERSION == 23, "ship look: save version 23")
+	m._set_run_choice("", "small")
+	m._set_ship_look({})
+	m.apply_state(st)
+	check(m.ship_look == want, "ship look: loading the state returns the same look", str(m.ship_look))
+	var old: Dictionary = st.duplicate(true)
+	old.erase("ship_look")
+	m.apply_state(old)
+	var def: Dictionary = SL.look_of_ceo("ceo_man_02")
+	check(m.ship_look == {"shape": def["shape"], "palette": def["palette"], "hue": float(def["hue"])}, "ship look: a v22 state without the key loads the CEO default", str(m.ship_look))
+	check(def["shape"] == "needle" and def["palette"] == "plasma", "ship look: ceo_man_02 default is needle/plasma")
+	var seen := {}
+	for cid in load("res://game/ceos.gd").ids():
+		seen[str(SL.look_of_ceo(cid)["shape"])] = true
+	check(seen.size() == 4, "ship look: four CEOs, four different shapes")
+	m._set_run_choice("", "small")
+	await _free_main(m)
+
 func _test_ship_ceo() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()

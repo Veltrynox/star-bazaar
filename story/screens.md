@@ -2147,6 +2147,40 @@ SETUP_NAME_LABEL | 30 | company_setup.gd:56
 Company name
 SETUP_NEED_CEO | 40 | company_setup.gd:212
 Choose a CEO to start.
+LBL_LOOK_TITLE | 16 | company_setup.gd Ship look block
+Ship look
+LBL_LOOK_HUE | 16 | company_setup.gd Ship look block
+Hull hue
+LBL_LOOK_SHAPE_TORCH | 12 | company_setup.gd Ship look block
+Torch
+LBL_LOOK_SHAPE_NEEDLE | 12 | company_setup.gd Ship look block
+Needle
+LBL_LOOK_SHAPE_PILLAR | 12 | company_setup.gd Ship look block
+Pillar
+LBL_LOOK_SHAPE_BLOOM | 12 | company_setup.gd Ship look block
+Bloom
+LBL_LOOK_SHAPE_RINGS | 12 | company_setup.gd Ship look block
+Rings
+LBL_LOOK_PALETTE_INFRARED | 16 | company_setup.gd Ship look block
+Infrared
+LBL_LOOK_PALETTE_IRONBOW | 16 | company_setup.gd Ship look block
+Ironbow
+LBL_LOOK_PALETTE_PLASMA | 16 | company_setup.gd Ship look block
+Plasma
+LBL_LOOK_PALETTE_ION | 16 | company_setup.gd Ship look block
+Ion
+LBL_LOOK_PALETTE_FUSION | 16 | company_setup.gd Ship look block
+Fusion
+LBL_LOOK_PALETTE_EMBER | 16 | company_setup.gd Ship look block
+Ember
+LBL_LOOK_PALETTE_ANTIMATTER | 16 | company_setup.gd Ship look block
+Antimatter
+LBL_LOOK_PALETTE_SUNFIRE | 16 | company_setup.gd Ship look block
+Sunfire
+LBL_LOOK_PALETTE_ARCTIC | 16 | company_setup.gd Ship look block
+Arctic
+LBL_LOOK_PALETTE_VOID | 16 | company_setup.gd Ship look block
+Void
 SETUP_NEED_NAME | 60 | company_setup.gd:210
 Enter a company name to start.
 SETUP_RANDOM | 24 | company_setup.gd:70

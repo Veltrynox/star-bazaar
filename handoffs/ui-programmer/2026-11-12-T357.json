@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T357",
+  "status": "done",
+  "files_changed": ["data/ceos.json", "game/company_setup.gd", "game/main.gd", "game/save_game.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-12-T357.json"],
+  "open_questions": [
+    "Not seen by eye: the Ship look block adds three rows to the CEO info panel (min height 266 grows); check it fits the window at the default size.",
+    "Flagship view is created lazily by map.gd; main hooks map.child_entered_tree to hand it ship_look (no map.gd edit). Check by eye that the look shows on the Flagship after a new game and a load.",
+    "Test _test_ship_look is built, not run (owner rule)."
+  ],
+  "handoff": "Ship look block (five shape buttons, ten palette swatches drawn as six-colour strips, Hull hue slider) sits under the ship stats on the New company screen. Picking a CEO loads that CEO's look from data/ceos.json; each change calls ShipPreview.set_look live. commit() sets SaveGame.pending_look. main.ship_look is saved as ship_look (save VERSION 23); an older save gets the CEO default. Look is pushed to the Flagship view on new game and load. CEO looks: man_01 torch/infrared/0, man_02 needle/plasma/0.55, woman_01 pillar/ember/0.08, woman_02 bloom/ion/0.78. New ids in story/screens.md: LBL_LOOK_TITLE, LBL_LOOK_HUE, LBL_LOOK_SHAPE_<5 shapes>, LBL_LOOK_PALETTE_<10 palettes>; story rebuilt. Parse check of company_setup, save_game, run_tests clean; main.gd check-only fails only on the Voice autoload identifier."
+}

@@ -9320,6 +9320,108 @@
    "place": "company_setup.gd:212"
   },
   {
+   "id": "LBL_LOOK_TITLE",
+   "text": "Ship look",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_HUE",
+   "text": "Hull hue",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_SHAPE_TORCH",
+   "text": "Torch",
+   "max": 12,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_SHAPE_NEEDLE",
+   "text": "Needle",
+   "max": 12,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_SHAPE_PILLAR",
+   "text": "Pillar",
+   "max": 12,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_SHAPE_BLOOM",
+   "text": "Bloom",
+   "max": 12,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_SHAPE_RINGS",
+   "text": "Rings",
+   "max": 12,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_INFRARED",
+   "text": "Infrared",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_IRONBOW",
+   "text": "Ironbow",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_PLASMA",
+   "text": "Plasma",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_ION",
+   "text": "Ion",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_FUSION",
+   "text": "Fusion",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_EMBER",
+   "text": "Ember",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_ANTIMATTER",
+   "text": "Antimatter",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_SUNFIRE",
+   "text": "Sunfire",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_ARCTIC",
+   "text": "Arctic",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
+   "id": "LBL_LOOK_PALETTE_VOID",
+   "text": "Void",
+   "max": 16,
+   "place": "company_setup.gd Ship look block"
+  },
+  {
    "id": "SETUP_NEED_NAME",
    "text": "Enter a company name to start.",
    "max": 60,

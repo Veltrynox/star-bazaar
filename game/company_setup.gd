@@ -28,6 +28,10 @@ var ceo_defs: Dictionary = {}  # portrait id -> row of data/ceos.json
 var info_box: VBoxContainer
 var ship_defs: Dictionary = {}  # ship id -> row of data/ships.json
 var preview: PanelContainer
+var look: Dictionary = {}  # T357: shape, palette, hue of the ship; reset to the CEO's look on each CEO pick
+var shape_buttons: Dictionary = {}  # shape id -> Button
+var palette_buttons: Dictionary = {}  # palette id -> Button
+var hue_slider: HSlider
 
 func _ready() -> void:
 	Ui.install_cursors(get_tree())
@@ -153,6 +157,7 @@ func _make_card(id: String, group: ButtonGroup) -> Button:
 	b.add_child(pic)
 	b.pressed.connect(func():
 		selected_id = id
+		look = ShipLook.look_of_ceo(id)
 		_refresh_info()
 		_refresh_start())
 	return b
@@ -168,6 +173,7 @@ func _card_style(border: Color, width: int, glow: float) -> StyleBoxFlat:
 func select(id: String) -> void:
 	id = Portraits.normalize(id)
 	selected_id = id
+	look = ShipLook.look_of_ceo(id)
 	(cards[id] as Button).button_pressed = true
 	if start_button != null:
 		_refresh_start()
@@ -283,7 +289,7 @@ func _add_ship(ship_id: String) -> void:
 	if t.is_empty():
 		preview.show_model("")
 		return
-	preview.show_model(str(t.get("model", "")))
+	preview.show_model(str(t.get("model", "")), look)
 	var nm := Label.new()
 	nm.text = StoryText.get_or(str(t.get("name_id", "")), str(t.get("name", ship_id)))
 	nm.add_theme_color_override("font_color", Ui.col("star_warm"))
@@ -308,6 +314,89 @@ func _add_ship(ship_id: String) -> void:
 		v.custom_minimum_size = Vector2(44, 0)
 		grid.add_child(l)
 		grid.add_child(v)
+	_add_look_block()
+
+## T357: Ship look block under the stats: five shape buttons, ten palette swatches, a hue slider. Every change re-styles the preview.
+func _add_look_block() -> void:
+	shape_buttons.clear()
+	palette_buttons.clear()
+	var ex: Dictionary = ShipLook.exhaust()
+	var title := Label.new()
+	title.text = StoryText.get_or("LBL_LOOK_TITLE", "Ship look")
+	title.add_theme_color_override("font_color", Ui.col("star_warm"))
+	info_box.add_child(title)
+	var shape_row := HBoxContainer.new()
+	shape_row.add_theme_constant_override("separation", 4)
+	info_box.add_child(shape_row)
+	var sgroup := ButtonGroup.new()
+	for sid in ex.get("shapes", {}).keys():
+		var b := Button.new()
+		b.toggle_mode = true
+		b.button_group = sgroup
+		b.text = StoryText.get_or("LBL_LOOK_SHAPE_" + str(sid).to_upper(), str(sid).capitalize())
+		b.button_pressed = str(look.get("shape", "")) == str(sid)
+		b.pressed.connect(func(): _set_look_key("shape", str(sid)))
+		shape_row.add_child(b)
+		shape_buttons[str(sid)] = b
+	var pal_row := HBoxContainer.new()
+	pal_row.add_theme_constant_override("separation", 4)
+	info_box.add_child(pal_row)
+	var pgroup := ButtonGroup.new()
+	for pid in ex.get("palettes", {}).keys():
+		var b := Button.new()
+		b.toggle_mode = true
+		b.button_group = pgroup
+		b.custom_minimum_size = Vector2(36, 22)
+		b.focus_mode = Control.FOCUS_ALL
+		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		b.tooltip_text = StoryText.get_or("LBL_LOOK_PALETTE_" + str(pid).to_upper(), str(pid).capitalize())
+		b.add_theme_stylebox_override("normal", _card_style(Ui.col("line_200"), 1, 0.0))
+		b.add_theme_stylebox_override("hover", _card_style(Ui.col("line_300"), 2, 0.0))
+		b.add_theme_stylebox_override("focus", _card_style(Ui.col("ink_muted"), 2, 0.0))
+		b.add_theme_stylebox_override("pressed", _card_style(Ui.col("star_warm"), 2, 0.0))
+		b.add_theme_stylebox_override("hover_pressed", _card_style(Ui.col("star_warm"), 2, 0.0))
+		var strip := HBoxContainer.new()
+		strip.add_theme_constant_override("separation", 0)
+		strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		strip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		strip.offset_left = 3
+		strip.offset_top = 3
+		strip.offset_right = -3
+		strip.offset_bottom = -3
+		for col in ex["palettes"][pid]:
+			var cr := ColorRect.new()
+			cr.color = Color(str(col))
+			cr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			strip.add_child(cr)
+		b.add_child(strip)
+		b.button_pressed = str(look.get("palette", "")) == str(pid)
+		b.pressed.connect(func(): _set_look_key("palette", str(pid)))
+		pal_row.add_child(b)
+		palette_buttons[str(pid)] = b
+	var hue_row := HBoxContainer.new()
+	hue_row.add_theme_constant_override("separation", 8)
+	info_box.add_child(hue_row)
+	var hl := Label.new()
+	hl.text = StoryText.get_or("LBL_LOOK_HUE", "Hull hue")
+	hl.theme_type_variation = "LabelMuted"
+	hue_row.add_child(hl)
+	hue_slider = HSlider.new()
+	hue_slider.min_value = 0.0
+	hue_slider.max_value = 1.0
+	hue_slider.step = 0.01
+	hue_slider.value = float(look.get("hue", 0.0))
+	hue_slider.custom_minimum_size = Vector2(200, 0)
+	hue_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hue_slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hue_slider.value_changed.connect(func(v: float): _set_look_key("hue", v))
+	hue_row.add_child(hue_slider)
+
+## Changes one part of the look and re-styles the preview at once (the model stays loaded).
+func _set_look_key(key: String, value) -> void:
+	look[key] = value
+	if preview != null:
+		preview.set_look(look)
 
 ## Hands name, portrait (= CEO id), CEO, branch and ship of the CEO on to the game start.
 func commit() -> void:
@@ -316,6 +405,7 @@ func commit() -> void:
 	SaveGame.pending_ceo = selected_id
 	SaveGame.pending_branch = str(ceo_defs.get(selected_id, {}).get("branch", ""))
 	SaveGame.pending_ship = str(ceo_defs.get(selected_id, {}).get("ship", ""))
+	SaveGame.pending_look = {"shape": str(look.get("shape", "")), "palette": str(look.get("palette", "")), "hue": float(look.get("hue", 0.0))}
 
 func start() -> void:
 	if chosen_name() == "" or selected_id == "":

@@ -42,6 +42,8 @@ var ceo_portrait: String = ""  # id from company_portraits.gd, saved
 var ceo_id: String = ""  # CEO of the run (data/ceos.json, = a portrait id); "" = none (old saves), saved
 var branch: String = ""  # market id (mil, lux, min, bio) fixed by the CEO at the start; saved as run.branch; "" = old save
 var ship_type: String = "small"  # ship type of every ship of the run (data/ships.json), saved
+var ship_look: Dictionary = {}  # T357: Flagship look {shape, palette, hue} (ShipLook), saved as "ship_look"
+var _look_hooked := false
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
 var storage_notice_done: bool = false  # the Space Storage availability notice was made this run (saved)
@@ -446,11 +448,13 @@ func _ready() -> void:
 		company_name = SaveGame.pending_company.strip_edges().left(CompanyNames.MAX_LEN) if SaveGame.pending_company.strip_edges() != "" else CompanyNames.generate()
 		ceo_portrait = CompanyPortraits.normalize(SaveGame.pending_portrait)
 		_set_run_choice(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait, SaveGame.pending_ship, SaveGame.pending_branch if SaveGame.pending_branch != "" else Ceos.branch(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait))
+		_set_ship_look(SaveGame.pending_look)
 		SaveGame.pending_company = ""
 		SaveGame.pending_portrait = ""
 		SaveGame.pending_ceo = ""
 		SaveGame.pending_ship = ""
 		SaveGame.pending_branch = ""
+		SaveGame.pending_look = {}
 		_quiet_points = true
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
@@ -470,6 +474,7 @@ func _ready() -> void:
 	SaveGame.pending_ceo = ""
 	SaveGame.pending_ship = ""
 	SaveGame.pending_branch = ""
+	SaveGame.pending_look = {}
 	if debug_tools_allowed() and ResourceLoader.exists("res://game/debug_menu.gd"):  # T33: never in release exports (B9: the script is also left out of the export)
 		debug_menu = load("res://game/debug_menu.gd").new()
 		add_child(debug_menu)
@@ -492,6 +497,30 @@ func _set_run_choice(ceo: String, ship: String, branch_id: String = "") -> void:
 	ship_type = Ships.normalize(ship)
 	Ceos.set_current(ceo_id)
 	Ships.set_fleet(ship_type)
+
+## T357: the run's ship look. A look with a known shape and palette is kept (hue clamped to 0..1); anything else gets the CEO's default.
+func _set_ship_look(look) -> void:
+	var l: Dictionary = ShipLook.look_of_ceo(ceo_id)
+	if typeof(look) == TYPE_DICTIONARY and not look.is_empty():
+		var ex: Dictionary = ShipLook.exhaust()
+		if ex.get("shapes", {}).has(str(look.get("shape", ""))):
+			l["shape"] = str(look["shape"])
+		if ex.get("palettes", {}).has(str(look.get("palette", ""))):
+			l["palette"] = str(look["palette"])
+		if look.has("hue"):
+			l["hue"] = clampf(float(look["hue"]), 0.0, 1.0)
+	ship_look = {"shape": str(l["shape"]), "palette": str(l["palette"]), "hue": float(l["hue"])}
+	_push_look()
+
+## Hands ship_look to the Flagship view; the view is created later by the map, so a new view gets it as it enters the map.
+func _push_look() -> void:
+	if map == null:
+		return
+	if not _look_hooked:
+		_look_hooked = true
+		map.child_entered_tree.connect(func(n: Node): if n.has_method("set_look") and n.has_method("update_from"): n.set_look(ship_look))
+	if map.pathfinder != null:
+		map.pathfinder.set_look(ship_look)
 
 ## Dead worlds mine the run branch's tier-2 raw at one buy price (DeadWorlds.apply_mine). Run on a branch change and when a system opens.
 ## The mined good joins the shared commodity list in place (engine and storage hold the same array).
@@ -519,7 +548,7 @@ func ship_price() -> int:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "run": {"branch": branch}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "ship_look": ship_look.duplicate(), "run": {"branch": branch}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -536,6 +565,7 @@ func apply_state(s: Dictionary) -> void:
 		company_name = CompanyNames.generate()
 	ceo_portrait = CompanyPortraits.normalize(str(s.get("ceo_portrait", "")))
 	_set_run_choice(str(s.get("ceo_id", "")), str(s.get("ship_type", "")), str(s.get("run", {}).get("branch", "")) if typeof(s.get("run")) == TYPE_DICTIONARY else "")  # old saves: small ship, no CEO
+	_set_ship_look(s.get("ship_look"))  # T357: an older save has none: the CEO's default look
 	map.clear_stations()
 	for m in station_markers.values():
 		m.queue_free()
