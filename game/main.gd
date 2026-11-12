@@ -2737,6 +2737,11 @@ func _repossess_newest() -> void:
 			if int(engine.routes[i]["id"]) > int(engine.routes[newest]["id"]):
 				newest = i
 		engine.routes.remove_at(newest)
+	elif free_ships() <= 0:
+		for p in hubs.hubs:  # no route left: the ship comes out of a hub pool
+			if int(hubs.hubs[p]["pool"]) > 0:
+				hubs.hubs[p]["pool"] = int(hubs.hubs[p]["pool"]) - 1
+				break
 	ships = maxi(0, ships - 1)
 	var credit := floori(float(balance.get("salvage_share", 0.4)) * float(Ships.price(Ships.fleet, balance)))
 	cash += credit
