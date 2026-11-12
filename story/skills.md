@@ -24,7 +24,7 @@ SK_FND_PERMIT_PLAIN | 110 | Skill screen, detail panel | Lets you buy permits fo
 
 SK_FND_PROSPECT_NAME | 24 | Skill screen, node name | Prospecting
 SK_FND_PROSPECT_FLAVOUR | 90 | Skill screen, detail panel | You stare at a blank patch of sky until it shows you something worth a trip.
-SK_FND_PROSPECT_PLAIN | 110 | Skill screen, detail panel | Lets routes start at asteroid clusters and shows how much each cluster holds.
+SK_FND_PROSPECT_PLAIN | 110 | Skill screen, detail panel | Lets routes start at asteroid clusters and dead worlds. Shows how much each cluster holds.
 
 SK_MIL_1_NAME | 24 | Skill screen, node name | Quartermaster's Terms
 SK_MIL_1_FLAVOUR | 90 | Skill screen, detail panel | The yard thanks you for the order. You do not ask what it is for.
@@ -99,7 +99,7 @@ SK_MIN_2_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop 
 
 SK_MIN_3_NAME | 24 | Skill screen, node name | Cold Survey
 SK_MIN_3_FLAVOUR | 90 | Skill screen, detail panel | Cold rock, no air, no voice on the radio. You are the only thing awake.
-SK_MIN_3_PLAIN | 140 | Skill screen, detail panel | Lets routes start at Cinderrest and mine its salt. Cluster yield up 25%. Dead worlds open later.
+SK_MIN_3_PLAIN | 140 | Skill screen, detail panel | Cluster yield up 25%.
 
 SK_MIN_4_NAME | 24 | Skill screen, node name | Double Burn
 SK_MIN_4_FLAVOUR | 90 | Skill screen, detail panel | Twice the heat, twice the hours. The ground takes back what you spend.
@@ -108,7 +108,7 @@ SK_MIN_4_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop 
 
 SK_MIN_5_NAME | 24 | Skill screen, node name | Deep Cut
 SK_MIN_5_FLAVOUR | 90 | Skill screen, detail panel | Under the dust, glass that hums. It hums when you cut. It does not stop when you leave.
-SK_MIN_5_PLAIN | 110 | Skill screen, detail panel | Lets routes start at Greywake and mine its humming glass. Needs Cold Survey.
+SK_MIN_5_PLAIN | 110 | Skill screen, detail panel | Dead worlds hold more for your company. Needs Cold Survey.
 
 SK_MIN_6_NAME | 24 | Skill screen, node name | Lattice Works
 SK_MIN_6_FLAVOUR | 90 | Skill screen, detail panel | Every piece leans on the next. Pull one out and the rest remember.

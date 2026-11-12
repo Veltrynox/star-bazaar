@@ -115,7 +115,7 @@
             "any": [
               {
                 "all": [
-                  "skill_learned:MIN_3",
+                  "skill_learned:FND_PROSPECT",
                   "cycle_at_least:balance.dead_unlock_cycle"
                 ]
               },
@@ -124,7 +124,7 @@
           }
         ]
       },
-      "note": "dross_sell exists at Voltara and Ashgate, but no dross can be had before it is mined at Cinderrest (dead_1): MIN_3 (mine_unlock) and dead worlds open at cycle dead_unlock_cycle (15). Hidden at start."
+      "note": "Mined at Cinderrest (dead_1) on a Minerals run: Prospecting (FND_PROSPECT) and dead worlds open at cycle dead_unlock_cycle (15). dross_sell exists at Voltara and Ashgate, but no dross can be had before it is mined. Hidden at start."
     },
     {
       "kind": "good",
@@ -136,7 +136,7 @@
             "any": [
               {
                 "all": [
-                  "skill_learned:MIN_5",
+                  "skill_learned:FND_PROSPECT",
                   "cycle_at_least:balance.dead_unlock_cycle",
                   "system_open:2"
                 ]
@@ -146,7 +146,7 @@
           }
         ]
       },
-      "note": "Mined only at Greywake (dead_2, system 2): MIN_5 (needs MIN_3), dead worlds open (cycle 15), and system 2 reachable (FND_PERMIT + permit bought). Sold at s2_p2/s2_p4 only."
+      "note": "Mined at Greywake (dead_2, system 2) on a Minerals run: Prospecting (FND_PROSPECT), dead worlds open (cycle 15), and system 2 reachable (FND_PERMIT + permit bought). Sold at s2_p2/s2_p4 only."
     },
     {
       "kind": "good",
@@ -177,12 +177,19 @@
           {
             "any": [
               "system_open:2",
-              "stock_held:spyware"
+              "stock_held:spyware",
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_2",
+                  "branch_is:mil"
+                ]
+              }
             ]
           }
         ]
       },
-      "note": "Chips has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+      "note": "Chips has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -193,12 +200,19 @@
           {
             "any": [
               "system_open:2",
-              "stock_held:silk"
+              "stock_held:silk",
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_2",
+                  "branch_is:lux"
+                ]
+              }
             ]
           }
         ]
       },
-      "note": "Silk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+      "note": "Silk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -209,12 +223,19 @@
           {
             "any": [
               "system_open:2",
-              "stock_held:rivets"
+              "stock_held:rivets",
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_1",
+                  "branch_is:mil"
+                ]
+              }
             ]
           }
         ]
       },
-      "note": "Rivets is a sale-only trade good (2026-11-05 resource-final, no recipe on purpose). It has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+      "note": "Rivets is a sale-only trade good (2026-11-05 resource-final, no recipe on purpose). It has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -225,12 +246,19 @@
           {
             "any": [
               "system_open:2",
-              "stock_held:musk"
+              "stock_held:musk",
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_1",
+                  "branch_is:lux"
+                ]
+              }
             ]
           }
         ]
       },
-      "note": "Musk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+      "note": "Musk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -241,12 +269,26 @@
           {
             "any": [
               "system_open:2",
-              "stock_held:spores"
+              "stock_held:spores",
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_1",
+                  "branch_is:bio"
+                ]
+              },
+              {
+                "all": [
+                  "skill_learned:FND_PROSPECT",
+                  "platform_built:dead_2",
+                  "branch_is:bio"
+                ]
+              }
             ]
           }
         ]
       },
-      "note": "Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+      "note": "Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -558,15 +600,10 @@
       "visible_when": {
         "all": [
           "cycle_at_least:balance.dead_unlock_cycle",
-          {
-            "any": [
-              "skill_learned:MIN_3",
-              "skill_learned:MIN_5"
-            ]
-          }
+          "skill_learned:FND_PROSPECT"
         ]
       },
-      "note": "Mining at dead_1 needs MIN_3, at dead_2 MIN_5 (plus system_open:2). Dead worlds are locked and unroutable before cycle 15 (game shows 'Opens at cycle N'); the lock label may show, mining actions may not."
+      "note": "2026-11-12: Prospecting (FND_PROSPECT) opens mining at both dead worlds for every company (dead_2 also needs system_open:2). Dead worlds are locked and unroutable before cycle 15 (game shows 'Opens at cycle N'); the lock label may show, mining actions may not."
     },
     {
       "kind": "feature",

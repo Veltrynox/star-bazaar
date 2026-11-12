@@ -21,7 +21,7 @@
    "progress_grace": "an unmet cycle costs balance[key] (0..1) less Prosperity progress at worlds, summed over learned effects of the target market (T261, replaces share_window)",
    "reveal_prices": "next-cycle prices shown for 'cycles' cycles ahead",
    "event_warning": "next event announced 'cycles' cycles early",
-   "mine_unlock": "allows mining good id at place (planet id)",
+   "dead_stock_pct": "dead worlds hold balance[key] more stock for the company (stock already taken is kept)",
    "cluster_yield_pct": "mining yield per cluster x (1 + balance[key])",
    "stock_growth_pct": "stock held in where (planet_storage) of target market grows balance[key] per cycle, up to balance[cap_key] of the stored amount",
    "stock_protect": "stored target-market stock is not trimmed when an asteroid hit cuts a planet storage (on storage_cut)",
@@ -450,14 +450,7 @@
     "type": "cluster_yield_pct",
     "target": "min",
     "key": "skill_MIN_3_yield"
-   },
-   "extra": [
-    {
-     "type": "mine_unlock",
-     "id": "dross",
-     "place": "dead_1"
-    }
-   ]
+   }
   },
   {
    "id": "MIN_4",
@@ -485,9 +478,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "mine_unlock",
-    "id": "nullglass",
-    "place": "dead_2"
+    "type": "dead_stock_pct",
+    "target": "min",
+    "key": "skill_MIN_5_dead_stock"
    }
   },
   {

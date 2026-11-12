@@ -181,8 +181,6 @@ func dead_skill_reason(src: int) -> String:
 		return ""
 	var need := DeadWorlds.skill_for(trade.planets[src])
 	if need != "" and not Skills.is_learned(need):
-		if not SkillTree.in_run(need):  # a skill of another branch is never named
-			return StoryText.get_or("NOT_DEAD_OTHER_BRANCH", "Mining here is closed to your company.")
 		return StoryText.get_or("NOT_DEAD_NEEDS_SKILL", "Needs {skill}.", {"skill": SkillTree.skill_name(need)})
 	return ""
 
@@ -502,7 +500,7 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": dead_lock_reason(src)}
 	if dead_lock_reason(dst) != "":
 		return {"ok": false, "reason": dead_lock_reason(dst)}
-	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (see DeadWorlds.skill_for); saved routes stay
+	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (Prospecting, see DeadWorlds.skill_for); saved routes stay
 		return {"ok": false, "reason": dead_skill_reason(src)}
 	if new_route and _mined_pid(src) != "" and dead_mining_reason(src) != "":  # T295
 		return {"ok": false, "reason": dead_mining_reason(src)}

@@ -212,17 +212,17 @@ static func warning_cycles() -> int:
 		n = maxi(n, int(e.get("cycles", 1)))
 	return n
 
-## mine_unlock: id of the skill that lets a player mine at place (planet id), "" when no skill covers it.
+## Skill that opens mining at every dead world: Prospecting (FND_PROSPECT). "" for a place that is not a dead world.
 static func mine_skill_for(place: String) -> String:
-	for id in SkillTree.all_ids():
-		for e in SkillTree.effects(id):
-			if str(e.get("type", "")) == "mine_unlock" and str(e.get("place", "")) == place:
-				return id
-	return ""
+	return "FND_PROSPECT" if place.begins_with("dead_") else ""
 
 static func mine_unlocked(place: String) -> bool:
 	var id := mine_skill_for(place)
 	return id == "" or learned.has(id)
+
+## dead_stock_pct: dead worlds hold this much more stock for the company (MIN_5). Stock already taken is kept.
+static func dead_stock_mult() -> float:
+	return 1.0 + _sum("dead_stock_pct", "min")
 
 ## cluster_yield_pct: mining yield per cluster x this.
 static func cluster_yield_mult() -> float:

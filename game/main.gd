@@ -486,9 +486,21 @@ func _set_run_choice(ceo: String, ship: String, branch_id: String = "") -> void:
 	Markets._ensure()
 	branch = branch_id if Markets.ids.has(branch_id) else ""
 	SkillTree.run_branch = branch
+	_apply_dead_mines()  # the dead worlds yield this company's raw
 	ship_type = Ships.normalize(ship)
 	Ceos.set_current(ceo_id)
 	Ships.set_fleet(ship_type)
+
+## Dead worlds mine the run branch's tier-2 raw at one buy price (DeadWorlds.apply_mine). Run on a branch change and when a system opens.
+## The mined good joins the shared commodity list in place (engine and storage hold the same array).
+func _apply_dead_mines() -> void:
+	if map == null:
+		return
+	for p in map.planets:
+		if typeof(p) == TYPE_DICTIONARY:
+			var g: String = DeadWorlds.apply_mine(p, balance, branch)
+			if g != "" and not commodities.has(g):
+				commodities.append(g)
 
 ## Branch of the run: the market id fixed by the CEO ("" for an old save without one).
 func run_branch() -> String:
@@ -712,6 +724,7 @@ func _open_system(id: int) -> bool:
 	if not _system_planets_present(id):
 		map.add_planets(Systems.planets_of(id))  # T101: habitable flag
 		added = true
+		_apply_dead_mines()
 		var all_goods := _commodities(map.planets)  # a system can bring a good (nullglass): add it in place, the engine and storage share this array
 		for c in all_goods:
 			if not commodities.has(c):

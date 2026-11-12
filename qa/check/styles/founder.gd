@@ -43,6 +43,7 @@ func each_cycle(c: int) -> void:
 	_skills()
 	_explore()
 	_lanes()
+	_dead_mine()
 	_maintain(c)
 	_permit()
 	_workshops()
@@ -162,6 +163,28 @@ func _cluster_lanes() -> int:
 	return n
 
 
+## Every company mines its own raw at a dead world once Prospecting is learned and a platform stands: one lane to the capital.
+func _dead_mine() -> void:
+	if not main.can_mine():
+		return
+	var cap: int = main.bazaar.capital() if main.bazaar.is_founded() else -1
+	if cap < 0:
+		return
+	for d in a.dead_worlds():
+		var di := int(d)
+		if not main.planet_established(di) or not main.open_systems.has(int(main.system_of(di))):
+			continue
+		var g := str(main.DeadWorlds.mine_good(str(main.map.planets[di].get("id", ""))))
+		if g == "" or has_lane(di, cap, g):
+			continue
+		var r: Dictionary = a.send(di, cap, g, "mine")
+		if bool(r["ok"]):
+			note("dead-world mine %s %s (%s) -> %s" % [g, a.world_name(di), str(main.map.planets[di].get("id", "")), a.world_name(cap)])
+			return
+		elif int(main.cycle) % 10 == 0:
+			note("dead mine refused %s: %s" % [g, str(r["reason"]).left(80)])
+
+
 func _mine_need(w: int, g: String) -> bool:
 	var cap: int = main.bazaar.capital()
 	if w != cap and _cluster_lanes() >= 2 and not (main.bazaar.is_founded() and main.bazaar.complete()):
@@ -183,9 +206,11 @@ func _mine_need(w: int, g: String) -> bool:
 			return false
 		if not main.open_systems.has(int(main.system_of(int(d)))) or has_lane(int(d), w, g):
 			continue
+		if str(main.DeadWorlds.mine_good(str(main.map.planets[int(d)].get("id", "")))) != g:
+			continue  # a dead world gives only its branch's raw
 		var r2: Dictionary = a.send(int(d), w, g, "mine")
 		if bool(r2["ok"]):
-			note("dead-world mine %s %s -> %s" % [g, a.world_name(int(d)), a.world_name(w)])
+			note("dead-world mine %s %s (%s) -> %s" % [g, a.world_name(int(d)), str(main.map.planets[int(d)].get("id", "")), a.world_name(w)])
 			return true
 		elif str(r2["reason"]).contains("Pathfinder"):
 			# the Flagship has not been there yet: fly it over (a retry every 6 cycles per world)

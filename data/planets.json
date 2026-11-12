@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "data_version": 12,
+  "data_version": 13,
   "planets": [
     {
       "id": "planet_1",
@@ -58,10 +58,7 @@
       "type": "dead",
       "abundant": "dross",
       "scarce": "none",
-      "base_prices": {
-        "dross_buy": 4,
-        "dross_sell": 3
-      },
+      "base_prices": {},
       "x": -340,
       "y": -120
     },
@@ -79,5 +76,12 @@
       "y": -660
     }
   ],
-  "source": "2026-11-06 v12 (T239): added planet_4 Flintmoor (barren quarry colony, system 1): Military powder and Minerals ore source (powder and ore prices come from data/goods.json planet_prices), buys energy. 2026-11-02 v11 (dead-planet-economy): plate_buy 60 to 135, plate_sell 48 to 120 (Voltara); dross_sell 14 to 18 (Voltara), 12 to 15 (Ashgate); dead_1 dross_buy 5 to 4, dross_sell 4 to 3. Margins per 16-unit ship-cycle: dross 13-14/unit, plate 100 net per batch; core 125-157. 2026-11-02 v9 (dead-planets, spec design/proposals/2026-11-02-dead-planets.md): added dead_1 Cinderrest (type dead, abundant dross, dross_buy 5 / dross_sell 4 placeholders); added dross_sell 14 at Voltara and 12 at Ashgate (placeholders so a dross route can be sold; economy-designer sets real prices). No existing price changed. 2026-11-02 v8 (alpha-economy): Voltara ore_sell 11 to 12 (hedge: mirror mining_focus median 27 to 25; the real mining runs ended with less cash than the mirror). 2026-11-02 v7 (system-tiers): system 1 = basic goods. Energy and food prices unchanged. Silk and chips removed (advanced goods move to systems 2 and 3); ore stays only at Voltara 11 (raw good, keeps the 2 system-1 clusters and skill B1 alive), Ashgate ore 6 removed (it never paid a trip). Abundant/scarce fields unchanged (they describe energy and food only). Previous: 2026-11-02 v6 (T153): silk, chips, ore base prices added (template values, owner confirms in T161). Silk Tillam buy 20 -> Voltara sell 30 (margin 10), Ashgate 24 (4); chips Voltara buy 16 -> Ashgate sell 26 (10), Tillam 20 (4); ore free at clusters, sells Voltara 11, Ashgate 6. Lowered from first try (margins 14-18) because decent won at cycle 21 instead of 23."
+  "mines_by_branch": {
+    "min": {"dead_1": "dross", "dead_2": "nullglass"},
+    "mil": {"dead_1": "rivets", "dead_2": "spyware"},
+    "lux": {"dead_1": "musk", "dead_2": "silk"},
+    "bio": {"dead_1": "spores", "dead_2": "spores"}
+  },
+  "note": "mines_by_branch (2026-11-12): the good each company mines at a dead world (branch -> dead world id -> good), its tier-2 raw. The dead worlds here and in systems.json carry no prices of their own: DeadWorlds.apply_mine writes the one buy price round(base_value x balance dead_mine_price_pct) for the run branch, and the mine sells nothing.",
+  "source": "2026-11-12 v13: mines_by_branch added; dead_1 dross_buy/dross_sell removed (price is now a rule, see note). 2026-11-06 v12 (T239): added planet_4 Flintmoor (barren quarry colony, system 1): Military powder and Minerals ore source (powder and ore prices come from data/goods.json planet_prices), buys energy. 2026-11-02 v11 (dead-planet-economy): plate_buy 60 to 135, plate_sell 48 to 120 (Voltara); dross_sell 14 to 18 (Voltara), 12 to 15 (Ashgate); dead_1 dross_buy 5 to 4, dross_sell 4 to 3. Margins per 16-unit ship-cycle: dross 13-14/unit, plate 100 net per batch; core 125-157. 2026-11-02 v9 (dead-planets, spec design/proposals/2026-11-02-dead-planets.md): added dead_1 Cinderrest (type dead, abundant dross, dross_buy 5 / dross_sell 4 placeholders); added dross_sell 14 at Voltara and 12 at Ashgate (placeholders so a dross route can be sold; economy-designer sets real prices). No existing price changed. 2026-11-02 v8 (alpha-economy): Voltara ore_sell 11 to 12 (hedge: mirror mining_focus median 27 to 25; the real mining runs ended with less cash than the mirror). 2026-11-02 v7 (system-tiers): system 1 = basic goods. Energy and food prices unchanged. Silk and chips removed (advanced goods move to systems 2 and 3); ore stays only at Voltara 11 (raw good, keeps the 2 system-1 clusters and skill B1 alive), Ashgate ore 6 removed (it never paid a trip). Abundant/scarce fields unchanged (they describe energy and food only). Previous: 2026-11-02 v6 (T153): silk, chips, ore base prices added (template values, owner confirms in T161). Silk Tillam buy 20 -> Voltara sell 30 (margin 10), Ashgate 24 (4); chips Voltara buy 16 -> Ashgate sell 26 (10), Tillam 20 (4); ore free at clusters, sells Voltara 11, Ashgate 6. Lowered from first try (margins 14-18) because decent won at cycle 21 instead of 23."
 }

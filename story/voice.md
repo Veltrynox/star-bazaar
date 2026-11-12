@@ -83,7 +83,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Salvage: the one-time payout when goods cannot be kept or sold on the company's lanes (storage full or no buyer). Shown with the amount now and what a Sell order would pay. Plain word, no flavour. Added 2026-11-02.
 - Rescue notice: when the company has no ships and too little cash. Never "game over". Story texts may call the payment "relief".
 
-- Dead worlds (working names, owner decides): Cinderrest (system 1) and Greywake (system 2), rock worlds with a mining base and no food or energy market. Goods: Dross Salt (id dross, mined on Cinderrest) and Nullglass (id nullglass, mined on Greywake). UI shows the names; running text uses lower case: dross, nullglass. Danger: the meter that rises while a dead world is mined. Added 2026-11-02.
+- Dead worlds (working names, owner decides): Cinderrest (system 1) and Greywake (system 2), rock worlds with a mining base and no food or energy market. Goods: each company mines its own tier-2 raw there (Minerals: Dross Salt on Cinderrest, Nullglass on Greywake). UI shows the names; running text uses lower case: dross, nullglass. Danger: the meter that rises while a dead world is mined. Added 2026-11-02.
 
 ### Story terms (new in draft 2, flavour only, never shown as a mechanic)
 - The Commons: the shared society of the system. Owns "everything", counts all of it.
@@ -94,7 +94,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Fellow hand: how people in the Commons address each other. Replaces any "comrade" wording.
 - Common good: stock phrase, used with a straight face and a raised eyebrow.
 
-- Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey, mining Greywake needs Deep Cut, both in Minerals. Fabrication Licence unlocks the fabric.
+- Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining either world needs Prospecting, and each company mines its own tier-2 raw there. Fabrication Licence unlocks the fabric.
 - Fabric: the machine at the trading post that turns dross and nullglass into Lattice Plate (id plate, working name; running text: plate). Null Core: an item built once from plate and nullglass, fitted to one ship. Plate and Null Core are working names, owner decides. Fitted ship: the ship that carries the Null Core. Added 2026-11-03.
 
 ### Four markets (added 2026-11-03, from design/proposals/2026-11-03-four-markets-story.md)

@@ -1,7 +1,7 @@
 extends "res://qa/check/styles/base.gd"
 ## Style "miner" (Minerals CEO): everything mining.
 ## Prospecting first, cluster lanes (send_cluster) until clusters run dry, the smelter (reusing the industrialist's workshop,
-## feed and sale routines), then the dead worlds: Cold Survey (MIN_3) and Deep Cut (MIN_5), the Flagship builds a platform on
+## feed and sale routines), then the dead worlds: Prospecting opens them (MIN_3 and MIN_5 stay in the order for yield and stock), the Flagship builds a platform on
 ## each, dross and nullglass are mined into the Space Storage, the Fabric makes plate, the Null Core is built and fitted, and
 ## at the end one dead world is RECLAIMED by delivering its need list. Records raids and salvage pods.
 
@@ -263,8 +263,8 @@ func _dead_mining() -> void:
 			continue
 		if a.is_dead(di) and bool(main.prosperity.mining_closed(di)):
 			continue
-		# which good does this world give? ask the planet panel's Mine row through the engine
-		for g in ["dross", "nullglass"]:
+		# which good does this world give? the run branch's mine good (DeadWorlds.mine_good; Minerals: dross, nullglass)
+		for g in [str(main.DeadWorlds.mine_good(str(main.map.planets[di].get("id", ""))))]:
 			if _lane_from(di, g) or _lane_into(-sid, g) or not _can_pay_lane() or int(main.trade.price(di, g + "_buy")) < 0:
 				continue
 			if str(main.engine.dead_mining_reason(di)) != "" or str(main.engine.dead_skill_reason(di)) != "":

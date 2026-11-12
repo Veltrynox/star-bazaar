@@ -26,7 +26,7 @@ signal delivered(planet_id: String, good: String, units: int)  # T271: units sol
 signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
 signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
 
-const PLATFORM_SKILL := "MIN_3"  # skill that allows a mining platform (proposal 1.4)
+const PLATFORM_SKILL := "FND_PROSPECT"  # skill that allows a mining platform (Prospecting opens every dead world)
 const DEFAULT_HOME := "planet_1"
 const EPS := 0.0001
 const SUBSTEP := 0.005          # cycles per integration step of a flight (0.3 s of game time)
@@ -374,7 +374,7 @@ func request_fly_establish(pid: String) -> String:
 	return ""
 
 ## Starts the build at the planet the ship is docked at. "" accepted; "fly_first" | "no_cash_post" | "no_cash_platform" | "busy";
-## "no_skill" (platform without MIN_3, no notice defined) and "bad_target" otherwise.
+## "no_skill" (platform without Prospecting, no notice defined) and "bad_target" otherwise.
 func request_establish(pid: String) -> String:
 	if not is_enabled():
 		return ""

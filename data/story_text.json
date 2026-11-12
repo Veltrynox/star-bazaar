@@ -1215,7 +1215,7 @@
   },
   {
    "id": "TIP_PLATFORM_WHY",
-   "text": "Once it stands you can mine there and route what it gives. Mining needs the right skill.",
+   "text": "Once it stands you can mine there and route what it gives. Mining needs Prospecting.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1779,7 +1779,7 @@
   },
   {
    "id": "DEAD_UNLOCK",
-   "text": "Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.",
+   "text": "Dead worlds are open. Prospecting lets you mine them.",
    "max": 110,
    "place": "Notice, posted when the dead worlds open"
   },
@@ -9650,12 +9650,6 @@
    "place": "main.gd:2425"
   },
   {
-   "id": "NOT_DEAD_OTHER_BRANCH",
-   "text": "Mining here is closed to your company.",
-   "max": 70,
-   "place": "route_engine.gd:185"
-  },
-  {
    "id": "NOT_FABRIC_BUILT",
    "text": "Fabric built at the trading post.",
    "max": 60,
@@ -10275,7 +10269,7 @@
   },
   {
    "id": "SK_FND_PROSPECT_PLAIN",
-   "text": "Lets routes start at asteroid clusters and shows how much each cluster holds.",
+   "text": "Lets routes start at asteroid clusters and dead worlds. Shows how much each cluster holds.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -10623,7 +10617,7 @@
   },
   {
    "id": "SK_MIN_3_PLAIN",
-   "text": "Lets routes start at Cinderrest and mine its salt. Cluster yield up 25%. Dead worlds open later.",
+   "text": "Cluster yield up 25%.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -10665,7 +10659,7 @@
   },
   {
    "id": "SK_MIN_5_PLAIN",
-   "text": "Lets routes start at Greywake and mine its humming glass. Needs Cold Survey.",
+   "text": "Dead worlds hold more for your company. Needs Cold Survey.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },

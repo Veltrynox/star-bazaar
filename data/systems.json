@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "data_version": 3,
-  "source": "2026-11-02 v3 (dead-planet-economy): nullglass_sell 30 to 25 (s2_p2), 34 to 29 (s2_p4); dead_2 nullglass_buy stays 12, nullglass_sell 10 to 8. Margin 13-17 per unit. 2026-11-02 v2 (dead-planets, spec design/proposals/2026-11-02-dead-planets.md): added dead_2 Greywake (type dead, abundant nullglass, nullglass_buy 12 / nullglass_sell 10 placeholders, literal name); added nullglass_sell 30 at s2_p2 and 34 at s2_p4 (placeholders, economy-designer sets real prices). No existing price changed. v1: T85 systems file.",
+  "data_version": 4,
+  "source": "2026-11-12 v4: dead_2 nullglass_buy/sell removed (the mine price is a rule, see planets.json mines_by_branch). 2026-11-02 v3 (dead-planet-economy): nullglass_sell 30 to 25 (s2_p2), 34 to 29 (s2_p4); dead_2 nullglass_buy stays 12, nullglass_sell 10 to 8. Margin 13-17 per unit. 2026-11-02 v2 (dead-planets, spec design/proposals/2026-11-02-dead-planets.md): added dead_2 Greywake (type dead, abundant nullglass, nullglass_buy 12 / nullglass_sell 10 placeholders, literal name); added nullglass_sell 30 at s2_p2 and 34 at s2_p4 (placeholders, economy-designer sets real prices). No existing price changed. v1: T85 systems file.",
   "note": "T85: systems beyond system 1. System 1 planets stay in planets.json. Text comes from story ids (name_id, desc_id); numbers: prices from tools/system2.json (T81, margin bonus already baked in), permit cost and points are balance.json keys named here. System 3 is on hold: no entry.",
   "systems": [
     {
@@ -102,10 +102,7 @@
           "role": "dead world, mining base",
           "abundant": "nullglass",
           "scarce": "none",
-          "base_prices": {
-            "nullglass_buy": 12,
-            "nullglass_sell": 8
-          },
+          "base_prices": {},
           "x": 860,
           "y": 760
         }

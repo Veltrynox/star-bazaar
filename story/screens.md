@@ -351,7 +351,7 @@ TIP_HUB_WHY | 110 | Tip card, why line | One hub per system. Press Make this a h
 
 ### Discovery and the Flagship
 TIP_PLATFORM | 110 | Tip card line; trigger: the Flagship first arrives at a dead world | A dead world takes a mining platform, not a trading post.
-TIP_PLATFORM_WHY | 110 | Tip card, why line | Once it stands you can mine there and route what it gives. Mining needs the right skill.
+TIP_PLATFORM_WHY | 110 | Tip card, why line | Once it stands you can mine there and route what it gives. Mining needs Prospecting.
 TIP_EXPLORE | 110 | Tip card line; trigger: the Ships panel is opened first while an unknown world is left in the system | Exploration mode flies the Flagship to each unknown world here and builds its post.
 TIP_EXPLORE_WHY | 110 | Tip card, why line | Each post costs credits, so it waits at a world while cash is short. Press the button again to stop.
 TIP_DOCK | 110 | Tip card line; trigger: the dock sheet opens for the first time | Dock and trade lets the Flagship buy and sell by hand. Its hold has limited room.
@@ -475,7 +475,7 @@ ST_CLUSTER_EMPTY | 60 | Route panel, status when the cluster has run dry | Clust
 ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's ore | Ore taken by another ship
 
 ## Dead worlds: unlock, goods, Null Core (added 2026-11-03; names are working names, owner decides)
-DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.
+DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Prospecting lets you mine them.
 PLANET_DEAD_LOCKED | 60 | Planet panel, dead world before it opens; {n} is the cycle | Opens at cycle {n}.
 NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; {skill} is the skill name | Mining here needs {skill}.
 BTN_MINE_SEND | 40 | Planet panel, dead world, button under the mined goods; {good} is the good name | Mine {good} and send to...
@@ -2157,8 +2157,6 @@ NOTE_SECOND_LANE | 90 | planet_panel.gd:125
 Your first sale here crossed the system line.
 NOT_BAZAAR_OPENING | 130 | main.gd:2425
 The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.
-NOT_DEAD_OTHER_BRANCH | 70 | route_engine.gd:185
-Mining here is closed to your company.
 NOT_FABRIC_BUILT | 60 | main.gd:2074
 Fabric built at the trading post.
 NOT_GIG_RUSH_DONE | 80 | gigs.gd:555

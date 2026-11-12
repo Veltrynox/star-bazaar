@@ -2999,7 +2999,7 @@ func _test_skills_core() -> void:
 	Skills.add_learned("MIN_3")
 	Skills.add_learned("MIN_4")
 	Skills.add_learned("MIN_6")
-	check(is_equal_approx(Skills.cluster_yield_mult(), 1.0 + float(bal["skill_MIN_3_yield"])) and Skills.mine_skill_for("dead_1") == "MIN_3" and Skills.mine_skill_for("dead_2") == "MIN_5" and Skills.mine_unlocked("dead_1") and not Skills.mine_unlocked("dead_2"), "effects: cluster_yield_pct and mine_unlock (MIN_3 dross, MIN_5 nullglass)")
+	check(is_equal_approx(Skills.cluster_yield_mult(), 1.0 + float(bal["skill_MIN_3_yield"])) and Skills.mine_skill_for("dead_1") == "FND_PROSPECT" and Skills.mine_skill_for("dead_2") == "FND_PROSPECT" and not Skills.mine_unlocked("dead_1"), "effects: cluster_yield_pct; Prospecting opens both dead worlds")
 	check(Skills.workshop_batches("min") == int(bal["skill_MIN_4_batches"]) and Skills.workshop_batches("mil") == int(bal["skill_MIL_2_batches"]) and Skills.batch_yield("min") == int(bal["skill_MIN_6_batch_bonus"]), "effects: workshop_batches and batch_yield (flags until the workshops exist)")
 	# permanent bot effects through end_cycle
 	Skills.reset(bal)
@@ -6516,7 +6516,7 @@ func _test_fabric() -> void:
 	var ssv2 = m.space_storage_view
 	m.storage.remove(key, "dross", m.storage.amount(key, "dross"))
 	m.storage.remove(key, "nullglass", m.storage.amount(key, "nullglass"))
-	for sk in ["MIN_3", "MIN_5"]:
+	for sk in ["FND_PROSPECT", "MIN_3", "MIN_5"]:
 		Skills.add_learned(sk)  # availability: the inputs are named only once dross and nullglass are visible
 	m.cycle = maxi(m.cycle, int(m.balance["dead_unlock_cycle"]))
 	if not m.open_systems.has(2):
@@ -6548,7 +6548,7 @@ func _test_dead_world_mechanics() -> void:
 	check(m.commodities.has("dross"), "dead: dross joins the commodity list")
 	var s2: Array = m.Systems.planets_of(2)
 	var g: Dictionary = s2[s2.size() - 1]
-	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and g["base_prices"].has("nullglass_buy"), "dead: dead_2 Greywake in system 2 carries nullglass")
+	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and m.DeadWorlds.mine_good("dead_2", "min") == "nullglass" and m.DeadWorlds.mine_good("dead_2", "mil") == "spyware" and m.DeadWorlds.mine_good("dead_1", "bio") == "spores", "dead: dead_2 Greywake in system 2 carries nullglass (mines_by_branch)")
 	# skills
 	var ST = m.SkillTree
 	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == FND3, "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs the three Foundations")
@@ -6557,18 +6557,17 @@ func _test_dead_world_mechanics() -> void:
 	m.cash = 6000
 	m.ships = 3
 	var r: Dictionary = m.can_connect(d1, 0, "dross")
-	check(not r["ok"] and "Cold Survey" in str(r["reason"]), "dead gate: refused without MIN_3 with a reason", str(r))
-	m.learned_skills.append("MIN_3")
-	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with MIN_3")
+	check(not r["ok"] and "Prospecting" in str(r["reason"]), "dead gate: refused without Prospecting with a reason", str(r))
+	m.learned_skills.append("FND_PROSPECT")
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with Prospecting")
 	m._open_system(2)
 	var g2: int = -1
 	for i in m.map.planets.size():
 		if str(m.map.planets[i].get("id", "")) == "dead_2":
 			g2 = i
 	var r2: Dictionary = m.engine.check_connection(g2, g2 - 1, "nullglass")
-	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without MIN_5 (MIN_3 does not open it)", str(r2))
-	m.learned_skills.append("MIN_5")
-	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with MIN_5")
+	check(g2 >= 0 and r2["ok"], "dead gate: Greywake opens with Prospecting too", str(r2))
+	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with Prospecting")
 	# scheduled follow-up
 	var ev = m.events
 	var a := {"id": "T_PART1", "title": "p1", "tag": "", "text": "x", "choices": [{"text": "go", "tag": "[cash: +1]", "follow_id": "T_PART2", "follow_after": 2}]}
@@ -6619,7 +6618,7 @@ func _test_dead_unlock_and_core() -> void:
 			d1 = i
 	m.cash = 9000
 	m.ships = 3
-	m.learned_skills.append("MIN_3")
+	m.learned_skills.append("FND_PROSPECT")
 	m.learned_skills.append("FND_STORAGE")
 	m._ensure_stations()
 	m._sync_dead_lock()
@@ -6659,22 +6658,22 @@ func _test_dead_unlock_and_core() -> void:
 	for l in _labels(m.planet_panel, []):
 		lock_found = lock_found or l.name == "DeadLockedLine"
 	check(m.planet_panel.visible and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its dross row, no locked line")
-	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with MIN_3")
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with Prospecting")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
-	m.learned_skills.erase("MIN_3")
-	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need MIN_3 too")
-	m.learned_skills.append("MIN_3")
+	m.learned_skills.erase("FND_PROSPECT")
+	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need Prospecting too")
+	m.learned_skills.append("FND_PROSPECT")
 	# save and load keeps a dead buy order and loads an old save with no dead data
 	m.set_local_order(d1, "dross", "buy", true)
 	var sv: Dictionary = m.collect_state()
 	m.apply_state(sv)
-	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with MIN_3")
+	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with Prospecting")
 	m.apply_state({"cycle": 20, "cash": 500, "ships": 1})
 	check(m.cycle == 20 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty(), "dead save: an old save with no dead data loads clean")
 	# a save made at cycle 3 holding a route from a dead world drops it
 	m.cycle = 3
-	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["MIN_3"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
+	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["FND_PROSPECT"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
 	m.apply_state(bad)
 	check(m.engine.routes.is_empty(), "dead save: a route from a locked dead world is dropped on load")
 	# Null Core
@@ -7983,7 +7982,7 @@ func _test_t206_explore() -> void:
 	var m = await _new_main(false, true)
 	m._dismiss_preface()
 	var f = m.flight
-	Skills.learned.append("MIN_3")
+	Skills.learned.append("FND_PROSPECT")
 	var notices: Array = []
 	m.notice_posted.connect(func(t: String): notices.append(t))
 	var done_text: String = StoryText.get_text("NOT_EXPLORE_DONE")
@@ -8047,7 +8046,7 @@ func _test_t206_explore() -> void:
 	f.set_exploring(true)
 	f.set_exploring(false)
 	check(not f.exploring(), "T206: the player can switch it off")
-	Skills.learned.erase("MIN_3")
+	Skills.learned.erase("FND_PROSPECT")
 	await _free_main(m)
 
 func _test_ships_spawn_near_bodies() -> void:
@@ -8904,9 +8903,9 @@ func _test_dead_world_panel() -> void:
 	txt = ""
 	for l in _labels(pp.box, []):
 		txt += l.text + "\n"
-	check(pp.box.find_child("DeadNeedsSkillLine", true, false) != null and "Cold Survey" in txt and "ross" not in txt and pp.box.find_child("MineSendButton_dross", true, false) == null, "dead panel: after the cycle without the skill shows what is needed, no dross", txt)
-	Skills.add_learned("MIN_3")
-	m.learned_skills.append("MIN_3")
+	check(pp.box.find_child("DeadNeedsSkillLine", true, false) != null and "Prospecting" in txt and "ross" not in txt and pp.box.find_child("MineSendButton_dross", true, false) == null, "dead panel: after the cycle without the skill shows what is needed, no dross", txt)
+	Skills.add_learned("FND_PROSPECT")
+	m.learned_skills.append("FND_PROSPECT")
 	pp.rebuild()
 	await process_frame
 	var mb = pp.box.find_child("MineSendButton_dross", true, false)
