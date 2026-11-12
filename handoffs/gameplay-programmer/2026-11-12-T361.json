@@ -1,0 +1,10 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T361",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["game/bazaar.gd", "game/main.gd", "game/save_game.gd", "data/balance.json", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-12-T361.json"],
+  "open_questions": [],
+  "handoff": "Data side of Bazaar guidance (not run: tests not requested). Methods on Bazaar (main.bazaar): next_step() -> Dictionary, bill_lines() -> Array, step_line(rec) -> String (picks BAZ_STEP_BILL / _BILL_LOCAL / _BILL_FED / _QUORUM / _REACH, '' for other kinds), is_fed(good) -> bool, remind_line(cycle) -> String (main calls it at cycle end). Record keys: kind (found|bill|quorum|reach|opening|done), stage, planet (capital, or found candidate, -1 none), good, amount, source (-1 none), source_price, local_price (0 = capital does not sell), fed, plus n and tier (quorum: worlds short, tier). bill_lines gives one bill record per short row. Source = cheapest other established world in home or viewed system selling the good via engine.local_price(i, good, 'buy'). Only visible goods are named. Reminder: main._end_cycle posts NOT_BAZAAR_REMIND {line}, every bazaar_remind_cycles (4, new balance key); last_remind saved in bazaar block; save VERSION 24. Tip TIP_BILL (state bill_short) after TIP_FOUNDED in TIP_PRIORITY. Test _test_bazaar_guidance added and registered after _test_gigs. UI tasks use StoryText.get_or fallbacks equal to the brief."
+}

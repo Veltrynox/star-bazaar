@@ -65,3 +65,13 @@
 - Failed / did not work: nothing run in a window.
 - Files and commits: the proposal file only.
 - Left to do: owner to answer the 4 questions in section 6, then tasks T361-T363 are scheduled.
+
+## 2026-11-12 16:10 run: T361 T362 T363
+- Summary: Star Bazaar guidance, must set only: Bazaar.next_step / bill_lines / step_line / is_fed, a cycle-end reminder notice (every bazaar_remind_cycles = 4 cycles, only while a bill item is short and unfed) and TIP_BILL (save version 24); texts for the how-to lines and a long description per wing; Bazaar panel with a how line, a step line per short row and Buy at / Send to buttons; a Star Bazaar block on the capital's planet card with a lit Buy button; the top Next Up strip lost its Bazaar slot; the wing popup shows a picture, the effect line and a description; six wing images generated with codex in assets/wings. Not built: Main line card, Bazaar card and Next Up clicks, stage-done next line.
+- Why this task: owner request 2026-11-12 ('implement the must ones only', remove the top reminder, wing descriptions, wing pictures via codex).
+- Approach: gameplay-programmer (data) and story-designer (texts) in parallel, then ui-programmer; main session made the 2B, 3A, 3B one-line effects truthful and generated the images with codex exec (generic art prompts only), shrunk to 960 px.
+- Agent prompts: Agent tool, gameplay-programmer T361, story-designer T363, ui-programmer T362, briefs read from schedule.json; handoffs in handoffs/<agent>/2026-11-12-T36x.json.
+- Worked: scratch renders of the panel, capital card and wing popup looked at; no objective breakage.
+- Failed / did not work: Buy at highlight uses a new planet_panel.show_lit instead of the tutorial helper; Send to may ask one more click for a stop; a small window scroll not tested; run_tests.gd line ~7336 asserts SaveGame.VERSION == 22 and was already stale.
+- Files and commits: see git log on main for T361, T362, T363.
+- Left to do: owner decision on stage 3 wings (data gives 3A hold units and 3B tax, names say weather and gig premium); owner decision on the Space Storage draw rule (see chat); Russian for all new ids by the Haiku agents when asked.

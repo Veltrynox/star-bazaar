@@ -13,6 +13,7 @@ extends RefCounted
 ## recap() is the end recap data: capital, stages, wings, worlds per tier, reclaimed worlds, decisive moments.
 ## Numbers: only data/balance.json (placeholders; see data/bazaar.json for the key names). Saved by main under "bazaar".
 ## Condition atom bazaar_stage:<n> (game/conditions.gd): n stages are done.
+## Guidance (T361): next_step(), bill_lines(), step_line(rec), is_fed(good), remind_line(cycle).
 ## UI API: capital(), can_found(i), stage(), stages_total(), bill_status(), quorum_status(), reach_ok(), reach_needed().
 
 const StoryText := preload("res://game/story_text.gd")
@@ -34,6 +35,7 @@ var opening_pending: bool = false  # last stage done: the Opening flight is stil
 var opened: bool = false           # T298: the Opening flew (docked at the capital)
 var wings: Array = []              # chosen wing ids, in stage order
 var wing_pending: int = 0          # stage whose wing is still to choose, 0 = none
+var last_remind: int = 0           # T361: cycle of the last NOT_BAZAAR_REMIND notice, 0 = none yet (saved)
 
 func setup(main_node: Object) -> void:
 	game = main_node
@@ -43,6 +45,7 @@ func setup(main_node: Object) -> void:
 	opened = false
 	wings = []
 	wing_pending = 0
+	last_remind = 0
 	_rebuild_bonus()
 	if main_node != null and main_node.get("engine") != null:
 		main_node.engine.bill_need_fn = Callable(self, "bill_need_of")  # the route engine keeps the stage bill out of need fills
@@ -243,6 +246,141 @@ func choose_wing(idx: int) -> bool:
 	wing_chosen.emit(id)
 	return true
 
+# ---- guidance (T361): the one next-step record every surface renders -----------------------------------------------------
+
+## True when something already feeds `good` into the capital's planet storage: a Buy order for it is on at the capital, or a route delivers it there.
+func is_fed(good: String) -> bool:
+	if game == null or _capital < 0 or game.get("engine") == null:
+		return false
+	if game.engine.local_on(_capital, good, "buy"):
+		return true
+	for r in game.engine.routes:
+		if int(r["b"]) == _capital and str(r["c"]) == good:
+			return true
+	return false
+
+## Cheapest OTHER established, discovered world in the home or viewed system that sells `good`: {planet, price}, planet -1 when none.
+func _source_of(good: String) -> Dictionary:
+	var best := {"planet": -1, "price": 0}
+	var home: int = game.system_of(_capital)
+	var viewed: int = int(game.view_system)
+	for i in game.map.planets.size():
+		if i == _capital or not game.planet_established(i):
+			continue
+		var sys: int = game.system_of(i)
+		if sys != home and sys != viewed:
+			continue
+		var pr: int = game.engine.local_price(i, good, "buy")
+		if pr < 0:
+			continue
+		if int(best["planet"]) < 0 or pr < int(best["price"]):
+			best = {"planet": i, "price": pr}
+	return best
+
+func _bill_record(r: Dictionary) -> Dictionary:
+	var rec := {"kind": "bill", "stage": current_stage(), "planet": _capital, "good": "", "amount": int(r["need"]) - int(r["have"]),
+		"source": -1, "source_price": 0, "local_price": 0, "fed": false}
+	var best_cost := 1 << 30
+	for g in r["goods"]:  # visible goods only: a hidden good is never named
+		var src := _source_of(str(g))
+		var local: int = maxi(0, game.engine.local_price(_capital, str(g), "buy"))
+		var cost := local if int(src["planet"]) < 0 else (mini(local, int(src["price"])) if local > 0 else int(src["price"]))
+		if cost <= 0:
+			cost = 1 << 29  # not sold anywhere reachable: last choice
+		var fed := is_fed(str(g))
+		if fed:
+			cost -= 1 << 28  # a good that is already fed leads
+		if cost < best_cost:
+			best_cost = cost
+			rec["good"] = str(g)
+			rec["source"] = int(src["planet"])
+			rec["source_price"] = int(src["price"])
+			rec["local_price"] = local
+			rec["fed"] = fed
+	return rec
+
+## One record per short bill row of the stage being built (rows with no visible good are skipped).
+func bill_lines() -> Array:
+	var out := []
+	if game == null or current_stage() == 0:
+		return out
+	for r in bill_status():
+		if bool(r["ok"]) or (r["goods"] as Array).is_empty():
+			continue
+		out.append(_bill_record(r))
+	return out
+
+## The ONE main-line step: {kind: found|bill|quorum|reach|opening|done, stage, planet, good, amount, source, source_price, local_price, fed, n, tier}.
+## bill: the visible short bill good with the smallest shortfall; quorum: n worlds short at tier.
+func next_step() -> Dictionary:
+	var rec := {"kind": "done", "stage": current_stage(), "planet": _capital, "good": "", "amount": 0, "source": -1, "source_price": 0, "local_price": 0, "fed": false, "n": 0, "tier": 0}
+	if game == null:
+		return rec
+	if not is_founded():
+		rec["kind"] = "found"
+		rec["planet"] = -1
+		for i in game.map.planets.size():
+			if can_found(i):
+				rec["planet"] = i
+				break
+		return rec
+	if complete():
+		rec["kind"] = "opening" if opening_pending else "done"
+		return rec
+	var lines := bill_lines()
+	if not lines.is_empty():
+		var pick: Dictionary = lines[0]
+		for l in lines:
+			if int(l["amount"]) < int(pick["amount"]):
+				pick = l
+		for k in pick:
+			rec[k] = pick[k]
+		return rec
+	var q := quorum_status()
+	if not bool(q["ok"]):
+		rec["kind"] = "quorum"
+		rec["n"] = maxi(0, int(q["need"]) - int(q["have"]))
+		rec["tier"] = int(q["tier"])
+	elif not reach_ok():
+		rec["kind"] = "reach"
+	return rec
+
+## The instruction line of a next_step / bill_lines record (every surface and the reminder use this one helper).
+func step_line(rec: Dictionary) -> String:
+	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % int(rec.get("stage", 0)), "")
+	var cap: String = game.planet_name(int(rec.get("planet", -1))) if game != null and int(rec.get("planet", -1)) >= 0 else ""
+	match str(rec.get("kind", "")):
+		"bill":
+			var good := Ui.good_name(str(rec["good"])).to_lower()
+			var v := {"stage": stage_name, "amount": int(rec["amount"]), "good": good, "capital": cap}
+			if bool(rec["fed"]):
+				return StoryText.get_or("BAZ_STEP_BILL_FED", "{stage}: {amount} {good} still to arrive at {capital}. Your Buy / route is on; wait for the cycles.", v)
+			if int(rec["source"]) >= 0:
+				v["source"] = game.planet_name(int(rec["source"]))
+				v["price"] = int(rec["source_price"])
+				v["local"] = int(rec["local_price"])
+				return StoryText.get_or("BAZ_STEP_BILL", "{stage} needs {amount} {good} held in {capital}'s storage. Buy it at {source} ({price} cr) and send it to {capital}, or Buy it at {capital} ({local} cr).", v)
+			v["local"] = int(rec["local_price"])
+			return StoryText.get_or("BAZ_STEP_BILL_LOCAL", "{stage} needs {amount} {good} held in {capital}'s storage. Buy it at {capital} ({local} cr).", v)
+		"quorum":
+			return StoryText.get_or("BAZ_STEP_QUORUM", "{stage} needs {n} more worlds at {tier}. Meet their needs each cycle: see Closest growth.",
+				{"stage": stage_name, "n": int(rec.get("n", 0)), "tier": StoryText.get_or("PROS_TIER_%d" % int(rec.get("tier", 0)), "Tier %d" % int(rec.get("tier", 0)))})
+		"reach":
+			return StoryText.get_or("BAZ_STEP_REACH", "{stage} needs a world in another system. Buy a permit (Skills) and establish a post there.", {"stage": stage_name})
+	return ""
+
+## Cycle end (called by main): the gentle reminder line, or "". Only for a short bill nothing feeds, at most once every bazaar_remind_cycles; records the cycle.
+func remind_line(cycle: int) -> String:
+	if game == null or not is_founded() or complete():
+		return ""
+	var rec := next_step()
+	if str(rec["kind"]) != "bill" or bool(rec["fed"]):
+		return ""
+	if last_remind > 0 and cycle - last_remind < _bal("bazaar_remind_cycles", 4):
+		return ""
+	last_remind = cycle
+	return step_line(rec)
+
 # ---- end recap -------------------------------------------------------------------------------------------------------
 
 ## Data for the end screen: {capital (planet index or -1), stages, stages_total, wings (ids), worlds_per_tier {tier: count} (tier 1..top),
@@ -270,7 +408,7 @@ func _consume_bill() -> void:
 			left -= game.storage.remove(key, g, left)
 
 func to_dict() -> Dictionary:
-	return {"capital": _capital, "stage": _stage, "opening_pending": opening_pending, "opened": opened, "wings": wings.duplicate(), "wing_pending": wing_pending}
+	return {"capital": _capital, "stage": _stage, "opening_pending": opening_pending, "opened": opened, "wings": wings.duplicate(), "wing_pending": wing_pending, "last_remind": last_remind}
 
 ## Old saves have no block: nothing founded.
 func from_dict(s) -> void:
@@ -280,6 +418,7 @@ func from_dict(s) -> void:
 	opened = false
 	wings = []
 	wing_pending = 0
+	last_remind = 0
 	if typeof(s) != TYPE_DICTIONARY:
 		_rebuild_bonus()
 		return
@@ -291,4 +430,5 @@ func from_dict(s) -> void:
 		if not wing_def(str(w)).is_empty() and not wings.has(str(w)):
 			wings.append(str(w))
 	wing_pending = int(s.get("wing_pending", 0)) if _capital >= 0 else 0
+	last_remind = int(s.get("last_remind", 0)) if _capital >= 0 else 0  # T361: older saves have none
 	_rebuild_bonus()

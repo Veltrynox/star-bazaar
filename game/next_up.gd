@@ -1,8 +1,7 @@
 extends HBoxContainer
 ## T263: the Next Up strip in the top bar (design/proposals/2026-11-06-empire-growth-v2.md section 3.7).
-## Three live slots, never empty, each one click focuses the map on the world it names:
+## Two live slots (T362: the Bazaar slot is gone; the Bazaar panel and the capital card say the step), never empty, each one click focuses the map on the world it names:
 ##   Closest growth: the world nearest its tier-up and its short need (a hidden good shows as "not known yet").
-##   Bazaar: the shortest bill item, the quorum gap or the reach gap; "found it" when a world may host the Bazaar.
 ##   Best move: a newly hungry lane, else the cash gap to the next ship and the ETA from the cash forecast.
 ## Reads game state only (Prosperity, Bazaar, cash_forecast); computes no rule. Text by id (StoryText.get_or fallbacks).
 ## Goods are named only when Availability shows them. No numbers of its own: the ETA comes from cash_forecast.net_forecast().
@@ -18,7 +17,7 @@ func setup(main_node: Control) -> void:
 	add_theme_constant_override("separation", 12)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var ids := [["NEXTUP_LBL_GROWTH", "Closest growth"], ["NEXTUP_LBL_BAZAAR", "Bazaar"], ["NEXTUP_LBL_BEST", "Best move"]]
+	var ids := [["NEXTUP_LBL_GROWTH", "Closest growth"], ["NEXTUP_LBL_BEST", "Best move"]]
 	for k in ids.size():
 		var b := Button.new()
 		b.theme_type_variation = "ButtonGhost"
@@ -55,9 +54,9 @@ func refresh() -> void:
 		s["planet"] = int(r["planet"])
 		b.disabled = false  # a slot with no world still shows its line; the click does nothing then
 
-## The three slots as [{text, planet}], planet -1 when there is nothing to focus. Never an empty text.
+## The two slots as [{text, planet}], planet -1 when there is nothing to focus. Never an empty text.
 func compute() -> Array:
-	return [_growth(), _bazaar(), _best()]
+	return [_growth(), _best()]
 
 func _idle() -> Dictionary:
 	return {"text": StoryText.get_or("NEXTUP_IDLE", "Keep trading. Check the planet cards."), "planet": -1}
@@ -85,35 +84,6 @@ func _growth() -> Dictionary:
 	if need == "":
 		return {"text": "%s %d%%" % [pname, roundi(float(pr.progress(best)) * 100.0)], "planet": best}
 	return {"text": StoryText.get_or("NEXTUP_GROWTH", "{planet}: needs {need}", {"planet": pname, "need": need}), "planet": best}
-
-func _first_good(goods: Array) -> String:
-	return Ui.good_name(str(goods[0])) if not goods.is_empty() else StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
-
-func _bazaar() -> Dictionary:
-	var bz = main.bazaar
-	if not bz.is_founded():
-		for i in main.map.planets.size():
-			if bz.can_found(i):
-				return {"text": StoryText.get_or("NEXTUP_BAZAAR_FOUND", "Found the Bazaar at {planet}", {"planet": main.planet_name(i)}), "planet": i}
-		return _idle()
-	if bz.complete():
-		return {"text": StoryText.get_or("BAZ_NAME", "Star Bazaar"), "planet": bz.capital()}
-	var short_row := {}
-	var short_amt := 0
-	for r in bz.bill_status():
-		if not bool(r["ok"]):
-			var amt := int(r["need"]) - int(r["have"])
-			if short_row.is_empty() or amt < short_amt:
-				short_row = r
-				short_amt = amt
-	if not short_row.is_empty():
-		return {"text": StoryText.get_or("NEXTUP_BAZAAR_BILL", "Bazaar: {amount} more {commodity}", {"amount": short_amt, "commodity": _first_good(short_row["goods"])}), "planet": bz.capital()}
-	var q: Dictionary = bz.quorum_status()
-	if not bool(q["ok"]):
-		return {"text": StoryText.get_or("NEXTUP_BAZAAR_QUORUM", "Bazaar: {n} more worlds to grow", {"n": int(q["need"]) - int(q["have"])}), "planet": bz.capital()}
-	if not bz.reach_ok():
-		return {"text": StoryText.get_or("BAZ_REACH_ROW", "One world in another system"), "planet": bz.capital()}
-	return {"text": StoryText.get_or("BAZ_NAME", "Star Bazaar"), "planet": bz.capital()}
 
 ## T273: the open gig with the nearest deadline, as a Best move line.
 func _gig() -> Dictionary:

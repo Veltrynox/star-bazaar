@@ -131,6 +131,8 @@ func _run() -> void:
 	await _test_company_setup()
 	await _test_availability()
 	await _test_gigs()
+	await _test_bazaar_guidance()
+	await _test_bazaar_guidance_ui()
 	await _test_gig_clearance()
 	await _test_skill_link_clip()
 	_test_engine_plume()
@@ -3819,7 +3821,7 @@ func _test_ship_look() -> void:
 	check(SG.pending_look.is_empty(), "ship look: pending_look is used once")
 	var st: Dictionary = m.collect_state().duplicate(true)
 	check(st.get("ship_look") == want, "ship look: saved in the state", str(st.get("ship_look")))
-	check(SG.VERSION == 23, "ship look: save version 23")
+	check(SG.VERSION == 24, "ship look: save version 24")
 	m._set_run_choice("", "small")
 	m._set_ship_look({})
 	m.apply_state(st)
@@ -9645,3 +9647,75 @@ func _test_engine_plume() -> void:
 func _test_hub_explain_ids() -> void:
 	for id in ["ST_HUB_EXPLAIN", "ST_HUB_MAKE_TIP"]:
 		check(StoryText.get_or(id, "") != "", "hub texts: %s exists and is not empty" % id)
+
+## T361: Bazaar.next_step, the fed flag, the reminder cadence and an older (v23) save.
+func _test_bazaar_guidance() -> void:
+	var m: Control = await _new_main(false, false)
+	m._dismiss_preface()
+	var bz: Bazaar = m.bazaar
+	m.balance["bazaar_capital_tier"] = 1
+	m.balance["bazaar_remind_cycles"] = 4
+	for n in range(1, 5):
+		for t in range(1, 9):
+			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
+		m.balance["bazaar_quorum_count_s%d" % n] = 0
+	m.balance["bazaar_bill_s1_t1"] = 50
+	var cap := 0
+	check(str(bz.next_step()["kind"]) == "found", "guidance: before founding the step is found")
+	check(bz.found(cap), "guidance: founded")
+	var rec: Dictionary = bz.next_step()
+	var vis := Availability.visible_goods(bz._branch_goods(1))
+	check(str(rec["kind"]) == "bill" and vis.has(str(rec["good"])) and int(rec["amount"]) == 50 and not bool(rec["fed"]) and int(rec["planet"]) == cap, "guidance: unmet tier-1 bill names a visible good and the amount", str(rec))
+	check(bz.bill_lines().size() == 1 and bz.step_line(rec) != "", "guidance: one bill line, one instruction line", bz.step_line(rec))
+	m.engine.set_local(cap, str(rec["good"]), "buy", true)
+	check(bool(bz.next_step()["fed"]) == m.engine.local_on(cap, str(rec["good"]), "buy"), "guidance: a Buy order at the capital sets fed")
+	m.engine.local_of(cap, str(rec["good"]))["buy"] = false
+	check(not bool(bz.next_step()["fed"]), "guidance: fed is false again with the order off")
+	check(bz.remind_line(10) != "" and bz.remind_line(11) == "" and bz.remind_line(13) == "" and bz.remind_line(14) != "", "guidance: the reminder fires once then waits bazaar_remind_cycles")
+	var d: Dictionary = bz.to_dict()
+	d.erase("last_remind")
+	bz.from_dict(d)
+	check(bz.capital() == cap and bz.last_remind == 0, "guidance: a v23 bazaar block loads with no reminder cycle")
+	check(SaveGame.VERSION == 24, "guidance: save version 24")
+	m.queue_free()
+
+## T362: Bazaar panel step lines and buttons, the two-slot Next Up strip, the capital card block.
+func _test_bazaar_guidance_ui() -> void:
+	var m: Control = await _new_main(false, false)
+	m._dismiss_preface()
+	var bz: Bazaar = m.bazaar
+	m.balance["bazaar_capital_tier"] = 1
+	for n in range(1, 5):
+		for t in range(1, 9):
+			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
+		m.balance["bazaar_quorum_count_s%d" % n] = 0
+	m.balance["bazaar_bill_s1_t1"] = 50
+	var cap := 0
+	bz.found(cap)
+	check(m.next_up._slots.size() == 2 and m.next_up.compute().size() == 2, "T362: the Next Up strip has two slots")
+	m.bazaar_panel.open_screen()
+	await process_frame
+	var lines := _find_all_named(m.bazaar_panel, "StepLine")
+	check(lines.size() == bz.bill_lines().size() and lines.size() >= 1, "T362: the panel shows a step line per short row", str(lines.size()))
+	var rec: Dictionary = bz.bill_lines()[0]
+	var want_buttons: bool = int(rec["source"]) >= 0 and not bool(rec["fed"])
+	check(_find_all_named(m.bazaar_panel, "StepButtons").size() == (1 if want_buttons else 0), "T362: Buy at and Send to show for an unfed row with a source")
+	m.engine.set_local(cap, str(rec["good"]), "buy", true)
+	m.bazaar_panel.refresh()
+	await process_frame
+	check(_find_all_named(m.bazaar_panel, "StepButtons").is_empty(), "T362: the buttons hide when the row is fed")
+	m.engine.local_of(cap, str(rec["good"]))["buy"] = false
+	m.planet_panel.show_planet(cap)
+	check(m.planet_panel.box.get_node_or_null("BazaarBlock") != null, "T362: the capital card shows the Bazaar block")
+	var other := 1 if cap != 1 else 2
+	m.planet_panel.show_planet(other)
+	check(m.planet_panel.box.get_node_or_null("BazaarBlock") == null, "T362: another world's card has no Bazaar block")
+	m.queue_free()
+
+func _find_all_named(n: Node, nm: String) -> Array:
+	var out := []
+	for c in n.get_children():
+		if str(c.name).begins_with(nm):
+			out.append(c)
+		out.append_array(_find_all_named(c, nm))
+	return out

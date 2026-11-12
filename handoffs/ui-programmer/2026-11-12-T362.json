@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T362",
+  "status": "done",
+  "files_changed": ["game/bazaar_panel.gd", "game/planet_panel.gd", "game/next_up.gd", "tools/tests/run_tests.gd", "assets/wings/*.png.import", "handoffs/ui-programmer/2026-11-12-T362.json"],
+  "open_questions": [
+    "Buy at lights the source card's Buy button with a plain tint (planet_panel.show_lit); the tutorial highlight helper is tied to tutorial steps, so it was not reused. OK?",
+    "Send to uses begin_buy_and_send (buy order at the source plus route) then clicks the capital; a stop picker may ask one more click. OK?"
+  ],
+  "handoff": "Built A, B, C, D. Bazaar panel: BAZ_HOW under title, step line per short bill, quorum and reach row, Buy at / Send to buttons (unfed row with a source only), wing tooltip. Capital card: BazaarBlock above growth block. Next Up has two slots. Wing popup 760 px with images (140 px), name, line, DESC with {n}. Test _test_bazaar_guidance_ui added and registered, not run. Renders (scratch script wt/_scratch/t362.gd): wt/_scratch/t362_panel.png, t362_card.png, t362_wings.png; all looked fine, no clipping. The Buy at and Send to click flows were not clicked by eye. Panel scroll relies on existing Ui.scroll_wrap.",
+  "details": {"pngs": ["/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t362_panel.png", "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t362_card.png", "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t362_wings.png"]}
+}

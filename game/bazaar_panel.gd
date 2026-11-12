@@ -34,6 +34,11 @@ func setup(main_node: Control) -> void:
 	close.text = StoryText.get_or("SK_BTN_CLOSE", "Close")
 	close.pressed.connect(close_screen)
 	head.add_child(close)
+	var how := Label.new()  # T362: always visible, what the Bazaar asks of the player
+	how.text = StoryText.get_or("BAZ_HOW", "The Bazaar is raised in stages. Each stage needs goods held in the capital's own storage, other worlds grown to a tier, and must finish before the term ends.")
+	how.theme_type_variation = "LabelMuted"
+	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_root.add_child(how)
 	_body = VBoxContainer.new()
 	_body.add_theme_constant_override("separation", 8)
 	_root.add_child(_body)
@@ -50,7 +55,7 @@ func show_wing_choice() -> void:
 	var pop := PanelContainer.new()
 	pop.mouse_filter = Control.MOUSE_FILTER_STOP
 	pop.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	pop.custom_minimum_size = Vector2(minf(560.0, get_viewport_rect().size.x - 24.0), 0)
+	pop.custom_minimum_size = Vector2(minf(760.0, get_viewport_rect().size.x - 24.0), 0)
 	pop.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	pop.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var col := VBoxContainer.new()
@@ -74,6 +79,15 @@ func show_wing_choice() -> void:
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.add_theme_constant_override("separation", 6)
 		cards.add_child(card)
+		var tex_path := "res://assets/wings/%s.png" % str(o["id"]).to_lower()
+		if ResourceLoader.exists(tex_path):  # a missing image shows nothing and leaves no gap
+			var img := TextureRect.new()
+			img.texture = load(tex_path)
+			img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			img.custom_minimum_size = Vector2(0, 140)
+			img.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			card.add_child(img)
 		var nm := Label.new()
 		nm.text = StoryText.get_or("BAZ_%s_NAME" % o["id"], str(o["id"]))
 		nm.theme_type_variation = "LabelCaption"
@@ -82,14 +96,25 @@ func show_wing_choice() -> void:
 		var tx := Label.new()
 		tx.text = StoryText.get_or("BAZ_%s_LINE" % o["id"], "")
 		tx.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		tx.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		card.add_child(tx)
+		var ds := Label.new()
+		ds.text = wing_desc(str(o["id"]))
+		ds.theme_type_variation = "LabelMuted"
+		ds.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ds.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		card.add_child(ds)
 		var b := Button.new()
 		b.text = StoryText.get_or("BAZ_WING_PICK", "Add this wing")
 		b.pressed.connect(_pick_wing.bind(i))
 		card.add_child(b)
 	main.add_child(pop)
 	_wing_popup = pop
+
+## T362: the long description of a wing with {n} filled from its balance key (absolute value; the unit is in the text).
+func wing_desc(id: String) -> String:
+	var v: float = absf(float(main.balance.get("bazaar_wing_" + id.to_lower(), 0)))
+	var n := str(int(v)) if is_equal_approx(v, floorf(v)) else str(v)
+	return StoryText.get_or("BAZ_%s_DESC" % id, "", {"n": n})
 
 func _pick_wing(idx: int) -> void:
 	if main.bazaar.choose_wing(idx):
@@ -110,7 +135,7 @@ func close_screen() -> void:
 		visible = false
 		closed.emit()
 
-func _row(left: String, right: String = "", style: String = "") -> void:
+func _row(left: String, right: String = "", style: String = "", tip: String = "") -> void:
 	var line := HBoxContainer.new()
 	var l := Label.new()
 	l.text = left
@@ -119,6 +144,9 @@ func _row(left: String, right: String = "", style: String = "") -> void:
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if style != "":
 		l.theme_type_variation = style
+	if tip != "":
+		l.tooltip_text = tip
+		l.mouse_filter = Control.MOUSE_FILTER_STOP
 	line.add_child(l)
 	if right != "":
 		var r := Label.new()
@@ -167,12 +195,14 @@ func refresh() -> void:
 	if not bz.wings.is_empty():
 		_head("BAZ_LBL_WINGS", "Wings")
 		for w in bz.wings:
-			_row(StoryText.get_or("BAZ_%s_NAME" % w, str(w)))
+			_row(StoryText.get_or("BAZ_%s_NAME" % w, str(w)), "", "", wing_desc(str(w)))
 	if bz.complete():
 		_row(StoryText.get_or("BAZ_NAME", "Star Bazaar"))
 		_term()
 		return
 	_head("BAZ_LBL_BILL", "Goods needed")
+	var lines: Array = bz.bill_lines()
+	var li := 0
 	for r in bz.bill_status():
 		var goods: Array = r["goods"]
 		var names := []
@@ -184,15 +214,67 @@ func refresh() -> void:
 		_row(label, "%d / %d" % [mini(have, need), need])
 		if not bool(r["ok"]):
 			_row(StoryText.get_or("BAZ_BILL_ROW", "{amount} more {commodity}", {"amount": need - have, "commodity": label}), "", "LabelSmall")
+			if not goods.is_empty() and li < lines.size():
+				_step(lines[li], true)
+				li += 1
 		else:
 			_row(StoryText.get_or("PROS_NEED_MET", "Met"), "", "LabelSmall")
 	_head("BAZ_LBL_QUORUM", "Other worlds")
 	var q: Dictionary = bz.quorum_status()
 	_row(StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": int(q["have"]), "m": int(q["need"]), "tier": _tier_name(int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"))
+	if not bool(q["ok"]):
+		_step({"kind": "quorum", "stage": bz.current_stage(), "n": maxi(0, int(q["need"]) - int(q["have"])), "tier": int(q["tier"])}, false)
 	if bz.reach_needed():
 		_head("BAZ_LBL_REACH", "Reach")
 		_row(StoryText.get_or("BAZ_REACH_ROW", "One world in another system"), StoryText.get_or("PROS_NEED_MET", "Met") if bz.reach_ok() else StoryText.get_or("PROS_NEED_SHORT", "Short"))
+		if not bz.reach_ok():
+			_step({"kind": "reach", "stage": bz.current_stage()}, false)
 	_term()
+
+## T362: the instruction line of a record (muted, wrapped) and, for a short bill row nothing feeds yet, Buy at / Send to buttons.
+func _step(rec: Dictionary, buttons: bool) -> void:
+	var bz = main.bazaar
+	var t := Label.new()
+	t.name = "StepLine"
+	t.text = bz.step_line(rec)
+	t.theme_type_variation = "LabelMuted"
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.add_child(t)
+	if not buttons or bool(rec.get("fed", false)) or int(rec.get("source", -1)) < 0:
+		return  # fed: the line says so; no source: the line says Buy it at the capital (its card block has that button)
+	var src := int(rec["source"])
+	var good := str(rec["good"])
+	var row := HBoxContainer.new()
+	row.name = "StepButtons"
+	row.add_theme_constant_override("separation", 8)
+	var b1 := Button.new()
+	b1.name = "BuyAtButton"
+	b1.text = StoryText.get_or("BAZ_BTN_BUY_AT", "Buy at {planet}", {"planet": main.planet_name(src)})
+	b1.pressed.connect(_buy_at.bind(src, good))
+	row.add_child(b1)
+	var b2 := Button.new()
+	b2.name = "SendToButton"
+	b2.text = StoryText.get_or("BAZ_BTN_SEND_TO", "Send to {planet}", {"planet": main.planet_name(bz.capital())})
+	b2.pressed.connect(_send_to.bind(src, good))
+	row.add_child(b2)
+	_body.add_child(row)
+
+## Buy at: leave the panel, open the source world's card with the good's Buy button lit.
+func _buy_at(src: int, good: String) -> void:
+	close_screen()
+	main.cancel_pending()
+	main.focus_next_up(src)
+	main.selected_planet = src
+	main.planet_panel.show_lit(src, good)
+
+## Send to: the existing Buy and send flow (begin_buy_and_send) from the source, the capital already clicked as the destination.
+func _send_to(src: int, good: String) -> void:
+	close_screen()
+	main.cancel_pending()
+	main.focus_next_up(src)
+	main.selected_planet = src
+	main.begin_buy_and_send(good)
+	main._on_planet_clicked(main.bazaar.capital())
 
 func _term() -> void:
 	if main.free_play:

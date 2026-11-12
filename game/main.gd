@@ -2694,6 +2694,9 @@ func _end_cycle() -> void:
 	gigs.on_cycle(cycle)  # T271: perks age, a signal may open
 	raids.on_cycle(cycle)  # T296: malus ages, a raid may be chosen
 	_sync_earn()
+	var remind := bazaar.remind_line(cycle)  # T361: gentle main-line reminder, one notice every bazaar_remind_cycles
+	if remind != "":
+		post_notice(StoryText.get_or("NOT_BAZAAR_REMIND", "{line}", {"line": remind}))
 	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()
 	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
@@ -5072,6 +5075,7 @@ const TIP_DEFS := [
 	{"id": "TIP_CAPITAL", "state": "capital"},
 	{"id": "TIP_HUB", "state": "capital"},
 	{"id": "TIP_FOUNDED", "state": "founded"},
+	{"id": "TIP_BILL", "state": "bill_short"},
 	{"id": "TIP_OPENING", "state": "opening"},
 	{"id": "TIP_PLATFORM", "sig": "platform"},
 	{"id": "TIP_EXPLORE", "state": "explore"},
@@ -5096,7 +5100,7 @@ const TIP_DEFS := [
 	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
 ]
 ## T339: order tips are shown in when several wait (goal and capital first); tips not listed follow in TIP_DEFS order.
-const TIP_PRIORITY := ["TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
+const TIP_PRIORITY := ["TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_BILL", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
 ## T339: two tips about one thing share a card when both are due (first shown pulls in the second).
 const TIP_MERGE := {"TIP_WEATHER": "TIP_WEATHER_KINDS", "TIP_CAPITAL": "TIP_HUB"}
 const TIP_SECS_PER_CHAR := 0.05
@@ -5123,6 +5127,11 @@ func _tip_state(key: String) -> bool:
 			return prosperity.any_tier_reached(bazaar.capital_tier())
 		"founded":
 			return bazaar.is_founded()
+		"bill_short":  # T361: founded, a bill item is short and nothing feeds it
+			if not bazaar.is_founded() or bazaar.complete():
+				return false
+			var bs := bazaar.next_step()
+			return str(bs["kind"]) == "bill" and not bool(bs["fed"])
 		"opening":
 			return gigs.offers.any(func(o): return str(o.get("kind", "")) == "opening")
 		"explore":

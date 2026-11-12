@@ -35,6 +35,8 @@ var COL_RED: Color = Ui.col("signal_bad")
 
 var main: Control
 var planet_index: int = -1
+var _lit_fresh: bool = false
+var lit_good: String = ""  # T362: a good whose Buy button is lit (sent here by the Bazaar panel's Buy at); cleared on another planet or when pressed
 var split_open: String = ""  # commodity whose split bar is open ("" = none)
 var _split_bar: Control = null
 var _split_tags: Dictionary = {}  # lane destination -> its "Split 60%" tag label
@@ -92,7 +94,16 @@ func _process(_delta: float) -> void:
 		_prog_bar.value = PathfinderView.build_progress(f)
 		_prog_label.text = _progress_text(f)
 
+## T362: open a world's card with the Buy button of `good` lit (the Bazaar panel's Buy at).
+func show_lit(index: int, good: String) -> void:
+	_lit_fresh = true
+	lit_good = good
+	show_planet(index)
+
 func show_planet(index: int, route_id: int = -1) -> void:
+	if index != planet_index and not _lit_fresh:
+		lit_good = ""
+	_lit_fresh = false
 	if index != planet_index:
 		split_open = ""
 	var was_open := visible and index != planet_index  # another planet while open: a short settle
@@ -159,11 +170,45 @@ func rebuild() -> void:
 	if _dead_minable(p):
 		for c in mined:
 			box.add_child(_mine_button(str(c)))
+	_bazaar_block()
 	_growth_section()
 	_lane_splits()
 	_connections()
 	_tut_mute()
 	size = Vector2.ZERO
+
+## T362: the Star Bazaar block on the capital's card, under the goods grid: stage name, one instruction line per short bill row,
+## and a lit Buy button for a good the capital sells while its Buy is off. Nothing once every row is met. Rebuilt with the card.
+func _bazaar_block() -> void:
+	var bz = main.bazaar
+	if not bz.is_founded() or bz.complete() or planet_index != bz.capital():
+		return
+	var lines: Array = bz.bill_lines()
+	if lines.is_empty():
+		return
+	var wrap := VBoxContainer.new()
+	wrap.name = "BazaarBlock"
+	wrap.add_theme_constant_override("separation", 4)
+	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % bz.current_stage(), "Stage %d" % bz.current_stage())
+	var cap := _label(StoryText.get_or("BAZ_CARD_TITLE", "Star Bazaar: {stage}", {"stage": stage_name}))
+	cap.theme_type_variation = "LabelCaption"
+	wrap.add_child(cap)
+	for rec in lines:
+		var ln := _label(bz.step_line(rec))
+		ln.name = "BazaarStep"
+		ln.theme_type_variation = "LabelMuted"
+		wrap.add_child(ln)
+		var g := str(rec["good"])
+		if int(rec["local_price"]) > 0 and not main.engine.local_on(planet_index, g, "buy") and main.system_trade_open(planet_index):
+			var bb := Button.new()
+			bb.name = "BazaarBuy_" + g
+			bb.theme_type_variation = "ButtonSmall"
+			bb.text = "%s %s" % [StoryText.get_or("BAZ_BTN_BUY_AT", "Buy at {planet}", {"planet": main.planet_name(planet_index)}), Ui.good_name(g)]
+			bb.modulate = Color(1.5, 1.35, 0.7)
+			bb.pressed.connect(func(): buy_send_requested.emit(g))
+			wrap.add_child(bb)
+	box.add_child(HSeparator.new())
+	box.add_child(wrap)
 
 ## T262: growth block under the goods grid: tier name and progress bar, need rows, Restless line, Found the Bazaar button.
 ## A locked need shows only '?' (never the good); goods named here follow Availability (Prosperity.needs already hides locked ones).
@@ -653,7 +698,11 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.name = "BuyButton_" + str(c)
 	if main.tut_lock_active() and not (main.tut_allows("buy", planet_index, str(c)) or main.tut_allows("send_start", planet_index, str(c)) or main.tut_allows("sell", planet_index, str(c))):
 		bs.disabled = true  # guided tutorial: this resource is not part of the step
-	bs.pressed.connect(func(): buy_send_requested.emit(c))
+	bs.pressed.connect(func():
+		lit_good = ""
+		buy_send_requested.emit(c))
+	if lit_good == str(c):
+		bs.modulate = Color(1.5, 1.35, 0.7)  # lit: the good the Bazaar panel sent the player here to buy
 	if sell_p != null and buy != null and not main.DeadWorlds.is_dead(main.map.planets[planet_index]):
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
 	if buy_on:
