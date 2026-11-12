@@ -14,6 +14,7 @@ extends Node3D
 ##   ship_position() -> Vector3            [ZERO]   world position of the ship
 ##   heading() -> float                    [toward target]  T196: yaw of the ship (atan2(-dx, -dz)); it turns at a limited rate
 ##   system_id() -> int                    [1]      solar system the ship is in (it is drawn only in the viewed system)
+##   leg() -> String / leg_goal() -> Vector3   ["direct" / ZERO]  "out": the line and marker go to leg_goal() (exit point), not target().pos
 ##   target() -> Dictionary                [{}]     {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
 ##                                                  current or planned destination; {} when none
 ##   is_paused() -> bool                   [false]  game paused (planned line, ship stands still)
@@ -621,6 +622,8 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	_update_gig_rings(f, sys)
 	if typeof(tgt) == TYPE_DICTIONARY and tgt.has("pos") and state(f) != "building":
 		var tp: Vector3 = tgt["pos"]
+		if f.has_method("leg") and str(f.leg()) == "out" and f.has_method("leg_goal"):
+			tp = f.leg_goal()  # cross-system flight: the line and marker point at the exit point of THIS system, not at the far target
 		var d := Vector2(tp.x - pos.x, tp.z - pos.z)
 		if d.length() > 0.05:
 			if not has_heading:

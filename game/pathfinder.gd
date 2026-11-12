@@ -240,6 +240,11 @@ func system_id() -> int:
 func target() -> Dictionary:
 	return _target.duplicate()
 
+## Where the current leg ends, in the system the ship is in: the exit point on leg "out" of a cross-system flight (target() then holds the
+## final target, which lies in ANOTHER system), else the final target. The view draws its line and marker to this.
+func leg_goal() -> Vector3:
+	return _to
+
 func is_paused() -> bool:
 	return main != null and bool(main.paused)
 
