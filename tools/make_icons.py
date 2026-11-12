@@ -58,7 +58,7 @@ SVG_HEAD = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewB
 SVG_ICONS = {
     "silk": '<path d="M5 8c4-3 10 3 14 0M5 12c4-3 10 3 14 0M5 16c4-3 10 3 14 0"/><path d="M5 5v14M19 5v14"/>',
     "chips": None,  # hand-made file kept as is
-    "ore": '<path d="M4.5 15.5L7 8l5-3.5 5.5 3 2 7-4.5 5h-8z"/><path d="M7 8l5 3.5 5.5-3.5M12 11.5V20.5"/>',
+    "ore": '<path d="M3.500 16l-.5-4.500L6.500 7l4.500-1.500 4.500 1 3.500 2.500 1.500 4.500-2.500 4-5.500 1-5.500-.5z"/><path d="M13 6.500l-1 4 2.500 2.500"/><circle cx="8.500" cy="11.500" r="1"/><circle cx="16" cy="15" r="1.200"/><circle cx="10.500" cy="16" r=".8"/>',
     "dross": '<path d="M5 18c0-4 3-5 3-8s3-4 5-2 4 1 4 5 2 5-2 5H7z"/><path d="M9 14h.01M14 13h.01M12 17h.01"/>',
     "nullglass": '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M6.5 6.5l11 11"/>',
     "plate": '<rect x="4" y="6" width="16" height="12" rx="1.5"/><path d="M7 9h.01M17 9h.01M7 15h.01M17 15h.01M8 12h8"/>',

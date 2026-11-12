@@ -118,6 +118,19 @@ func refresh() -> void:
 	fl.text = StoryText.get_or("ST_HUB_POOL_FREE", "Free ships: {n}", {"n": hs.free_for_pool()})
 	fl.theme_type_variation = "LabelMuted"
 	_body.add_child(fl)
+	if hs.free_for_pool() <= 0 and hs.pool_of(hub) < int(main.balance.get("hub_pool_max", 0)):  # no free ship: buy one straight into the pool
+		var can: Dictionary = main.can_buy_ship()
+		var buy := Button.new()
+		buy.name = "PoolBuyShip"
+		buy.text = StoryText.get_or("ST_HUB_BUY_SHIP", "Buy a ship for the pool ({price} cr)", {"price": main.ship_price()})
+		buy.disabled = not bool(can["ok"])
+		buy.tooltip_text = "" if bool(can["ok"]) else str(can["reason"])
+		buy.pressed.connect(func() -> void:
+			if bool(main.buy_ship()["ok"]):
+				hs.set_pool(hub, hs.pool_of(hub) + 1)
+			refresh()
+			changed.emit())
+		_body.add_child(buy)
 	# served worlds and their gaps
 	_head("ST_HUB_SERVED", "Worlds in reach")
 	var any := false

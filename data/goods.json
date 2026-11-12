@@ -161,12 +161,11 @@
    "buy_price": null,
    "planet_prices": {
     "planet_4": {
-     "ore_buy": 5,
      "ore_sell": 4
     }
    },
    "existing": true,
-   "note": "Minerals starter: mined at clusters, also bought at Flintmoor (T239)"
+   "note": "Minerals starter: mined at clusters only (a living world never sells ore to the player); Flintmoor buys it (sell only, no ore_buy)"
   },
   {
    "id": "dross",

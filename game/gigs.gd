@@ -247,14 +247,14 @@ func eligible(g: Dictionary) -> bool:
 	return true
 
 ## T340: pure check. `planets`: [{"pos": Vector3, "dead": bool}]; `lanes`: [[p0, ctrl, p2]] quadratic Beziers (route_line.gd maths), x/z plane.
-## A point is clear when it is at least `min_planet_dist` from every living planet and `min_lane_dist` from every lane curve.
+## A point is clear when it is at least `min_planet_dist` (plus the planet's own radius `r`, when given) from every living planet and `min_lane_dist` from every lane curve.
 ## A point within `min_planet_dist` of a dead planet is at that world and is allowed (a marker may sit at a dead planet).
 static func clear_of_map(pos: Vector3, planets: Array, lanes: Array, min_planet_dist: float, min_lane_dist: float) -> bool:
 	var p := Vector2(pos.x, pos.z)
 	var at_dead := false
 	for w in planets:
 		var c: Vector3 = w["pos"]
-		if p.distance_to(Vector2(c.x, c.z)) < min_planet_dist:
+		if p.distance_to(Vector2(c.x, c.z)) < min_planet_dist + float(w.get("r", 0.0)):  # the gap is measured from the planet surface (r = drawn radius)
 			if not bool(w.get("dead", false)):
 				return false
 			at_dead = true
@@ -288,7 +288,7 @@ func map_obstacles(sys: int) -> Dictionary:
 	var mp = main.map
 	for i in mp.planets.size():
 		if i < mp.positions.size() and int(mp.planets[i].get("system", 1)) == sys:
-			planets.append({"pos": mp.positions[i], "dead": DeadWorlds.is_dead(mp.planets[i])})
+			planets.append({"pos": mp.positions[i], "dead": DeadWorlds.is_dead(mp.planets[i]), "r": mp.planet_radius(i)})
 	var lanes: Array = []
 	for rec in main.engine.routes:
 		var a := int(rec["a"])

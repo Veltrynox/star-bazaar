@@ -1150,6 +1150,7 @@ func settle(cash: int) -> Dictionary:
 	sales_units = {}
 	sales_up_units = {}
 	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
+	delta += _fill_needs_from_storage(loc)  # 0 goods already stored at a world fill its needs first
 	for o in orders:  # 1 local buys; they may not spend the fixed cost of a route that runs this cycle
 		if o["buy"]:
 			delta += _run_local(o, "buy", cash + delta - route_reserve(cash + delta, amt_now), loc)
@@ -1179,6 +1180,32 @@ func settle(cash: int) -> Dictionary:
 	cluster_budget = {}
 	return {"delta": delta, "results": results, "local": loc, "newly_blocked": newly, "newly_stalled": newly_stalled,
 		"upkeep": upkeep_paid, "gross": delta + upkeep_paid}
+
+## Goods sitting in a world's own storage that the world needs go to the need before anything else this cycle
+## (up to the unmet demand), paid at the sell price like any sale. Returns the credits.
+func _fill_needs_from_storage(out: Array) -> int:
+	if prosperity == null:
+		return 0
+	var total := 0
+	for i in trade.planets.size():
+		if not planet_open(i):
+			continue
+		var key: String = storage.planet_key(i)
+		for nd in prosperity.needs(i):
+			if bool(nd["locked"]):
+				continue
+			var g := str(nd["good"])
+			var room: int = int(prosperity.demand_for(i, g)) - int(prosperity.sold(i, g))
+			if room <= 0:
+				continue
+			var n: int = storage.remove(key, g, mini(room, storage.amount(key, g)))
+			if n <= 0:
+				continue
+			var credits := sale_value(i, g, n)
+			total += credits
+			_note_sale(g, n, i)
+			out.append({"planet": i, "c": g, "role": "need", "n": n, "paid": credits, "state": StoryText.get_or("RT_STATE_NEED_FILLED", "Need filled from storage.")})
+	return total
 
 func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 	var planet := int(o["planet"])
