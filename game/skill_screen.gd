@@ -522,7 +522,7 @@ func _shrink(n: Node, k: float = 1.0) -> void:
 		var sz := FONT_SIZE_TITLE if big else (FONT_SIZE - 1 if n.has_meta("dim") else FONT_SIZE)
 		(n as Label).add_theme_font_size_override("font_size", int(sz * k))
 	elif n is Button or n is MenuButton:
-		n.add_theme_font_size_override("font_size", int(FONT_SIZE * k))
+		n.add_theme_font_size_override("font_size", int(FONT_SIZE * (1.0 if n.has_meta("compact") else k)))
 	for c in n.get_children():
 		_shrink(c, k)
 
@@ -989,7 +989,14 @@ func _build_detail() -> void:
 		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
 	_hover_lift(learn_button)
 	learn_button.pressed.connect(confirm_learn)  # one step: the Learn button learns at once
-	detail_box.add_child(learn_button)
+	learn_button.set_meta("compact", true)  # owner 2026-11-12: a smaller Learn button, its frame glow no longer runs over the text above
+	var learn_pad := MarginContainer.new()
+	learn_pad.add_theme_constant_override("margin_top", 10)
+	learn_pad.add_theme_constant_override("margin_bottom", 6)
+	learn_pad.add_theme_constant_override("margin_left", 6)
+	learn_pad.add_theme_constant_override("margin_right", 6)
+	learn_pad.add_child(learn_button)
+	detail_box.add_child(learn_pad)
 
 ## Learn button text with the cost in points: "Learn  ·  1 point" (singular for 1). Keys SK_LEARN_COST_ONE / SK_LEARN_COST.
 static func learn_text(amount: int) -> String:
