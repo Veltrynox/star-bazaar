@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Engine tuner for the four corvettes. Serve the project root over http (browsers block model loads from file://):
+       python3 -m http.server 8000   then open http://localhost:8000/tools/engine_tuner.html
+     Needs internet once for Three.js from the CDN. The same page is published as an artifact; this copy loads the GLBs directly. -->
+</head>
+<body>
+<title>Corvette Engine Tuner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: full-height two-pane instrument panel. Viewport left (black space), control rail right. Stacks on phones. */
+  :root {
+    --bg: #0b0d12;
+    --panel: #141821;
+    --panel-2: #1b2130;
+    --line: #2a3242;
+    --fg: #e6e9f0;
+    --muted: #8d97ab;
+    --accent: #ff8a3d;      /* hot orange, the plume's own colour */
+    --accent-2: #ffd36b;
+    --ok: #5fd39a;
+    --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 14px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 372px; grid-template-rows: 100%; overflow: hidden;
+  }
+  #stage { position: relative; min-width: 0; min-height: 0; background: radial-gradient(ellipse at 50% 60%, #121726 0%, #07080c 70%); }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+  #hud { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 16px; pointer-events: none; }
+  #hud .tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  #hud .tag b { color: var(--fg); font-weight: 500; }
+  #load { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(320px, 80%); text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  #load .bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  #load .bar i { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .2s; }
+  #rail { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-height: 0;
+    padding-block: 14px 24px; padding-left: 16px; padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 14px; }
+  h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+  h2 { font-size: 11px; font-weight: 500; margin: 0; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .sub { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
+  section { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .tabs button, .eng button, .seg button, .presets button {
+    font: 500 12px var(--font-mono); padding: 7px 4px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #1a0d04; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .eng { display: grid; grid-template-columns: repeat(4, 1fr) auto auto; gap: 4px; }
+  .eng button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
+  .eng button:disabled { opacity: .4; cursor: default; }
+  .row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 68px; align-items: center; gap: 8px; }
+  .row label { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .row label b { color: var(--fg); font-weight: 500; }
+  input[type="range"] { width: 100%; min-width: 0; accent-color: var(--accent); margin: 0; }
+  input[type="number"] { width: 100%; box-sizing: border-box; font: 12px var(--font-mono); font-variant-numeric: tabular-nums; padding: 5px 6px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  input[type="color"] { width: 100%; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); cursor: pointer; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .seg button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .presets button { display: flex; flex-direction: column; gap: 5px; align-items: stretch; padding: 6px 5px; font-size: 11px; }
+  .presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); }
+  .presets .strip { height: 8px; border-radius: 3px; }
+  .presets .shp { height: 14px; display: block; width: 100%; }
+  .colors { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .colors div { display: flex; flex-direction: column; gap: 3px; font: 10px var(--font-mono); color: var(--muted); text-align: center; }
+  .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btns button { font: 500 12px var(--font-ui); padding: 7px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); cursor: pointer; }
+  .btns button.primary { background: var(--accent); border-color: var(--accent); color: #1a0d04; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 120px; font: 11px/1.45 var(--font-mono); background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: vertical; }
+  .note { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 0; }
+  .note code { font-family: var(--font-mono); color: var(--fg); }
+  .toast { font: 12px var(--font-mono); color: var(--ok); min-height: 1em; }
+  @media (max-width: 760px) {
+    body { grid-template-columns: minmax(0, 1fr); grid-template-rows: 48vh minmax(0, 1fr); }
+    #rail { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+    #hud { padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  }
+  @media (prefers-reduced-motion: reduce) { #load .bar i { transition: none; } }
+</style>
+
+<div id="stage">
+  <div id="hud">
+    <div class="tag">Selected <b id="hud-ship">small</b> · engine <b id="hud-eng">1</b> at <b id="hud-pos">0.90 0.00 0.00</b></div>
+    <div class="tag">drag orbit · wheel zoom · click a ship</div>
+  </div>
+  <div id="load">Loading corvettes<div class="bar"><i id="load-bar"></i></div></div>
+</div>
+
+<div id="rail">
+  <div>
+    <h1>Corvette Engine Tuner</h1>
+    <p class="sub">Model axes: nose −X, tail +X. Units are fractions of the ship's bounding radius.</p>
+  </div>
+
+  <section>
+    <h2>Ship</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <h2>Engines · up to 4</h2>
+    <div class="eng" id="eng">
+      <button type="button" data-i="0">1</button><button type="button" data-i="1">2</button><button type="button" data-i="2">3</button><button type="button" data-i="3">4</button>
+      <button type="button" id="eng-add" title="Add engine">+</button><button type="button" id="eng-del" title="Remove this engine">−</button>
+    </div>
+    <div class="row"><label>X <b>tail</b></label><input type="range" id="ex" min="-1.5" max="1.5" step="0.01"><input type="number" id="exn" step="0.01"></div>
+    <div class="row"><label>Y <b>up</b></label><input type="range" id="ey" min="-1.5" max="1.5" step="0.01"><input type="number" id="eyn" step="0.01"></div>
+    <div class="row"><label>Z <b>side</b></label><input type="range" id="ez" min="-1.5" max="1.5" step="0.01"><input type="number" id="ezn" step="0.01"></div>
+    <div class="row"><label>Size</label><input type="range" id="esz" min="0.2" max="3" step="0.01"><input type="number" id="eszn" step="0.01"></div>
+  </section>
+
+  <section>
+    <h2>Shape presets</h2>
+    <div class="presets" id="shape-presets"></div>
+    <div class="seg" role="group" aria-label="Shape">
+      <button type="button" id="shape-cone" aria-pressed="true">Cone</button>
+      <button type="button" id="shape-cyl" aria-pressed="false">Cylinder</button>
+    </div>
+    <div class="row"><label>Offset</label><input type="range" id="boff" min="-0.3" max="0.6" step="0.005"><input type="number" id="boffn" step="0.005"></div>
+    <div class="row"><label>Spread</label><input type="range" id="bspr" min="0" max="0.6" step="0.005"><input type="number" id="bsprn" step="0.005"></div>
+    <div class="row"><label>Length</label><input type="range" id="blen" min="0.1" max="4" step="0.01"><input type="number" id="blenn" step="0.01"></div>
+    <div class="row"><label>Len step</label><input type="range" id="blst" min="-0.3" max="0.5" step="0.005"><input type="number" id="blstn" step="0.005"></div>
+    <div class="row"><label>Radius</label><input type="range" id="brad" min="0.02" max="1" step="0.005"><input type="number" id="bradn" step="0.005"></div>
+    <div class="row"><label>Glow</label><input type="range" id="bint" min="0" max="3" step="0.01"><input type="number" id="bintn" step="0.01"></div>
+    <div class="row"><label>Flicker</label><input type="range" id="bflk" min="0" max="1" step="0.01"><input type="number" id="bflkn" step="0.01"></div>
+    <p class="note">Offset moves each layer further back along the axis than the one inside it. Spread grows each layer's radius. Len step grows each layer's length.</p>
+  </section>
+
+  <section>
+    <h2>Colour presets · 6 layers</h2>
+    <div class="presets" id="color-presets"></div>
+    <div class="colors" id="colors"></div>
+  </section>
+
+  <section>
+    <h2>Values</h2>
+    <div class="btns">
+      <button type="button" class="primary" id="copy">Copy JSON</button>
+      <button type="button" id="reset-ship">Reset ship</button>
+      <button type="button" id="reset-all">Reset all</button>
+    </div>
+    <textarea id="out" readonly spellcheck="false"></textarea>
+    <div class="toast" id="toast"></div>
+    <p class="note">Engine X maps to <code>ENGINE_BACK</code> in <code>game/ships.gd</code> (0.9 today). Settings stay in this browser.</p>
+  </section>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// MODELS: the artifact serves converted glTF JSON; the project copy loads the GLBs from assets/ships directly.
+const SHIPS = [
+  { id: 'small', file: '../assets/ships/ship_corvette_01/model_ship_corvette_01.glb' },
+  { id: 'bulk',  file: '../assets/ships/ship_corvette_02/model_ship_corvette_02.glb' },
+  { id: 'dart',  file: '../assets/ships/ship_corvette_03/model_ship_corvette_03.glb' },
+  { id: 'fleet', file: '../assets/ships/ship_corvette_04/model_ship_corvette_04.glb' },
+];
+const LAYERS = 6, MAX_ENGINES = 4;
+
+// Colour presets: 6 colours, core first. The default is the infrared false-colour ramp.
+const COLOR_PRESETS = [
+  { name: 'Infrared',   colors: ['#ffffff', '#fff1a8', '#ff9a2e', '#ff3a1c', '#c8189a', '#4b0c8f'] },
+  { name: 'Ironbow',    colors: ['#ffffff', '#ffe36b', '#ff8c1a', '#d8301c', '#7a1a7e', '#1a0633'] },
+  { name: 'Plasma',     colors: ['#ffffff', '#c8f4ff', '#5fd8ff', '#2b7bff', '#3b2fd8', '#120a5a'] },
+  { name: 'Ion',        colors: ['#f4fffb', '#b8ffe6', '#52e8c2', '#1fa8c8', '#1b4fa0', '#0b1c4a'] },
+  { name: 'Fusion',     colors: ['#ffffff', '#e8ffb0', '#9cff4a', '#2fd36b', '#1a7a6e', '#0a2b3a'] },
+  { name: 'Ember',      colors: ['#fff6d8', '#ffc24a', '#ff7a1a', '#c62a12', '#6b1206', '#1f0603'] },
+  { name: 'Antimatter', colors: ['#ffffff', '#ffc8f4', '#ff5ad6', '#b32bd8', '#5a1fb8', '#160a3a'] },
+  { name: 'Sunfire',    colors: ['#fffce0', '#ffe94a', '#ffb000', '#ff6a00', '#c41e00', '#3a0a00'] },
+  { name: 'Arctic',     colors: ['#ffffff', '#e4f6ff', '#aee0ff', '#6fb4ff', '#3a6fd8', '#152a6b'] },
+  { name: 'Void',       colors: ['#f0e8ff', '#c9b4ff', '#8f6bff', '#5a3ad8', '#2a1a8a', '#080418'] },
+];
+// Shape presets: cone or cylinder plus the layer stacking numbers.
+const SHAPE_PRESETS = [
+  { name: 'Torch',  shape: 'cone',     offset: 0.06,  spread: 0.18, length: 1.4, lenStep: 0.08,  radius: 0.16 },
+  { name: 'Needle', shape: 'cone',     offset: 0.02,  spread: 0.08, length: 2.6, lenStep: -0.06, radius: 0.09 },
+  { name: 'Bloom',  shape: 'cone',     offset: 0.12,  spread: 0.42, length: 0.8, lenStep: -0.1,  radius: 0.2  },
+  { name: 'Pillar', shape: 'cylinder', offset: 0.0,   spread: 0.1,  length: 1.6, lenStep: -0.12, radius: 0.12 },
+  { name: 'Rings',  shape: 'cylinder', offset: 0.25,  spread: 0.06, length: 0.5, lenStep: 0.0,   radius: 0.16 },
+];
+const SHAPE_KEYS = ['shape', 'offset', 'spread', 'length', 'lenStep', 'radius'];
+
+const defaults = () => ({
+  ships: Object.fromEntries(SHIPS.map(s => [s.id, { engines: [{ pos: [0.9, 0, 0], size: 1 }] }])),
+  blast: { ...SHAPE_PRESETS[0], glow: 1.2, flicker: 0.35, colors: COLOR_PRESETS[0].colors.slice() },
+});
+const KEY = 'corvette-engine-tuner-v2';
+let state = defaults();
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (saved && saved.ships && saved.blast) {
+    for (const s of SHIPS) {
+      const e = saved.ships[s.id] && saved.ships[s.id].engines;
+      if (Array.isArray(e) && e.length) state.ships[s.id].engines = e.slice(0, MAX_ENGINES).map(x => ({ pos: (x.pos || [0.9, 0, 0]).map(Number), size: Number(x.size) || 1 }));
+    }
+    state.blast = { ...state.blast, ...saved.blast, colors: (saved.blast.colors || COLOR_PRESETS[0].colors).slice(0, LAYERS) };
+  }
+} catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const selEngine = Object.fromEntries(SHIPS.map(s => [s.id, 0]));
+
+// ---------- scene ----------
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.6;
+
+const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 200);
+camera.position.set(7.5, 3.6, 8.5);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxDistance = 40; controls.minDistance = 1.2;
+
+const key = new THREE.DirectionalLight(0xfff2e0, 2.2); key.position.set(-6, 8, 4); scene.add(key);
+const fill = new THREE.DirectionalLight(0x8fb0ff, 0.6); fill.position.set(6, -3, -6); scene.add(fill);
+scene.add(new THREE.HemisphereLight(0x3a4a70, 0x0a0a10, 0.5));
+
+{ // star field
+  const n = 1800, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(80 + Math.random() * 40); pos.set([v.x, v.y, v.z], i * 3); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfd8ff, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.8 })));
+}
+
+// ---------- exhaust material ----------
+const blastVert = `
+  varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+  void main(){ vUv = uv; vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`;
+const blastFrag = `
+  uniform vec3 uColor; uniform float uTime; uniform float uGlow; uniform float uFlicker; uniform float uAlpha; uniform float uSeed;
+  varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+  void main(){
+    float t = 1.0 - vUv.y;                     // 0 at the nozzle, 1 at the far end
+    float head = smoothstep(0.0, 0.08, t);
+    float tail = pow(1.0 - t, 1.6);
+    float rim = abs(dot(normalize(vN), normalize(vV)));
+    float edge = mix(0.25, 1.0, rim);
+    float f1 = sin(t * 26.0 - uTime * 9.0 + uSeed) * 0.5 + 0.5;
+    float f2 = sin(t * 61.0 + uTime * 14.0 + uSeed * 3.1) * 0.5 + 0.5;
+    float flick = mix(1.0, 0.55 + 0.45 * (f1 * 0.6 + f2 * 0.4), uFlicker);
+    float a = head * tail * edge * flick * uAlpha;
+    gl_FragColor = vec4(uColor * uGlow * a, a);
+  }`;
+function makeLayerMaterial(i, seed) {
+  return new THREE.ShaderMaterial({
+    vertexShader: blastVert, fragmentShader: blastFrag, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    uniforms: { uColor: { value: new THREE.Color(state.blast.colors[i]) }, uTime: { value: 0 }, uGlow: { value: 1 }, uFlicker: { value: 0 }, uAlpha: { value: 1 }, uSeed: { value: i * 1.7 + seed } },
+  });
+}
+function layerGeometry(shape, radius, length) {
+  // Cylinder axis is Y, top (+Y) is the nozzle; shifted so the nozzle sits at y = 0 and the plume runs to -length.
+  const g = new THREE.CylinderGeometry(radius, shape === 'cylinder' ? radius : radius * 0.02, length, 40, 1, true);
+  g.translate(0, -length / 2, 0);
+  return g;
+}
+
+// ---------- ships ----------
+const shipObjs = {};   // id -> { root, engines: [{ group, plume, layers, light, gizmo }], ring }
+const raycastTargets = [];
+let selected = SHIPS[0].id;
+
+function makeEngine(seed) {
+  const group = new THREE.Group();
+  const plume = new THREE.Group(); plume.rotation.z = Math.PI / 2;   // local -Y (plume axis) -> model +X (the tail)
+  const layers = [];
+  for (let i = 0; i < LAYERS; i++) {
+    const m = new THREE.Mesh(new THREE.BufferGeometry(), makeLayerMaterial(i, seed));
+    m.renderOrder = 10 + i; m.frustumCulled = false; layers.push(m); plume.add(m);
+  }
+  group.add(plume);
+  const light = new THREE.PointLight(0xffaa55, 2, 4, 2); light.position.x = 0.15; group.add(light);
+  const gizmo = new THREE.AxesHelper(0.35); gizmo.renderOrder = 50; gizmo.material.depthTest = false; gizmo.material.transparent = true; gizmo.material.opacity = 0.9; group.add(gizmo);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff8a3d, depthTest: false, transparent: true, opacity: 0.8 })); dot.renderOrder = 51; group.add(dot);
+  return { group, plume, layers, light, gizmo, dot };
+}
+function disposeEngine(e) {
+  for (const m of e.layers) { m.geometry.dispose(); m.material.dispose(); }
+  e.group.removeFromParent();
+}
+function ensureEngines(rec) {
+  const want = state.ships[rec.id].engines.length;
+  while (rec.engines.length < want) { const e = makeEngine(rec.engines.length * 0.9); rec.engines.push(e); rec.root.add(e.group); }
+  while (rec.engines.length > want) disposeEngine(rec.engines.pop());
+}
+function buildExhaust(rec) {
+  const b = state.blast;
+  for (const e of rec.engines) {
+    for (let i = 0; i < LAYERS; i++) {
+      const m = e.layers[i];
+      m.geometry.dispose();
+      m.geometry = layerGeometry(b.shape, b.radius * (1 + i * b.spread), Math.max(0.02, b.length * (1 + i * b.lenStep)));
+      m.position.y = -i * b.offset;
+      m.material.uniforms.uColor.value.set(b.colors[i]);
+      m.material.uniforms.uGlow.value = b.glow;
+      m.material.uniforms.uFlicker.value = b.flicker;
+      m.material.uniforms.uAlpha.value = 1 - i * 0.12;
+    }
+    e.light.color.set(b.colors[1]); e.light.intensity = 2.5 * b.glow;
+  }
+}
+function applyShip(id) {
+  const rec = shipObjs[id]; if (!rec) return;
+  ensureEngines(rec);
+  state.ships[id].engines.forEach((s, i) => {
+    const e = rec.engines[i];
+    e.group.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    e.plume.scale.setScalar(s.size);
+    const sel = id === selected && i === selEngine[id];
+    e.gizmo.visible = sel; e.dot.visible = id === selected && !sel;
+  });
+  rec.ring.visible = id === selected;
+}
+
+const loader = new GLTFLoader();
+const loadBar = document.getElementById('load-bar'), loadBox = document.getElementById('load');
+const progress = new Array(SHIPS.length).fill(0);
+let loaded = 0;
+const failed = [];
+// The artifact viewer only allows fetches of the page's own files, so the glTF's base64 buffer is decoded here and
+// packed into an in-memory GLB; the parser then never fetches a data: URI. Textures stay relative files.
+async function fetchAsGlb(url) {
+  const res = await fetch(url); if (!res.ok) throw new Error(res.status + ' ' + url);
+  const json = await res.json();
+  const uri = json.buffers[0].uri; const b64 = uri.slice(uri.indexOf(',') + 1);
+  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  delete json.buffers[0].uri; json.buffers[0].byteLength = bin.length;
+  const jb = new TextEncoder().encode(JSON.stringify(json));
+  const jpad = (4 - jb.length % 4) % 4, bpad = (4 - bin.length % 4) % 4;
+  const total = 12 + 8 + jb.length + jpad + 8 + bin.length + bpad;
+  const out = new ArrayBuffer(total), dv = new DataView(out), u8 = new Uint8Array(out);
+  dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
+  dv.setUint32(12, jb.length + jpad, true); dv.setUint32(16, 0x4E4F534A, true);
+  u8.set(jb, 20); u8.fill(0x20, 20 + jb.length, 20 + jb.length + jpad);
+  const bo = 20 + jb.length + jpad;
+  dv.setUint32(bo, bin.length + bpad, true); dv.setUint32(bo + 4, 0x004E4942, true); u8.set(bin, bo + 8);
+  return out;
+}
+function updateLoad() { loadBar.style.width = Math.round(progress.reduce((a, b) => a + b, 0) / SHIPS.length * 100) + '%'; }
+SHIPS.forEach((def, idx) => {
+  const fail = (err) => {
+    progress[idx] = 1; loaded++; updateLoad(); console.error(err); failed.push(def.id);
+    loadBox.firstChild.textContent = 'Failed to load ' + failed.join(', ') + ': ' + ((err && err.message) || err);
+    if (loaded === SHIPS.length) select(selected, false);
+  };
+  const ok = (gltf) => {
+    const model = gltf.scene;
+    const box = new THREE.Box3().setFromObject(model);
+    const sphere = box.getBoundingSphere(new THREE.Sphere());
+    model.position.sub(box.getCenter(new THREE.Vector3()));
+    const norm = new THREE.Group(); norm.scale.setScalar(1 / sphere.radius); norm.add(model);   // unit frame: bounding radius 1
+    model.traverse(o => { if (o.isMesh) { raycastTargets.push(o); o.userData.shipId = def.id; } });
+    const root = new THREE.Group();
+    root.position.set(0, 0, (idx - (SHIPS.length - 1) / 2) * 3.2);
+    root.add(norm);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(1.15, 1.2, 64), new THREE.MeshBasicMaterial({ color: 0xff8a3d, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = -1.05; root.add(ring);
+    const rec = { id: def.id, root, engines: [], ring };
+    shipObjs[def.id] = rec; scene.add(root);
+    ensureEngines(rec); buildExhaust(rec); applyShip(def.id);
+    loaded++; progress[idx] = 1; updateLoad();
+    if (loaded === SHIPS.length) { if (!failed.length) loadBox.hidden = true; select(selected, false); }
+  };
+  const prog = (ev) => { if (ev.total) { progress[idx] = ev.loaded / ev.total; updateLoad(); } };
+  if (def.file.endsWith('.glb')) loader.load(def.file, ok, prog, fail);
+  else fetchAsGlb(def.file).then(buf => loader.parse(buf, 'models/', ok, fail)).catch(fail);
+});
+
+// ---------- selection ----------
+const $ = id => document.getElementById(id);
+const tabs = $('tabs');
+SHIPS.forEach(s => {
+  const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.textContent = s.id; b.dataset.id = s.id;
+  b.addEventListener('click', () => select(s.id, true)); tabs.appendChild(b);
+});
+let targetAnim = null;
+function select(id, moveCamera) {
+  selected = id;
+  for (const b of tabs.children) b.setAttribute('aria-selected', String(b.dataset.id === id));
+  $('hud-ship').textContent = id;
+  for (const k in shipObjs) applyShip(k);
+  syncShipInputs();
+  const rec = shipObjs[id];
+  if (rec && moveCamera) targetAnim = { from: controls.target.clone(), to: rec.root.position.clone(), t: 0 };
+}
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let downAt = null;
+renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(raycastTargets, false)[0];
+  if (hit) select(hit.object.userData.shipId, true);
+});
+
+// ---------- engine list ----------
+const engBox = $('eng');
+const engBtns = [...engBox.querySelectorAll('button[data-i]')];
+engBtns.forEach(b => b.addEventListener('click', () => { selEngine[selected] = +b.dataset.i; applyShip(selected); syncShipInputs(); }));
+$('eng-add').addEventListener('click', () => {
+  const list = state.ships[selected].engines; if (list.length >= MAX_ENGINES) return;
+  const last = list[list.length - 1];
+  list.push({ pos: [last.pos[0], last.pos[1], -last.pos[2] || (list.length % 2 ? 0.25 : -0.25)], size: last.size });  // new engine mirrored on Z, or set off to one side
+  selEngine[selected] = list.length - 1;
+  afterChange(); syncShipInputs(); say('Engine ' + list.length + ' added.');
+});
+$('eng-del').addEventListener('click', () => {
+  const list = state.ships[selected].engines; if (list.length <= 1) return;
+  list.splice(selEngine[selected], 1); selEngine[selected] = Math.min(selEngine[selected], list.length - 1);
+  afterChange(); syncShipInputs(); say('Engine removed.');
+});
+function syncEngineButtons() {
+  const n = state.ships[selected].engines.length;
+  engBtns.forEach((b, i) => { b.disabled = i >= n; b.setAttribute('aria-selected', String(i === selEngine[selected])); });
+  $('eng-add').disabled = n >= MAX_ENGINES; $('eng-del').disabled = n <= 1;
+  $('hud-eng').textContent = String(selEngine[selected] + 1);
+}
+
+// ---------- inputs ----------
+const cur = () => state.ships[selected].engines[selEngine[selected]];
+function bindPair(rangeId, numId, get, set) {
+  const r = $(rangeId), n = $(numId);
+  const push = v => { v = Number(v); if (!Number.isFinite(v)) return; set(v); r.value = v; n.value = v; afterChange(); };
+  r.addEventListener('input', () => push(r.value));
+  n.addEventListener('change', () => push(n.value));
+  return () => { const v = get(); r.value = v; n.value = Number(v.toFixed(3)); };
+}
+const shipSyncs = [
+  bindPair('ex', 'exn', () => cur().pos[0], v => cur().pos[0] = v),
+  bindPair('ey', 'eyn', () => cur().pos[1], v => cur().pos[1] = v),
+  bindPair('ez', 'ezn', () => cur().pos[2], v => cur().pos[2] = v),
+  bindPair('esz', 'eszn', () => cur().size, v => cur().size = v),
+];
+const blastSyncs = [
+  bindPair('boff', 'boffn', () => state.blast.offset, v => state.blast.offset = v),
+  bindPair('bspr', 'bsprn', () => state.blast.spread, v => state.blast.spread = v),
+  bindPair('blen', 'blenn', () => state.blast.length, v => state.blast.length = v),
+  bindPair('blst', 'blstn', () => state.blast.lenStep, v => state.blast.lenStep = v),
+  bindPair('brad', 'bradn', () => state.blast.radius, v => state.blast.radius = v),
+  bindPair('bint', 'bintn', () => state.blast.glow, v => state.blast.glow = v),
+  bindPair('bflk', 'bflkn', () => state.blast.flicker, v => state.blast.flicker = v),
+];
+const colorInputs = [];
+for (let i = 0; i < LAYERS; i++) {
+  const w = document.createElement('div'); const inp = document.createElement('input'); inp.type = 'color'; inp.id = 'col' + i;
+  inp.addEventListener('input', () => { state.blast.colors[i] = inp.value; afterChange(); });
+  const l = document.createElement('span'); l.textContent = i === 0 ? 'core' : i === LAYERS - 1 ? 'outer' : 'L' + (i + 1);
+  w.appendChild(inp); w.appendChild(l); $('colors').appendChild(w); colorInputs.push(inp);
+}
+function setShape(shape) { state.blast.shape = shape; afterChange(); syncBlastInputs(); }
+$('shape-cone').addEventListener('click', () => setShape('cone'));
+$('shape-cyl').addEventListener('click', () => setShape('cylinder'));
+
+// preset buttons
+const shapeBtns = SHAPE_PRESETS.map(p => {
+  const b = document.createElement('button'); b.type = 'button'; b.id = 'shp-' + p.name.toLowerCase();
+  const ico = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ico.setAttribute('viewBox', '0 0 40 14'); ico.classList.add('shp');
+  const pts = p.shape === 'cylinder' ? '2,3 38,3 38,11 2,11' : '2,2 38,7 2,12';
+  ico.innerHTML = `<polygon points="${pts}" fill="currentColor" opacity=".55"/>` + (p.offset > 0.1 ? '<rect x="14" y="1" width="2" height="12" fill="currentColor"/><rect x="26" y="1" width="2" height="12" fill="currentColor"/>' : '');
+  b.appendChild(ico); b.appendChild(document.createTextNode(p.name));
+  b.addEventListener('click', () => { Object.assign(state.blast, Object.fromEntries(SHAPE_KEYS.map(k => [k, p[k]]))); afterChange(); syncBlastInputs(); say(p.name + ' shape.'); });
+  $('shape-presets').appendChild(b); return b;
+});
+const colorBtns = COLOR_PRESETS.map(p => {
+  const b = document.createElement('button'); b.type = 'button'; b.id = 'clr-' + p.name.toLowerCase();
+  const strip = document.createElement('span'); strip.className = 'strip'; strip.style.background = 'linear-gradient(90deg, ' + p.colors.join(', ') + ')';
+  b.appendChild(strip); b.appendChild(document.createTextNode(p.name));
+  b.addEventListener('click', () => { state.blast.colors = p.colors.slice(); afterChange(); syncBlastInputs(); say(p.name + ' colours.'); });
+  $('color-presets').appendChild(b); return b;
+});
+const sameShape = p => SHAPE_KEYS.every(k => k === 'shape' ? state.blast.shape === p.shape : Math.abs(state.blast[k] - p[k]) < 1e-6);
+const sameColors = p => p.colors.every((c, i) => c.toLowerCase() === String(state.blast.colors[i]).toLowerCase());
+
+function syncShipInputs() { shipSyncs.forEach(f => f()); syncEngineButtons(); refreshOut(); }
+function syncBlastInputs() {
+  blastSyncs.forEach(f => f());
+  colorInputs.forEach((c, i) => c.value = state.blast.colors[i]);
+  $('shape-cone').setAttribute('aria-pressed', String(state.blast.shape === 'cone'));
+  $('shape-cyl').setAttribute('aria-pressed', String(state.blast.shape === 'cylinder'));
+  shapeBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(sameShape(SHAPE_PRESETS[i]))));
+  colorBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(sameColors(COLOR_PRESETS[i]))));
+}
+function afterChange() {
+  for (const k in shipObjs) { applyShip(k); buildExhaust(shipObjs[k]); }
+  shapeBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(sameShape(SHAPE_PRESETS[i]))));
+  colorBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(sameColors(COLOR_PRESETS[i]))));
+  refreshOut(); save();
+}
+function refreshOut() {
+  const e = cur();
+  $('hud-pos').textContent = e.pos.map(v => v.toFixed(2)).join(' ');
+  const out = { ships: {}, blast: { ...state.blast } };
+  const sp = SHAPE_PRESETS.find(sameShape), cp = COLOR_PRESETS.find(sameColors);
+  if (sp) out.blast.shape_preset = sp.name; if (cp) out.blast.color_preset = cp.name;
+  for (const sh of SHIPS) out.ships[sh.id] = { engines: state.ships[sh.id].engines.map(x => ({ pos: x.pos.map(v => +v.toFixed(3)), size: +x.size.toFixed(3) })) };
+  $('out').value = JSON.stringify(out, null, 2);
+}
+const toast = $('toast');
+function say(msg) { toast.textContent = msg; clearTimeout(say.t); say.t = setTimeout(() => toast.textContent = '', 1800); }
+$('copy').addEventListener('click', () => {
+  const ta = $('out');
+  navigator.clipboard.writeText(ta.value).then(() => say('Copied.')).catch(() => { ta.focus(); ta.select(); say('Select all and copy.'); });
+});
+$('reset-ship').addEventListener('click', () => { state.ships[selected] = defaults().ships[selected]; selEngine[selected] = 0; afterChange(); syncShipInputs(); say('Ship reset.'); });
+$('reset-all').addEventListener('click', () => { state = defaults(); for (const k in selEngine) selEngine[k] = 0; afterChange(); syncShipInputs(); syncBlastInputs(); say('All reset.'); });
+
+syncBlastInputs(); syncShipInputs();
+
+// ---------- loop ----------
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+const clock = new THREE.Clock();
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+renderer.setAnimationLoop(() => {
+  const t = reduced ? 0 : clock.getElapsedTime();
+  for (const k in shipObjs) for (const e of shipObjs[k].engines) for (const m of e.layers) m.material.uniforms.uTime.value = t;
+  if (targetAnim) { targetAnim.t = Math.min(1, targetAnim.t + 0.06); const ez = 1 - Math.pow(1 - targetAnim.t, 3); controls.target.lerpVectors(targetAnim.from, targetAnim.to, ez); if (targetAnim.t >= 1) targetAnim = null; }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
