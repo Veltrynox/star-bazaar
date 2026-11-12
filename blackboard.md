@@ -65,3 +65,13 @@
 - Failed / did not work: nothing run in a window.
 - Files and commits: see git log on main for T364.
 - Left to do: stock delivered to a Space Storage can now only leave through workshops, link upkeep and Storage Links; owner to decide on Space Storage as a route source. Russian for TIP_SPACE_STORAGE_WHY and SS_LBL_STOCK_RULE needs a Haiku re-translation when the owner asks.
+
+## 2026-11-12 18:30 run: T365 T366 T367
+- Summary: T366 (wing popup as framed banner cards, BannerArt moved to game/banner_art.gd) and T367 (dead world card: no Mine and send button, the tile toggles mining, right click opens the goods popup, one hint line) are done and committed; the start skill points drop by one (new key skill_points_home 1) and the Space Storage panel lost its next-cycle line (separate commits); the six wing pictures were redone as simple 480x160 banners. T365 (skill screen connector lines) was STOPPED by the owner before it finished.
+- Why this task: owner reports and requests 2026-11-12.
+- Approach: ui-programmer agents; T365 killed mid-run by the main session at the owner's request, only T365 touched.
+- Agent prompts: Agent tool, ui-programmer, briefs read from schedule.json T365, T366, T367.
+- Worked: T366 and T367 renders looked at; no objective breakage.
+- Failed / did not work: T365 not finished: game/skill_screen.gd holds its partial, uncommitted edits (about 220 added lines), no test, no handoff, never rendered by the main session.
+- Files and commits: see git log on main for T366 and T367.
+- Left to do: owner to decide on T365: restart it, keep the partial edits, or revert game/skill_screen.gd (git checkout game/skill_screen.gd); the skill screen lines still cross until then.
