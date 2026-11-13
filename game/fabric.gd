@@ -5,7 +5,8 @@ const StoryText := preload("res://game/story_text.gd")
 ## Needs skill MIN_1, then a one-time build cost. Every number is in balance.json: fabric_build_cost, fabric_in_dross,
 ## fabric_in_nullglass, fabric_out_plate, fabric_batches_per_cycle. The fabric moves goods only inside the company
 ## storage (system 1 Space Storage); it never moves credits during a cycle, so forecast and settle agree.
-## Saved by main under "fabric": {built, state, reason}. Old saves: not built.
+## Nothing is made until the player switches the plate recipe on (`on`, default OFF): the Space Storage may hold the Star Bazaar bill.
+## Saved by main under "fabric": {built, state, reason, core_made, on}. Old saves: not built; a built fabric with no "on" loads ON.
 
 const SYSTEM := 1
 const OUTPUT := "plate"
@@ -17,6 +18,7 @@ var state := "idle"     # idle | running | stalled
 var reason := ""        # short stall text ("needs dross")
 var made := 0           # plates made by the last cycle
 var core_made := 0      # Null Cores built this run (at most null_core_max; rare)
+var on := false         # the plate recipe is switched on (default off)
 
 func setup(bal: Dictionary) -> void:
 	balance = bal
@@ -25,6 +27,7 @@ func setup(bal: Dictionary) -> void:
 	reason = ""
 	made = 0
 	core_made = 0
+	on = false
 
 func build_cost() -> int:
 	return maxi(0, int(balance.get("fabric_build_cost", 1500)))
@@ -61,6 +64,10 @@ func run(storage: RefCounted) -> void:
 		state = "idle"
 		reason = ""
 		return
+	if not on:
+		state = "idle"
+		reason = "off"
+		return
 	var key: String = storage.system_key(SYSTEM)
 	var out_n := maxi(1, int(balance.get("fabric_out_plate", 1)) + Skills.batch_yield(Markets.market_of(OUTPUT)))  # MIN_6
 	var why := ""
@@ -86,16 +93,18 @@ func run(storage: RefCounted) -> void:
 		reason = why
 
 func to_dict() -> Dictionary:
-	return {"built": built, "state": state, "reason": reason, "core_made": core_made}
+	return {"built": built, "state": state, "reason": reason, "core_made": core_made, "on": on}
 
 func from_dict(d) -> void:
 	built = false
 	state = "idle"
 	reason = ""
 	core_made = 0
+	on = false
 	if typeof(d) != TYPE_DICTIONARY:
 		return  # old saves: not built
 	built = bool(d.get("built", false))
+	on = bool(d["on"]) if d.has("on") else built  # an old save: a running fabric keeps running
 	state = str(d.get("state", "idle"))
 	reason = str(d.get("reason", ""))
 	core_made = clampi(int(d.get("core_made", 0)), 0, core_max())

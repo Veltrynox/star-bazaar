@@ -1,0 +1,57 @@
+{
+  "agent": "economy-designer",
+  "date": "2026-11-13",
+  "task": "starter-sources (option A + 90-cycle economy check, owner request)",
+  "status": "partial",
+  "files_changed": [
+    "data/goods.json",
+    "data/balance.json",
+    "gdd.md",
+    "handoffs/economy-designer/2026-11-13-starter-sources.json"
+  ],
+  "schema_version": 1,
+  "open_questions": [
+    "No run wins: Bazaar founded c9-17, stage 1 at c12-87, stage 2 once (Minerals, c57-59), stage 3 never. Bills of a good no world of the site system sells (Biotech t2 spores, Luxury musk stalls), no free hub pool ships, and the founder/trader bots' permit check (uses the base permit_cost, not permit_total_cost, then never retries) block it; not numbers.",
+    "Dominance by CEO, not style: Luxury and Biotech captain/expander/industrialist end on 60-170k with nothing to buy; Military trader bankrupt both seeds (c41, c67); idler (no decisions) ends 17-24k, level with Minerals active play.",
+    "Cheaper permits (700/point) pulled the miner and Luxury industrialist into system 2 and to ~0 cash: cross-system expansion is a trap for Minerals."
+  ],
+  "handoff": "Option A in data/goods.json (20/17 placeholders kept). Bazaar bills cut about a fifth (balance data_version 91). Probes reverted: permit_point_credits 700 (hurt miner/industrialist, no founder gain), s2_p3 blooms_sell 29 (no effect on Luxury). Four full matrix runs (58 runs, ~2 min each). Non-founder results unchanged by the bill cut; founder stage 1 at most 1-2 cycles earlier.",
+  "changes": {
+    "goods.json powder planet_prices s2_p2, s3_p2": {
+      "old": "none",
+      "new": "powder_buy 20 / powder_sell 17",
+      "why": "option A: one powder source per system"
+    },
+    "goods.json blooms planet_prices s2_p1, s3_p1": {
+      "old": "none",
+      "new": "blooms_buy 20 / blooms_sell 17",
+      "why": "option A; local margin to s2_p3 (13) stays below s2 energy/food (22-25), so Ashgate/Flintmoor imports (21-22) still pay"
+    },
+    "balance.json permit_point_credits": {
+      "old": 1000,
+      "new": 1000,
+      "why": "700 tried, reverted"
+    },
+    "balance.json bazaar bills": {
+      "old": "s1_t1 60, s2_t1 50, s2_t2 40, s3_t2 50, s3_t3 30, s4_t3 40, s4_t4 20",
+      "new": "40, 40, 30, 40, 24, 30, 16",
+      "why": "stages took 6-45+ cycles each; four must fit 90 cycles once sourcing works"
+    },
+    "goods.json s2_p3 blooms_sell": {
+      "old": 33,
+      "new": 33,
+      "why": "29 tried, no effect, reverted"
+    }
+  },
+  "sim": {
+    "captain": "c10 3.2k, c30 9.6k, end 21.7k, no Bazaar",
+    "expander": "flat 1.2-1.4k c10-c30, end 35.9k, 14 ships, permit s3 c9",
+    "founder": "softlock c10-21 in 7 of 8 runs; one run to c90 ended 205",
+    "idler": "end 21.3k on one lane",
+    "industrialist": "end 1.8k / 8.8k",
+    "miner": "end 24-26k",
+    "reckless": "bankrupt c17 (intended)",
+    "sampler": "end 4.8-6.6k",
+    "trader": "softlock c16"
+  }
+}

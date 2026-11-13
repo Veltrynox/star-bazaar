@@ -3,21 +3,41 @@ extends Node3D
 ## radius is MAP_RADIUS world units. Size and pivot are measured at runtime, so a new model needs no constants.
 
 const SPIN_DEG_PER_SEC := 6.0       # tune the spin here (degrees per second)
-const MAP_RADIUS := 0.1284          # world units, outer radius on the map (0.0917 x 1.4, owner 2026-11-13)
+const MAP_RADIUS := 0.1541          # world units, outer radius on the map (0.1284 x 1.2, owner 2026-11-13; both models)
 const BUILD_SECONDS := 1.5
 const MODEL_PATH := "res://assets/space_station/space station 3d model-2.glb"
+const BAZAAR_MODEL_PATH := "res://assets/star_bazaar/star_bazaar.glb"  # the Space Storage once it is the Star Bazaar
 const ROUGHNESS_MAX := 0.75         # the GLB is roughness 0.9, which reads dull in the map light
 
 var system_id := 1
 var pivot: Node3D
+var bazaar := false         # true: shows the Star Bazaar model instead of the space station
+var _holder: Node3D = null
 
 func _init() -> void:
 	pivot = Node3D.new()
 	add_child(pivot)
 
 func _ready() -> void:
+	_build_model()
+
+## Swaps to the Star Bazaar model (or back). animate: the build-in plays again (founding); a loaded save passes false.
+func set_bazaar(on: bool, animate: bool = true) -> void:
+	if bazaar == on:
+		return
+	bazaar = on
+	if _holder != null:
+		pivot.remove_child(_holder)
+		_holder.queue_free()
+		_holder = null
+	if is_inside_tree():
+		_build_model()
+		build_in(animate)
+
+func _build_model() -> void:
+	var path := BAZAAR_MODEL_PATH if bazaar else MODEL_PATH
 	var model: Node3D = null
-	var res = load(MODEL_PATH) if ResourceLoader.exists(MODEL_PATH) else null
+	var res = load(path) if ResourceLoader.exists(path) else null
 	if res is PackedScene:
 		model = res.instantiate()
 	if model == null:
@@ -33,6 +53,7 @@ func _ready() -> void:
 		model.position = -box.get_center()
 	holder.add_child(model)
 	pivot.add_child(holder)
+	_holder = holder
 
 ## Scale from 0 to full over BUILD_SECONDS.
 func build_in(animate: bool = true) -> void:

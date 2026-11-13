@@ -145,8 +145,8 @@ func route_expense_lines() -> Array:
 	return out
 
 ## Names of moving routes that earn nothing and cost money: no sale at the destination, no route bonus, and
-## nothing uses the stock on: no Sell order or onward route there, and in Space Storage no route out and no built
-## workshop in that system that takes the good as an input.
+## nothing uses the stock on: no Sell order or onward route there, and in Space Storage no route out, no Star Bazaar bill there and no built
+## workshop in that system with the recipe switched on that takes the good as an input.
 func no_earn_routes() -> Array:
 	var out: Array = []
 	var e = main.engine
@@ -162,13 +162,15 @@ func _stock_used_onward(dst: int, c: String) -> bool:
 	var e = main.engine
 	if dst >= 0:
 		return e.has_outflow(dst, c)
+	if main.bazaar.is_founded() and -dst == main.bazaar.site_system():
+		return true  # the Star Bazaar bill is held there
 	for rec in e.routes:
 		if int(rec["a"]) == dst and str(rec["c"]) == c:
 			return true
 	for ws in main.workshops.IDS:
 		if main.workshops.stands_in(ws, -dst):
 			for g in Goods.recipes_of(ws):
-				if Goods.recipe(g).has(c):
+				if Goods.recipe(g).has(c) and main.workshops.is_on(str(g)):
 					return true
 	return false
 

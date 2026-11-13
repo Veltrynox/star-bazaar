@@ -40,22 +40,22 @@ GIG02_EPI | Gig 02, epilogue line | The Bureau still lists the relay as closed. 
 
 ## Phase 2 signals (T275, 2026-11-06). GIG03 and GIG04 are shared: all four branch outcomes. GIG05 (Military and Minerals) and GIG06 (Luxury and Biotech) are branch gigs: outcome lines only for those two branches, and the game offers each only to a company with that branch.
 
-## GIG03 The quota drum (a Plan marker adrift)
+## GIG03 The unused charter (a Bureau pod adrift)
 
-GIG03_TITLE | Gig 03, arrival window title | The quota drum
-GIG03_HOOK | Gig 03, signal hint | The sensors catch a crash beacon in the dark. Its frequency belongs to a Belo Industries hauler. Belo ships have been seen carrying living cargo sealed in black slime, the kind clinics refuse to sign for and the Bureau prefers not to list. The beacon still repeats its call, and nobody on that hull has answered it. Something drifts near the wreck. Do we look?
-GIG03_ARRIVE | Gig 03, arrival window text | A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a quota page with a blank line for the world. If you take up the quota, the scout stays long. If you copy the ledger, the quota stays blank.
-GIG03_A_BTN | Gig 03, button A | Take up the quota
+GIG03_TITLE | Gig 03, arrival window title | The unused charter
+GIG03_HOOK | Gig 03, signal hint | A Bureau courier pod, drifting alone, still pinging for a desk that no longer exists. Its stamp is from a Plan that was dropped before it ran. Pods like this carry orders for one world: what it must produce, and how much it may keep. Nobody ever came to collect this one. Do we look?
+GIG03_ARRIVE | Gig 03, arrival window text | The pod opens on a production charter, never used. It lets one world produce more and store more. The line for the world is blank. You can write one of your worlds on it, or copy the pod's ledger and sell the copy. Either way the scout is held here a while.
+GIG03_A_BTN | Gig 03, button A | Claim the charter
 GIG03_B_BTN | Gig 03, button B | Copy the ledger
-GIG03_A_OUT_MIL | Gig 03, outcome A, Military | You write one of your worlds on the blank line, and the stamp takes. The quota is yours now, and the yard there will know it. The Plan has one line fewer to mourn.
-GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | You write a world on the blank line, in your best hand, and the page seems pleased. A quota for a gift that never came is yours now. The drum taps once more.
-GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | You write a world on the blank line, and the drum stops tapping. The old quota wanted rock and never got it. It is yours now.
-GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | You write a world on the blank line. The ink dries green at the edges, which ink should not do. The quota is yours now. The drum goes quiet.
-GIG03_B_OUT_MIL | Gig 03, outcome B, Military | The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The lot stays closed behind you.
-GIG03_B_OUT_LUX | Gig 03, outcome B, Luxury | The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The lot stays closed behind you.
-GIG03_B_OUT_MIN | Gig 03, outcome B, Minerals | The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The lot stays closed behind you.
-GIG03_B_OUT_BIO | Gig 03, outcome B, Biotech | The ledger lists which trays came from which shelf, and when. You copy it, and a clinic pays a small sum for the copy. The lot stays closed behind you.
-GIG03_EPI | Gig 03, epilogue line | The Bureau marks the quota drum as found. It does not mark it as finished.
+GIG03_A_OUT_MIL | Gig 03, outcome A, Military | You write one of your worlds on the blank line, and the stamp takes. That world holds the charter now, and its yard will know it. The Plan has one line fewer to mourn.
+GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | You write one of your worlds on the blank line, in your best hand, and the page seems pleased. That world holds the charter now. It was meant for a gift that never came.
+GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | You write one of your worlds on the blank line, and the stamp takes. That world holds the charter now. It was meant for rock the Plan never got.
+GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | You write one of your worlds on the blank line. The ink dries green at the edges, which ink should not do. That world holds the charter now.
+GIG03_B_OUT_MIL | Gig 03, outcome B, Military | The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The charter stays blank, and the pod goes back to drifting.
+GIG03_B_OUT_LUX | Gig 03, outcome B, Luxury | The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The charter stays blank, and the pod goes back to drifting.
+GIG03_B_OUT_MIN | Gig 03, outcome B, Minerals | The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The charter stays blank, and the pod goes back to drifting.
+GIG03_B_OUT_BIO | Gig 03, outcome B, Biotech | The ledger lists which trays came from which shelf, and when. You copy it, and a clinic pays a small sum for the copy. The charter stays blank, and the pod goes back to drifting.
+GIG03_EPI | Gig 03, epilogue line | The Bureau marks the pod as found. It does not mark the charter as used.
 
 ## GIG04 The empty berth (a station that kept the lights)
 
@@ -100,8 +100,20 @@ GIG06_B_OUT_LUX | Gig 06, outcome B, Luxury | Fine seed, sorted by colour, each 
 GIG06_B_OUT_BIO | Gig 06, outcome B, Biotech | Seed in damp paper, each lot tagged by shelf. The hatch keeper asks a small toll, and you pay it. The beds stay green. The air inside smells close.
 GIG06_EPI | Gig 06, epilogue line | The garden is listed as tended. No keeper is named on the page.
 
+## GIG08 The drive yard (Military)
+Branch gig, Military only: outcome lines for Military only. Option A permanently raises the Flagship's top speed to the Dart's. Option B gives a small sum of cash. A costs the scout a long wait, B a short one.
+
+GIG08_TITLE | Gig 08, arrival window title | The drive yard
+GIG08_HOOK | Gig 08, signal hint | A low thrum, steady, like an engine that never learned to hurry. It comes from an old yard the Bureau struck from the Plan after its last drive was judged too quick for any hull in the book. The board lists the yard as closed. The thrum has not missed a beat.
+GIG08_ARRIVE | Gig 08, arrival window text | A dry dock, open to the dark. One drive sits on the cradle, lean and old, with a maker's plate in a hand you do not know. It would fit the Flagship. A buyer's note waits on the desk. Fitting the drive takes the scout a long wait. Selling it takes a short one.
+GIG08_A_BTN | Gig 08, button A | Take the drive refit
+GIG08_B_BTN | Gig 08, button B | Sell the drive
+GIG08_A_OUT_MIL | Gig 08, outcome A, Military | The yard crew cuts the old drive out and fits the new one. The Flagship hums higher, and the deck stops shaking. It flies faster now, for good. The spare plates stay on the cradle.
+GIG08_B_OUT_MIL | Gig 08, outcome B, Military | A depot clerk counts out a small sum for the drive and signs the page. The cradle goes empty. The Flagship leaves as slow as it came, and the thrum behind you stops.
+GIG08_EPI | Gig 08, epilogue line | The Bureau lists the yard as closed. The dock light is still on.
+
 ## GIG07 The Opening (T301, 2026-11-06; the win gig, one button, all four branches)
-The last Bazaar stage is done. The Flagship flies the charter cargo to the capital. One button, no choice. Docking wins the run. No text names a good or a number. Where it shows (2026-11-11): at the Opening docking only. When the Flagship docks at the Bazaar capital with the charter cargo after the last Bazaar stage, the arrival window shows GIG07_TITLE and GIG07_ARRIVE with one button GIG07_A_BTN; the press shows GIG07_A_OUT_<branch> and then the win screen. GIG07_HOOK is the one-line hint on the board while the cargo is sealed.
+The last Bazaar stage is done. The Flagship flies the charter cargo to the Star Bazaar station. One button, no choice. Arriving at the station wins the run. No text names a good or a number. Where it shows (2026-11-11): at the Opening docking only. When the Flagship reaches the Star Bazaar station with the charter cargo after the last Bazaar stage, the arrival window shows GIG07_TITLE and GIG07_ARRIVE with one button GIG07_A_BTN; the press shows GIG07_A_OUT_<branch> and then the win screen. GIG07_HOOK is the one-line hint on the board while the cargo is sealed.
 
 GIG07_TITLE | Gig 07, arrival window title | The Opening
 GIG07_HOOK | Gig 07, signal hint | The last hall is roofed, and the Bazaar has gone quiet. One crate sits sealed and signed at the dock, and the board holds it for the Flagship. Every hand that built the hall has put a name on it. No one will break the seal for anyone else.

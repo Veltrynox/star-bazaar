@@ -15,8 +15,8 @@ SK_BOT_COOLDOWN | 40 | Skill screen, note on a house skill that is recharging; {
 Sizes in words: a little (S), clearly (M), sharply (L). Prerequisites and costs are shown by the game.
 
 SK_FND_STORAGE_NAME | 24 | Skill screen, node name | Space Storage
-SK_FND_STORAGE_FLAVOUR | 90 | Skill screen, detail panel | One hold for all the crew owns. Someone has to count it every night.
-SK_FND_STORAGE_PLAIN | 110 | Skill screen, detail panel | Lets you keep one large company storage per system, the Space Storage. Planet storage feeds it slowly.
+SK_FND_STORAGE_FLAVOUR | 90 | Skill screen, detail panel | But keep an eye on it. It's valuable.
+SK_FND_STORAGE_PLAIN | 110 | Skill screen, detail panel | You may now claim your own piece of space! Keep resources there and craft unique ones.
 
 SK_FND_PERMIT_NAME | 24 | Skill screen, node name | Permit Charter
 SK_FND_PERMIT_FLAVOUR | 90 | Skill screen, detail panel | A stamped page lets the ship leave. The crew waits by the door for it.

@@ -1113,13 +1113,26 @@ var _hub_prim := false         # the first look after a load only records the hu
 var _hub_seen := {}            # hub planet -> true, hubs standing at the last look
 var _hub_lanes := {}           # key "hub_<h>_<w>" -> {h, w, have: float, want: int, delay: float, back: bool, sig: String}
 var _hub_gen := -1
+## Position, radius and visibility of a hub end: a planet index, or -system id for the Star Bazaar hub (its station).
+func _hub_pos(h: int) -> Vector3:
+	return positions[h] if h >= 0 else station_pos(-h)
+
+func _hub_rad(h: int) -> float:
+	return planet_radius(h) if h >= 0 else StationScript.MAP_RADIUS
+
+func _hub_in_view(h: int) -> bool:
+	return (h < positions.size() and planet_in_view(h)) if h >= 0 else station_in_view(-h)
+
 func _lane_curve(a: int, b: int) -> Array:
-	var dir := (positions[b] - positions[a]).normalized()
-	var p0 := positions[a] + dir * planet_radius(a) * RouteLineScript.GAP
-	var p2 := positions[b] - dir * planet_radius(b) * RouteLineScript.GAP
+	return _lane_curve_pts(positions[a], planet_radius(a), positions[b], planet_radius(b))
+
+func _lane_curve_pts(pa: Vector3, ra: float, pb: Vector3, rb: float) -> Array:
+	var dir := (pb - pa).normalized()
+	var p0 := pa + dir * ra * RouteLineScript.GAP
+	var p2 := pb - dir * rb * RouteLineScript.GAP
 	var chord := p0.distance_to(p2)
 	var c := (p0 + p2) * 0.5 + Vector3.UP.cross(dir).normalized() * chord * RouteLineScript.BOW
-	var sw = RouteOffset.sun_waypoint(positions[a], positions[b], sun_list())
+	var sw = RouteOffset.sun_waypoint(pa, pb, sun_list())
 	if sw != null:
 		var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
 		c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
@@ -1139,7 +1152,7 @@ func _update_hub_traffic(delta: float) -> void:
 	for h in now:
 		if not _hub_seen.has(h):
 			_hub_seen[h] = true
-			if _hub_prim and motion > 0.0 and h < positions.size():
+			if _hub_prim and motion > 0.0 and (h < positions.size() if h >= 0 else stations.has(-h)):
 				beats.append({"kind": "hub", "planet": h, "t": 0.0, "dur": ripple_s})
 				beat_chime.emit("hub", h)
 				for k in _hub_lanes:
@@ -1158,7 +1171,7 @@ func _update_hub_traffic(delta: float) -> void:
 	# wanted shuttles per lane of the standing hubs
 	var per_need := int(_bk("hub_shuttles_per_need", 2.0))
 	for h in now:
-		if not planet_in_view(h) or h >= positions.size():
+		if not _hub_in_view(h):
 			continue
 		var reach: float = maxf(hubs.reach_of(h), 0.001)
 		for w in hubs.worlds_in_reach(h):
@@ -1199,19 +1212,19 @@ func _update_hub_traffic(delta: float) -> void:
 					have = maxf(want, have - maxf(have, 1.0) * delta / launch)
 				lane["have"] = have
 		var n := roundi(float(lane["have"])) if float(lane["delay"]) <= 0.0 else 0
-		if h >= positions.size() or w >= positions.size() or not planet_in_view(h) or not planet_in_view(w):
+		if w >= positions.size() or not _hub_in_view(h) or not planet_in_view(w):
 			traffic.clear_group(k)
 			_hub_lanes.erase(k)
 			continue
 		var back: bool = lane["back"]
-		var sig := "%d|%s|%s|%s|%.3f|%.3f" % [n, back, positions[h], positions[w], planet_radius(h), planet_radius(w)]
+		var sig := "%d|%s|%s|%s|%.3f|%.3f" % [n, back, _hub_pos(h), positions[w], _hub_rad(h), planet_radius(w)]
 		if sig != str(lane["sig"]):
 			lane["sig"] = sig
 			if n <= 0:
 				traffic.clear_group(k)
 			else:
-				var cv := _lane_curve(w, h) if back else _lane_curve(h, w)
-				traffic.set_path_group(k, cv[0], cv[1], cv[2], n, 0, Color.TRANSPARENT, "corvette", scale_m, 1.0, planet_radius(w if back else h), planet_radius(h if back else w))
+				var cv := _lane_curve_pts(positions[w], planet_radius(w), _hub_pos(h), _hub_rad(h)) if back else _lane_curve_pts(_hub_pos(h), _hub_rad(h), positions[w], planet_radius(w))
+				traffic.set_path_group(k, cv[0], cv[1], cv[2], n, 0, Color.TRANSPARENT, "corvette", scale_m, 1.0, planet_radius(w) if back else _hub_rad(h), _hub_rad(h) if back else planet_radius(w))
 		if n <= 0 and int(lane["want"]) <= 0 and float(lane["delay"]) <= 0.0:
 			_hub_lanes.erase(k)  # fully gone (released, or the need was met)
 
@@ -1475,11 +1488,12 @@ func _right_click(pos: Vector2) -> void:
 		ship_selected = false
 
 ## Space station of one system: built once, placed beside the sun. Returns false if it already exists.
-func add_station(sid: int, animate: bool = true) -> bool:
+func add_station(sid: int, animate: bool = true, bazaar: bool = false) -> bool:
 	if stations.has(sid):
 		return false
 	var st: Node3D = load("res://game/station.gd").new()
 	st.system_id = sid
+	st.bazaar = bazaar  # a loaded Star Bazaar station is built with its model at once
 	st.position = sun_positions.get(sid, Vector3.ZERO) + STATION_OFFSET
 	st.visible = sid == view_system
 	add_child(st)
@@ -1488,6 +1502,18 @@ func add_station(sid: int, animate: bool = true) -> bool:
 	if not _route_list.is_empty():
 		set_routes(_route_list)  # a send to this station made before it was built (loaded game) gets its line now
 	return true
+
+## The Space Storage of system sid becomes the Star Bazaar: the station model is swapped (build-in plays when animate).
+func set_station_bazaar(sid: int, animate: bool = true) -> void:
+	if stations.has(sid):
+		stations[sid].set_bazaar(true, animate)
+
+## World position of a station (Vector3.INF when there is none), and whether it is drawn now (its system is in view).
+func station_pos(sid: int) -> Vector3:
+	return stations[sid].position if stations.has(sid) else Vector3.INF
+
+func station_in_view(sid: int) -> bool:
+	return stations.has(sid) and sid == view_system
 
 func clear_stations() -> void:
 	for sid in stations:
@@ -1585,19 +1611,23 @@ func beat_tier_up(i: int, _tier: int) -> void:
 
 ## T300: ease the camera focus toward planet i by `frac` over `secs` (game time). Yields at once to the player's own pan and orbit.
 func _start_pull(i: int, frac: float, secs: float) -> void:
-	if planet_in_view(i) and not _player_steering():
+	if planet_in_view(i):
+		_start_pull_at(positions[i], frac, secs)
+
+func _start_pull_at(at: Vector3, frac: float, secs: float) -> void:
+	if not _player_steering():
 		_pull_from = focus
-		_pull_to = focus + (Vector3(positions[i].x, focus.y, positions[i].z) - focus) * clampf(frac, 0.0, 1.0)
+		_pull_to = focus + (Vector3(at.x, focus.y, at.z) - focus) * clampf(frac, 0.0, 1.0)
 		_pull_last = focus
 		_pull_secs = secs
 		_pull_t = 0.0
 
-## A Bazaar stage finished at the capital: flash and an expanding ring there.
-func beat_stage(i: int) -> void:
-	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+## A Bazaar stage finished at the Star Bazaar station of system sid: flash and an expanding ring there (beat key = -sid, drawn by world_growth_view).
+func beat_stage(sid: int) -> void:
+	if not stations.has(sid) or Juice.motion <= 0.0:
 		return
-	beats.append({"kind": "stage", "planet": i, "t": 0.0, "dur": _bk("beat_stage_seconds", 1.8) * Juice.motion})
-	beat_chime.emit("stage", i)
+	beats.append({"kind": "stage", "planet": -sid, "t": 0.0, "dur": _bk("beat_stage_seconds", 1.8) * Juice.motion})
+	beat_chime.emit("stage", -sid)
 
 ## T300: a dead world turned living: the camera eases to it while the flip plays (it stays there; the player can take it back at any
 ## time) and a chime plays. Called when the flip starts, never for a world met already living (a load).
@@ -1628,14 +1658,15 @@ func beat_scoop(at: Vector3) -> void:
 	if _frontier() != null:
 		_frontier_fx.scoop(at)
 
-## T300: the Bazaar opened at planet i: ships converge, the ring lights, a flash (the banner is main's). The camera eases to the capital.
-func beat_opening(i: int) -> void:
-	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+## T300: the Bazaar opened at the station of system sid: ships converge, the ring lights, a flash (the banner is main's). The camera eases to the station.
+func beat_opening(sid: int) -> void:
+	if not stations.has(sid) or Juice.motion <= 0.0:
 		return
-	beat_chime.emit("opening", i)
-	_start_pull(i, 1.0, _bk("beat_camera_seconds", 1.2))
+	beat_chime.emit("opening", -sid)
+	if station_in_view(sid):
+		_start_pull_at(stations[sid].position, 1.0, _bk("beat_camera_seconds", 1.2))
 	if _frontier() != null:
-		_frontier_fx.opening(i)
+		_frontier_fx.opening(stations[sid].position, sid == view_system)
 
 ## A short sideways camera nudge (the raid hit), the same one a new post gives.
 func nudge_camera() -> void:

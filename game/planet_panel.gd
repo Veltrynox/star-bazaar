@@ -24,7 +24,6 @@ signal order_requested(commodity: String, role: String)  # role: "buy" or "sell"
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
-signal found_bazaar_requested(planet: int)  # T262: confirmed in the dialog; main founds the Bazaar
 signal make_hub_requested(planet: int)  # T291
 signal hub_panel_requested(planet: int)  # T291
 
@@ -180,7 +179,6 @@ func rebuild() -> void:
 		mhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(mhint)
 	_boost_block()
-	_bazaar_block()
 	_growth_section()
 	_lane_splits()
 	_connections()
@@ -226,40 +224,7 @@ func _ask_boost() -> void:
 	add_child(dlg)
 	dlg.popup_centered()
 
-## T362: the Star Bazaar block on the capital's card, under the goods grid: stage name, one instruction line per short bill row,
-## and a lit Buy button for a good the capital sells while its Buy is off. Nothing once every row is met. Rebuilt with the card.
-func _bazaar_block() -> void:
-	var bz = main.bazaar
-	if not bz.is_founded() or bz.complete() or planet_index != bz.capital():
-		return
-	var lines: Array = bz.bill_lines()
-	if lines.is_empty():
-		return
-	var wrap := VBoxContainer.new()
-	wrap.name = "BazaarBlock"
-	wrap.add_theme_constant_override("separation", 4)
-	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % bz.current_stage(), "Stage %d" % bz.current_stage())
-	var cap := _label(StoryText.get_or("BAZ_CARD_TITLE", "Star Bazaar: {stage}", {"stage": stage_name}))
-	cap.theme_type_variation = "LabelCaption"
-	wrap.add_child(cap)
-	for rec in lines:
-		var ln := _label(bz.step_line(rec))
-		ln.name = "BazaarStep"
-		ln.theme_type_variation = "LabelMuted"
-		wrap.add_child(ln)
-		var g := str(rec["good"])
-		if int(rec["local_price"]) > 0 and not main.engine.local_on(planet_index, g, "buy") and main.system_trade_open(planet_index):
-			var bb := Button.new()
-			bb.name = "BazaarBuy_" + g
-			bb.theme_type_variation = "ButtonSmall"
-			bb.text = "%s %s" % [StoryText.get_or("BAZ_BTN_BUY_AT", "Buy at {planet}", {"planet": main.planet_name(planet_index)}), Ui.good_name(g)]
-			bb.modulate = Color(1.5, 1.35, 0.7)
-			bb.pressed.connect(func(): buy_send_requested.emit(g))
-			wrap.add_child(bb)
-	box.add_child(HSeparator.new())
-	box.add_child(wrap)
-
-## T262: growth block under the goods grid: tier name and progress bar, need rows, Restless line, Found the Bazaar button.
+## T262: growth block under the goods grid: tier name and progress bar, need rows, Restless line, hub controls (the Bazaar is founded in the Space Storage, not here).
 ## A locked need shows only '?' (never the good); goods named here follow Availability (Prosperity.needs already hides locked ones).
 func _growth_section() -> void:
 	var pr = main.prosperity
@@ -280,6 +245,13 @@ func _growth_section() -> void:
 	if t < 0:
 		box.add_child(wrap)
 		return
+	tl.set_script(load("res://game/rich_tip_label.gd"))  # hover: the tier ladder and what the next tier needs
+	tl.name = "TierLabel"
+	tl.mouse_filter = Control.MOUSE_FILTER_STOP
+	tl.autowrap_mode = TextServer.AUTOWRAP_OFF  # shrunk to its text (hover area = the name): wrapping would stack one letter per line
+	tl.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	tl.custom_minimum_size = Vector2.ZERO
+	tl.tooltip_text = _tier_tip(t)
 	var bar := ProgressBar.new()
 	bar.name = "GrowthBar"
 	bar.min_value = 0.0
@@ -302,12 +274,6 @@ func _growth_section() -> void:
 		rl.theme_type_variation = "LabelAccent"
 		wrap.add_child(rl)
 	_hub_controls(wrap)
-	if main.bazaar.can_found(planet_index):
-		var fb := Button.new()
-		fb.name = "FoundBazaarButton"
-		fb.text = StoryText.get_or("BAZ_FOUND_BTN", "Found the Bazaar here")
-		fb.pressed.connect(_ask_found_bazaar)
-		wrap.add_child(fb)
 	box.add_child(wrap)
 
 ## T291: 'Make hub' on an eligible world, 'Open hub panel' on a hub, the reason when the world cannot be one yet.
@@ -326,8 +292,12 @@ func _hub_controls(wrap: VBoxContainer) -> void:
 	if bool(can["ok"]):
 		var mb := Button.new()
 		mb.name = "MakeHubButton"
-		mb.text = StoryText.get_or("ST_HUB_MAKE", "Make hub")
+		var cost: int = hs.build_cost()
+		mb.text = StoryText.get_or("ST_HUB_MAKE_COST", "Make hub ({cost} cr)", {"cost": cost})
 		mb.tooltip_text = StoryText.get_or("ST_HUB_MAKE_TIP", "A hub keeps the needs of worlds in its reach fed, with ships from its own pool.")
+		if main.cash < cost:
+			mb.disabled = true
+			mb.tooltip_text = StoryText.get_or("ST_HUB_NO_CASH", "Making a hub costs {cost} credits.", {"cost": cost}) + "\n\n" + mb.tooltip_text
 		var idx := planet_index
 		mb.pressed.connect(func(): make_hub_requested.emit(idx))
 		wrap.add_child(mb)
@@ -377,19 +347,6 @@ func _need_row(n: Dictionary) -> Control:
 	row.add_child(icon)
 	row.add_child(num)
 	return row
-
-func _ask_found_bazaar() -> void:
-	var dlg := ConfirmationDialog.new()
-	dlg.name = "FoundBazaarDialog"
-	dlg.dialog_text = StoryText.get_or("BAZ_FOUND_PROMPT", "Found the Star Bazaar at {planet}? This is final. A run has one capital.", {"planet": main.planet_name(planet_index)})
-	dlg.ok_button_text = StoryText.get_or("BAZ_FOUND_CONFIRM", "Found it")
-	dlg.cancel_button_text = StoryText.get_or("BAZ_FOUND_CANCEL", "Not yet")
-	var idx := planet_index
-	dlg.confirmed.connect(func(): found_bazaar_requested.emit(idx))
-	dlg.canceled.connect(dlg.queue_free)
-	dlg.confirmed.connect(dlg.queue_free)
-	add_child(dlg)
-	dlg.popup_centered()
 
 ## Guided tutorial lock: every button but the resource rows, the pending Cancel and the Sell-here button shows disabled.
 ## The rows and the Sell-here button decide for themselves (see _row and _pays_line); main.tut_allows is what refuses a click.
@@ -576,7 +533,7 @@ func _closed_section(p: Dictionary, f) -> void:
 	if not here:
 		var fb := Button.new()
 		fb.name = "FlyHereButton"
-		fb.text = StoryText.get_or("BTN_FLY_HERE", "Fly here")
+		fb.text = StoryText.get_or("BTN_FLY_TO", "Fly here") if known else StoryText.get_or("BTN_FLY_HERE", "Explore")  # an explored world is not explored again
 		fb.custom_minimum_size = ACTION_BTN_MIN
 		var tgt := {"kind": "planet", "pos": main.map.positions[planet_index], "index": planet_index}
 		fb.pressed.connect(func(): main.map.fly_requested.emit(tgt))
@@ -585,7 +542,11 @@ func _closed_section(p: Dictionary, f) -> void:
 		return
 	var building: bool = PathfinderView.build_target(f) == pid
 	if dead and not PathfinderView.can_platform(f, pid):
-		return  # availability: no platform button before the mining skill is learned
+		var nl := _label(StoryText.get_or("LBL_PLATFORM_NEEDS_SKILL", "Explored. A mining platform here needs the Prospecting skill."))
+		nl.name = "PlatformNeedsSkill"
+		nl.theme_type_variation = "LabelSmall"
+		box.add_child(nl)
+		return  # availability: no platform button before the mining skill is learned; the line says why
 	if building:
 		_prog_label = _label(_progress_text(f))
 		_prog_label.name = "BuildProgressLabel"
@@ -676,12 +637,6 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 				nx2.text = StoryText.get_or("LBL_NEXT_PRICE_2", "In 2 cycles: {buy} cr to buy, {sell} cr to sell.", {"buy": nb2, "sell": ns2})
 				nx2.theme_type_variation = "LabelSmall"
 				info.add_child(nx2)
-	for role in ["sell"]:  # the buy order state is in the resource button tooltip and its pressed toggle
-		if main.engine.local_on(planet_index, c, role):
-			var st := Label.new()
-			st.text = StoryText.get_or("LBL_SELL_ORDER_STATE", "Sell order: {state}", {"state": main.engine.local_state(planet_index, c, role)})
-			st.theme_type_variation = "LabelAccent"
-			info.add_child(st)
 	var nc_line: String = _buy_no_cash_line(planet_index, c)
 	if nc_line != "":  # a Buy order that cannot afford one unit: say so on the card, not only in the tooltip
 		var nl := Label.new()
@@ -718,7 +673,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.add_theme_color_override("font_color", Ui.commodity_col(str(c)))  # Energy amber, Food green
 	bs.disabled = buy == null
 	var buy_tip: String = StoryText.get_or("LBL_BUY_PRICE", "Buy price") + ": " + _price(buy)
-	bs.tooltip_text = StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.") if buy == null else (StoryText.get_or("LBL_BUY_TIP_ON", "{tip}. Standing buy order. Press to stop.", {"tip": buy_tip}) if buy_on else StoryText.get_or("LBL_PRICE_TIP", "{tip}.", {"tip": buy_tip}))
+	bs.tooltip_text = StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.") if buy == null else StoryText.get_or("LBL_PRICE_TIP", "{tip}.", {"tip": buy_tip})
 	if locked:
 		bs.disabled = true
 		bs.tooltip_text = main.trade_locked_reason()
@@ -735,21 +690,34 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.modulate = Color(1.5, 1.35, 0.7)  # lit: the good the Bazaar panel sent the player here to buy
 	if sell_p != null and buy != null and not main.DeadWorlds.is_dead(main.map.planets[planet_index]):
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
-	if buy_on:
-		bs.tooltip_text += "\n" + StoryText.get_or("LBL_BUY_ORDER_STATE", "Buy order: {state}", {"state": str(main.engine.local_state(planet_index, c, "buy"))})
-	var nc_tip := next_cycle_text(main, main.storage.planet_key(planet_index), str(c))
+	var nc_tip := next_cycle_text(main, main.storage.planet_key(planet_index), str(c), planet_index if buy != null and not locked else -1)
 	if nc_tip != "":
 		bs.tooltip_text += "\n" + nc_tip
 	var salv_t: String = _salvage_text(c)  # the Salvage offer shows on hover; the action is in the right-click menu
 	if salv_t != "":
 		bs.tooltip_text += "\n" + salv_t
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
+	var now_lines: Array = []  # owner 2026-11-13: what runs here now, above the buy price, each in its own colour
+	var tints := {}
+	if buy_on:
+		now_lines.append(StoryText.get_or("LBL_NOW_BUYING", "Currently being bought"))
+		tints[now_lines[-1]] = "signal_info"
+	if main.engine.local_on(planet_index, c, "sell"):
+		now_lines.append(StoryText.get_or("LBL_NOW_SELLING", "Currently being sold"))
+		tints[now_lines[-1]] = "signal_good"
+	if not locked and not now_lines.is_empty():
+		bs.tooltip_text = "\n".join(PackedStringArray(now_lines)) + "\n" + bs.tooltip_text
+		bs.set_meta("tip_tints", tints)
 	var gl := GoodInfo.lines(str(c))  # what the good is and how it is used, above the existing lines (below the lock reason)
 	var gi := "\n".join(PackedStringArray(gl))
 	if gi != "":
 		bs.tooltip_text = (bs.tooltip_text + "\n\n" + gi) if locked else (gi + "\n\n" + bs.tooltip_text)
+		bs.set_meta("tip_muted", gi)  # head_tip_button draws the description smaller and grey
 	bs.tooltip_text = Ui.good_name(c) + "\n" + bs.tooltip_text  # first line = the resource name, drawn bold
 	_reserve_right(bs, CAP_MARGIN, PRICE_ROW_H)
+	_tint_good_bg(bs, str(c), main.engine.local_on(planet_index, c, "sell"))
+	if not locked:
+		_order_border(bs, str(c), buy_on, main.engine.local_on(planet_index, c, "sell"))
 	var key: String = main.storage.planet_key(planet_index)
 	var cap_l := Label.new()  # stored/capacity of this good in the company storage here, at the right end of the button
 	cap_l.name = "Capacity_" + str(c)
@@ -800,6 +768,47 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		wrap.add_child(info)
 	return wrap
 
+## Tier name tooltip (BBCode, rich_tip_label.gd): the tier ladder, one tier per line, the current one bold in the accent
+## colour, past ones muted, later ones faint; under each tier what it gives (need list, tax, first-reach skill points,
+## Bazaar capital, hub); then what the next tier needs, or that this is the top tier. Owner 2026-11-13.
+func _tier_tip(t: int) -> String:
+	var pr = main.prosperity
+	var top: int = pr.max_tier()
+	var muted := Ui.col("ink_muted").to_html(false)
+	var lines: Array = []
+	for k in range(1, top + 1):
+		var nm := StoryText.get_or("PROS_TIER_%d" % k, "Tier %d" % k).replace("[", "[lb]")
+		if k == t:
+			lines.append("[b][color=#%s]%s[/color][/b]" % [Ui.col("star_warm").to_html(false), nm])
+		else:
+			lines.append("[color=#%s]%s[/color]" % [Ui.col("ink_muted" if k < t else "ink_subtle").to_html(false), nm])
+		var perks: Array = []
+		perks.append(StoryText.get_or("PROS_TIP_PERK_NEEDS", "{n} needs, {units} units each a cycle",
+			{"n": int(main.balance.get("prosperity_needs_t%d" % k, 0)), "units": int(main.balance.get("prosperity_demand_t%d" % k, 0))}))
+		var tax := int(main.balance.get("prosperity_tax_t%d" % k, 0))
+		if tax > 0:
+			perks.append(StoryText.get_or("PROS_TIP_PERK_TAX", "+{credits} credits tax a cycle", {"credits": tax}))
+		var pts := int(main.balance.get("prosperity_points_t%d" % k, 0))
+		if pts > 0 and not pr.any_tier_reached(k):
+			perks.append(StoryText.get_or("PROS_TIP_PERK_POINTS", "+{points} skill points for the first world here", {"points": pts}))
+		if k == main.bazaar.capital_tier() and not main.bazaar.is_founded():
+			perks.append(StoryText.get_or("PROS_TIP_PERK_BAZAAR", "Its system's Space Storage can be founded as the Star Bazaar"))
+		if k == int(main.balance.get("hub_tier", 3)):
+			perks.append(StoryText.get_or("PROS_TIP_PERK_HUB", "Can become a hub that feeds nearby worlds"))
+		for line in perks:
+			lines.append("[indent][color=#%s]%s[/color][/indent]" % [muted, str(line).replace("[", "[lb]")])
+	var out := "[b]%s[/b]\n%s" % [StoryText.get_or("PROS_TIP_LADDER", "Growth"), "\n".join(PackedStringArray(lines))]
+	if t >= top:
+		return out + "\n\n" + StoryText.get_or("PROS_TIP_TOP", "Top tier. This world grows no further.")
+	var total: int = pr.steps_needed(planet_index)
+	var done: int = pr.steps(planet_index)
+	var left := maxi(0, total - done)
+	out += "\n\n" + (StoryText.get_or("PROS_TIP_NEXT_1", "Next: {tier}. Meet every need for 1 more cycle ({done}/{total}).",
+		{"tier": StoryText.get_or("PROS_TIER_%d" % (t + 1), "Tier %d" % (t + 1)), "done": done, "total": total}) if left == 1 else StoryText.get_or("PROS_TIP_NEXT", "Next: {tier}. Meet every need for {n} more cycles ({done}/{total}).",
+		{"tier": StoryText.get_or("PROS_TIER_%d" % (t + 1), "Tier %d" % (t + 1)), "n": left, "done": done, "total": total})).replace("[", "[lb]")
+	out += "\n[color=#%s]%s[/color]" % [Ui.col("ink_muted").to_html(false), StoryText.get_or("PROS_TIP_RULE", "A cycle with a short need sets growth back.")]
+	return out
+
 ## Extra right padding inside a button's styleboxes so its text stops before the capacity label.
 func _reserve_right(b: Button, px: float, bottom_px: float = 0.0) -> void:
 	for sn in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
@@ -809,6 +818,70 @@ func _reserve_right(b: Button, px: float, bottom_px: float = 0.0) -> void:
 		var d: StyleBox = sb.duplicate()
 		d.content_margin_right = maxf(sb.get_margin(SIDE_RIGHT), 0.0) + px
 		b.add_theme_stylebox_override(sn, d)
+
+## Owner 2026-11-13: while the Buy order (pressed) or the Sell order (selling) is on, the resource button background
+## is dimmed (ORDER_BG_DIM). The colour gradient was removed (owner 2026-11-13): the background is plain.
+## No order: the plain button. Runs after _reserve_right.
+const ORDER_BG_DIM := 0.45  # how much darker the button background is while an order runs
+const ORDER_GLYPH_PX := 12.0
+func _tint_good_bg(b: Button, c: String, selling: bool) -> void:
+	var states := {"pressed": "pressed", "hover_pressed": "pressed"}  # hovering a pressed button keeps the same tint
+	if selling:  # the button is not pressed for a Sell order: tint its unpressed looks too
+		states.merge({"normal": "normal", "hover": "hover"})
+	for sn in states:
+		var sb := b.get_theme_stylebox(str(states[sn]))
+		if sb is StyleBoxFlat:  # owner 2026-11-13: an active order dims the button background
+			sb = sb.duplicate()
+			sb.bg_color = sb.bg_color.darkened(ORDER_BG_DIM)
+		if sb != null:
+			b.add_theme_stylebox_override(sn, sb)
+
+## Owner 2026-11-13: while an order runs, the resource button gets a coloured border with noise travelling round it
+## (game/order_border.gdshader) instead of the corner glyphs: green (signal_good) = Sell order, red (signal_bad) = Buy order,
+## both colours sharing the outline when both run.
+const OrderBorderShader := preload("res://game/order_border.gdshader")
+func _order_border(b: Button, c: String, buying: bool, selling: bool) -> void:
+	if not buying and not selling:
+		return
+	var r := ColorRect.new()
+	r.name = "OrderBorder_" + c
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var mat := ShaderMaterial.new()
+	mat.shader = OrderBorderShader
+	var sell_col := Ui.col("signal_good")
+	var buy_col := Ui.col("signal_bad")
+	mat.set_shader_parameter("col_a", sell_col if selling else buy_col)
+	mat.set_shader_parameter("col_b", buy_col)
+	mat.set_shader_parameter("two_colours", 1.0 if (buying and selling) else 0.0)
+	var sb := b.get_theme_stylebox("normal")
+	var base: StyleBox = sb.get("base") if sb != null and sb.get("base") != null else sb
+	if base is StyleBoxFlat:
+		mat.set_shader_parameter("radius", float((base as StyleBoxFlat).corner_radius_top_left))
+	r.material = mat
+	r.resized.connect(func(): mat.set_shader_parameter("rect_size", r.size))
+	b.add_child(r)
+
+## Not drawn since 2026-11-13 (_order_border replaced them): order status glyphs in the bottom-left corner.
+func _order_glyphs(b: Button, c: String, buying: bool, selling: bool) -> void:
+	var x := 6.0
+	for o in [["buy", buying, "signal_info"], ["sell", selling, "signal_good"]]:
+		if not bool(o[1]):
+			continue
+		var g := TextureRect.new()
+		g.name = "OrderGlyph_%s_%s" % [o[0], c]
+		g.texture = load("res://art/ui/ui_glyph_order_%s.svg" % o[0])
+		g.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		g.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		g.self_modulate = Ui.col(str(o[2]))
+		g.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		g.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+		g.offset_left = x
+		g.offset_right = x + ORDER_GLYPH_PX
+		g.offset_top = -ORDER_GLYPH_PX - 3
+		g.offset_bottom = -3
+		b.add_child(g)
+		x += ORDER_GLYPH_PX + 2
 
 ## Right-click menu of a resource: Send to, Sell (a toggle) and Salvage when it applies. Item ids are MENU_*.
 func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
@@ -937,16 +1010,20 @@ static func next_cycle_breakdown(main_node: Control, pr: Dictionary) -> String:
 			lines.append(StoryText.get_text("TIP_NC_IN" if dir == "in" else "TIP_NC_OUT", {"list": ", ".join(items)}))
 	return "\n".join(lines)
 
-## Owner 2026-11-03: next-cycle line for the resource button tooltip, "Next cycle: +12 -5 = 47".
-## Empty when nothing moves. Read-only: uses RouteEngine.project_storage.
-static func next_cycle_text(main_node: Control, key: String, c: String) -> String:
-	var pr: Dictionary = main_node.engine.project_storage(key, c, int(main_node.cash))
-	var n_in := int(pr["in"])
-	var n_out := int(pr["out"])
-	if n_in <= 0 and n_out <= 0:
+## Resource button tooltip line, "Available each cycle: 40" (owner 2026-11-13, was "Next cycle: +40 -40 = 0").
+## buy_planet >= 0 (the good is bought there): the amount a buy order takes each cycle, shown with or without the order on.
+## Otherwise the units arriving in the storage next cycle (RouteEngine.project_storage). Empty when it is 0.
+static func next_cycle_text(main_node: Control, key: String, c: String, buy_planet: int = -1) -> String:
+	var n_in := 0
+	if buy_planet >= 0:
+		n_in = int(main_node.engine.buy_amount(buy_planet, c))
+		if n_in >= preload("res://game/route_engine.gd").ORE_UNCAPPED:
+			n_in = 0  # uncapped (mined ore): no fixed amount to show
+	else:
+		n_in = int(main_node.engine.project_storage(key, c, int(main_node.cash))["in"])
+	if n_in <= 0:
 		return ""
-	var t: String = StoryText.get_or("LBL_NEXT_CYCLE", "Next cycle: +{in} -{out} = {after}")
-	return t.replace("{in}", str(n_in)).replace("{out}", str(n_out)).replace("{after}", str(int(pr["after"])))
+	return StoryText.get_or("LBL_AVAIL_CYCLE", "Available each cycle: {in}", {"in": n_in})
 
 ## Split bar: the colour of the first (0) or second (1) lane of a split.
 func _lane_colour(i: int) -> Color:
@@ -1117,13 +1194,21 @@ func _connections() -> void:
 		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var cc := Ui.commodity_col(str(first["c"]))
 		ic.modulate = cc if cc != Color.WHITE else Ui.col("ink")
-		row.add_child(ic)
+		# Owner 2026-11-13: no "To / From" words; the good's icon and an arrow show the direction: icon -> world, world -> icon.
 		var l := Label.new()
-		l.text = StoryText.get_or("LBL_ROUTE_TO" if out else "LBL_ROUTE_FROM", "To {planet}" if out else "From {planet}", {"planet": other})
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		l.text = ("\u2192 %s" % other) if out else ("%s \u2192" % other)
 		l.clip_text = true
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(l)
+		var fill := Control.new()
+		fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if out:
+			row.add_child(ic)
+			row.add_child(l)
+		else:
+			row.add_child(l)
+			row.add_child(ic)
+		row.add_child(fill)
 		if out:
 			var sp: Dictionary = main.engine.lane_split(planet_index, int(first["b"]), str(first["c"]))
 			if not sp.is_empty():
@@ -1171,11 +1256,9 @@ func _connections() -> void:
 				wl.theme_type_variation = "LabelMuted"
 				wl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				box.add_child(wl)
-		if int(first["b"]) >= 0:
-			box.add_child(_pays_line(int(first["b"]), str(first["c"])))
+		box.add_child(_lane_ships_line(first, ships))  # owner 2026-11-13: one line per lane (status + -/+), no pays dot, no per-ship rows
 		for k in ships.size():
 			var v: Dictionary = ships[k]
-			box.add_child(_ship_row(v, k + 1, ships.size()))
 			var mv: Dictionary = main.move_offer(int(v["id"])) if str(v["status"]) == "blocked" else {}
 			if not mv.is_empty():
 				box.add_child(_move_line(int(v["id"]), mv))
@@ -1292,7 +1375,83 @@ func _lane_has(ships: Array, id: int) -> bool:
 			return true
 	return false
 
-## One ship of a route: icon, "Ship k of N", status, Remove.
+## Owner 2026-11-13: one line under a lane: a tiny status ("2 ships active", "1 ship stalled", "Lane blocked") and
+## - / + buttons that take a ship off the lane or add one (buying a ship when none is free, like Send to...).
+## The reasons of ships that do not run are the status tooltip.
+func _lane_ships_line(first: Dictionary, ships: Array) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "LaneShips"
+	row.add_theme_constant_override("separation", 4)
+	var pad := Control.new()
+	pad.custom_minimum_size = Vector2(22, 0)
+	row.add_child(pad)
+	var counts := {"running": 0, "waiting": 0, "stalled": 0, "blocked": 0}
+	var reasons: Array = []
+	for v in ships:
+		var st := str(v["status"])
+		if not counts.has(st):
+			st = "stalled"
+		counts[st] = int(counts[st]) + 1
+		if st != "running":
+			var why: String = RouteLineScript.reason_text(st, str(v["reason"])) if st != "blocked" else (str(v["reason"]) if str(v["reason"]) != "" else StoryText.get_or("LBL_ROUTE_BLOCKED", "Blocked"))
+			if why != "" and not reasons.has(why):
+				reasons.append(why)
+	var n := ships.size()
+	var parts: Array = []
+	if int(counts["running"]) == 0:
+		var worst := "blocked" if int(counts["blocked"]) > 0 else ("stalled" if int(counts["stalled"]) > 0 else "waiting")
+		parts.append(StoryText.get_or("LBL_LANE_ALL_" + worst.to_upper(), "Lane " + worst))
+	else:
+		for st in ["running", "stalled", "waiting", "blocked"]:
+			var k := int(counts[st])
+			if k <= 0:
+				continue
+			var id := "LBL_LANE_%s_%s" % [st.to_upper(), "ONE" if k == 1 else "MANY"]
+			var word: String = {"running": "active", "stalled": "stalled", "waiting": "waiting", "blocked": "blocked"}[st]
+			parts.append(StoryText.get_or(id, ("1 ship " + word) if k == 1 else ("{n} ships " + word), {"n": k}))
+	var sl := Label.new()
+	sl.name = "LaneStatus"
+	sl.text = " \u00b7 ".join(parts)
+	sl.theme_type_variation = "LabelBad" if int(counts["blocked"]) > 0 else ("LabelWarn" if int(counts["running"]) < n else "LabelMuted")
+	sl.add_theme_font_size_override("font_size", maxi(9, roundi(float(get_theme_font_size("font_size", "LabelSmall")) * 0.85)))
+	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	sl.clip_text = true
+	if not reasons.is_empty():
+		sl.tooltip_text = "\n".join(reasons)
+		sl.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(sl)
+	var a := int(first["a"])
+	var b := int(first["b"])
+	var c := str(first["c"])
+	var minus := Button.new()
+	minus.name = "LaneShipMinus"
+	minus.theme_type_variation = "ButtonSmall"
+	minus.text = "\u2212"
+	minus.custom_minimum_size = Vector2(28, 0)
+	minus.tooltip_text = StoryText.get_or("LBL_LANE_MINUS_TIP", "Take a ship off this lane.")
+	var rid := int(ships[n - 1]["id"])  # a ship that does not run goes first, else the last one
+	for k in range(n - 1, -1, -1):
+		if str(ships[k]["status"]) != "running":
+			rid = int(ships[k]["id"])
+			break
+	minus.pressed.connect(func(): remove_requested.emit(rid))
+	row.add_child(minus)
+	var plus := Button.new()
+	plus.name = "LaneShipPlus"
+	plus.theme_type_variation = "ButtonSmall"
+	plus.text = "+"
+	plus.custom_minimum_size = Vector2(28, 0)
+	plus.tooltip_text = StoryText.get_or("LBL_LANE_PLUS_TIP", "Add a ship to this lane.")
+	if main.engine.lane_full(a, b, c):
+		plus.disabled = true
+		plus.tooltip_text = str(main.can_connect(a, b, c)["reason"])
+	var stop := int(first.get("stop", -1))
+	plus.pressed.connect(func(): main.add_lane_ship(a, b, c, stop))
+	row.add_child(plus)
+	return row
+
+## One ship of a route: icon, "Ship k of N", status, Remove. (Not drawn since 2026-11-13; _lane_ships_line replaces it.)
 func _ship_row(v: Dictionary, k: int, n: int) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)

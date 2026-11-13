@@ -7,7 +7,10 @@ extends RefCounted
 ## highest-tier recipe whose good is open and whose inputs are in company storage (Space Storage of the cell it stands in) and yields
 ## <good>_batch_out + Skills.batch_yield(market) units. Inputs leave storage, output goes to storage, no credits move.
 ## Every batch reports its units through the craft callback (main.craft_units) so tech completes.
-## Saved by main under "workshops": {id: {built, system, state, reason, made}}.
+## Nothing is crafted until the player switches production on, per crafted good (per recipe), default OFF (the Space Storage may hold the
+## Star Bazaar bill, which a recipe would eat). run() only considers recipes switched on; a built workshop with none on is idle ("Production off").
+## Saved by main under "workshops": {id: {built, system, state, reason, made, on: [crafted goods switched on]}}. An old save (no "on") loads with
+## every recipe of a built workshop ON, so running saves keep working.
 
 const StoryText := preload("res://game/story_text.gd")
 const SYSTEM := 1  # default cell (old saves, build_workshop without a system); each workshop saves its own system
@@ -20,6 +23,7 @@ var state: Dictionary = {}    # id -> idle | running | stalled
 var reason: Dictionary = {}   # id -> short stall text
 var made: Dictionary = {}     # id -> {good: units} of the last cycle
 var missing: Dictionary = {}  # id -> [good ids] every input the next batch lacked when the workshop stalled
+var on: Dictionary = {}       # crafted good -> true when its recipe is switched on (absent = off)
 
 func setup(bal: Dictionary) -> void:
 	balance = bal
@@ -29,6 +33,7 @@ func setup(bal: Dictionary) -> void:
 	reason = {}
 	made = {}
 	missing = {}
+	on = {}
 	for id in IDS:
 		missing[id] = []
 		built[id] = false
@@ -36,6 +41,23 @@ func setup(bal: Dictionary) -> void:
 		state[id] = "idle"
 		reason[id] = ""
 		made[id] = {}
+
+## True when the recipe of crafted good g is switched on.
+func is_on(good: String) -> bool:
+	return bool(on.get(good, false))
+
+func set_on(good: String, value: bool) -> void:
+	if value:
+		on[good] = true
+	else:
+		on.erase(good)
+
+## True when at least one open recipe of the workshop is switched on.
+func any_on(id: String) -> bool:
+	for g in open_recipes(id):
+		if is_on(str(g)):
+			return true
+	return false
 
 func system_of(id: String) -> int:
 	return int(system.get(id, SYSTEM))
@@ -99,10 +121,12 @@ func run(storage: RefCounted, craft: Callable = Callable()) -> void:
 			continue
 		var why := ""
 		var total := 0
-		var recipes := open_recipes(id)
+		var recipes := open_recipes(id).filter(func(g) -> bool: return is_on(str(g)))
 		recipes.reverse()  # highest tier first
 		if recipes.is_empty():
-			why = "no recipe"
+			state[id] = "idle"  # nothing switched on: the workshop does not craft and eats nothing
+			reason[id] = "off"
+			continue
 		if Chains.workshop_idle(market_of(id)):
 			why = "paused"
 		for b in batches(id):
@@ -149,6 +173,8 @@ func recipe_line(good: String) -> String:
 static func why_text(why: String) -> String:
 	if why == "storage full":
 		return StoryText.get_or("WS_WHY_FULL", "storage full")
+	if why == "off":
+		return StoryText.get_or("LBL_WORKSHOP_OFF", "Production off")
 	if why == "no recipe":
 		return StoryText.get_or("WS_WHY_NO_RECIPE", "no recipe")
 	if why == "paused":
@@ -164,6 +190,8 @@ static func why_text(why: String) -> String:
 ## visible now (Availability), plus "another input" when a hidden good is missing. Not stalled: "Batches this cycle: n"
 ## (+ what the last cycle made). A stalled workshop never shows its batch count (nothing was made).
 func status_text(id: String) -> String:
+	if bool(built.get(id, false)) and not any_on(id):
+		return StoryText.get_or("LBL_WORKSHOP_OFF", "Production off")
 	if str(state.get(id, "")) == "stalled":
 		var why: String = why_text(str(reason.get(id, "")))
 		var names: Array = []
@@ -194,8 +222,15 @@ func made_text(id: String) -> String:
 func to_dict() -> Dictionary:
 	var d := {}
 	for id in IDS:
-		d[id] = {"built": bool(built[id]), "system": system_of(id), "state": str(state[id]), "reason": str(reason[id]), "missing": missing[id].duplicate(), "made": made[id].duplicate()}
+		d[id] = {"built": bool(built[id]), "system": system_of(id), "state": str(state[id]), "reason": str(reason[id]), "missing": missing[id].duplicate(), "made": made[id].duplicate(), "on": _on_goods(id)}
 	return d
+
+func _on_goods(id: String) -> Array:
+	var out: Array = []
+	for g in Goods.recipes_of(id):
+		if is_on(str(g)):
+			out.append(str(g))
+	return out
 
 func from_dict(saved) -> void:
 	setup(balance)
@@ -212,6 +247,12 @@ func from_dict(saved) -> void:
 		if typeof(d.get("missing")) == TYPE_ARRAY:
 			for g in d["missing"]:
 				missing[id].append(str(g))
+		if typeof(d.get("on")) == TYPE_ARRAY:
+			for g in d["on"]:
+				on[str(g)] = true
+		elif bool(built[id]):  # an old save: a running workshop keeps running (every recipe on)
+			for g in Goods.recipes_of(id):
+				on[str(g)] = true
 		if typeof(d.get("made")) == TYPE_DICTIONARY:
 			for g in d["made"].keys():
 				made[id][str(g)] = int(d["made"][g])

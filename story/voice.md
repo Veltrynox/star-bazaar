@@ -126,7 +126,7 @@ The player is "you" or "the company". Never a gender, never a name.
 ### Empire growth v2, Phase 1 (added 2026-11-06, T267)
 - Prosperity tiers: a world's growth steps, shown on its card: Barren (dead world), Outpost, Village, Town, City, Metropolis. Names are placeholders; the count is the economy-designer's. Plain labels, no flavour.
 - Restless: the card line when a world's growth progress drops because a need is short. Gentle and recoverable.
-- Bazaar capital: the one world where the Star Bazaar is founded; final, one per run. Stages are Foundations, Halls, Towers, Great Hall (placeholders).
+- Star Bazaar site: the Space Storage of the one system where the Star Bazaar is founded (it becomes that system's hub); final, one per run. Stages are Foundations, Halls, Towers, Great Hall (placeholders).
 - Next Up: the top strip with three slots (Closest growth, Bazaar, Best move). Plain, no flavour, never names a hidden good.
 - Retired in player text: share as a goal word (market share).
 

@@ -6,14 +6,14 @@ Menus, buttons, labels, notices and tutorial lines are plain. Flavour lives in t
 
 ## STORY ARC (10 lines)
 1. Title: a small company in a shared, indifferent sky.
-2. Preface: everything is shared and counted. You run a trading company with one home world and a scout, and you aim to build the Star Bazaar on one grown world.
+2. Preface: everything is shared and counted. You run a trading company with one home world and a scout, and you aim to found the Star Bazaar in the Space Storage of one system.
 3. First cycles: three planets, two goods. Read prices, set standing orders.
 4. Early growth: Company storage and the first expansion points. The company looks like a company, which the Commons finds suspicious.
 5. First event: the market moves without asking you.
 6. Skills: you choose what kind of company you are: Military, Luxury, Minerals or Biotech.
 7. Midgame: debts, upkeep and the question of what is enough.
 8. Pressure: events test routes; the rescue notice shows the Bureau will carry you once, politely.
-9. The goal: raise the Star Bazaar on one grown world, stage by stage, and open it with a final delivery before the term ends. That ends the run with a market ending.
+9. The goal: found the Star Bazaar in one system once a world there has grown, raise it stage by stage, and open it with a final delivery before the term ends. That ends the run with a market ending.
 10. Ending: one of the market endings, or a loss (bankrupt, swept), or the soft ending when the term ends first.
 
 ## Title
@@ -199,7 +199,7 @@ PERMIT_S2_DESC | 110 | Permit list, system 2 description | Opens Dunmere Reach f
 PERMIT_S2_BTN | 24 | Permit list, buy button | Buy permit
 NOT_PERMIT_S2 | 110 | Notice, permit for system 2 bought | Permit bought. Dunmere Reach is open: four new planets.
 SS_POST_NAME | 24 | Space Storage post, name | Space Storage
-SS_POST_DESC | 110 | Space Storage post, one-line description | A buffer for the whole system. Company storage feeds it slowly. It holds goods and adds no flow.
+SS_POST_DESC | 110 | Space Storage post, one-line description | A buffer for the whole system. Goods reach it when you send them. It holds goods and adds no flow.
 
 ## Tutorial: galaxy view (T119; shown once, the first time the galaxy view opens after system 2 is open)
 TUT_GALAXY_INTRO | 110 | Galaxy view, first open
@@ -237,6 +237,7 @@ EVT_HINT_CHOICE_OFF | 110 | Event popup, tooltip on a choice that cannot be take
 PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} are filled in | Cost: {credits} credits and {points} skill points.
 PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when the Permit Charter foundation is missing | Needs Permit Charter to buy permits.
 PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
+PERMIT_POINTS_SHORT | 110 | Galaxy view permit card, when skill points are short; {short}, {points} (points still spent) and {credits} (total credits) are filled in | Short {short} skill points: pays {points} points and {credits} credits in all.
 
 ## Skill effects made real (2026-10-31, Alpha): Event Forecast, Price Whisper, base-game price history
 NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without the Permit Charter foundation | Routes between systems need Permit Charter.
@@ -287,7 +288,7 @@ TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) 
 TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
 TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar is one market hall all worlds trade in.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | You build it, stage by stage, on one world grown into a capital. Finishing it wins the game.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | You build it, stage by stage, in the Space Storage of one system. Finishing it wins the game.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 
@@ -307,7 +308,7 @@ Trigger table (tip id: trigger in plain words):
 - TIP_PLATFORM: the Flagship first arrives at a dead world.
 - TIP_EXPLORE: the Ships panel is opened for the first time while an unknown world is left in the system.
 - TIP_DOCK: the dock sheet opens for the first time.
-- TIP_BOOST: the Flagship first flies with energy in its hold.
+- TIP_BOOST: the Flagship first boosts.
 - TIP_GIG: the first gig appears on the board.
 - TIP_WEATHER: the first house convoy appears.
 - TIP_WEATHER_KINDS: the first house weather lands on a world.
@@ -327,14 +328,14 @@ Trigger table (tip id: trigger in plain words):
 - TIP_FOUNDATIONS: the third required Foundation is learned.
 
 ### Goal and Bazaar
-TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
-TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
-TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
-TIP_FOUNDED_WHY | 110 | Tip card, why line | Goods are held in the capital's storage. Set Buy there, or send them from a cheaper world.
-TIP_BILL | 110 | Tip card line; trigger: the first time a Bazaar bill item is short | A stage needs goods in the capital's own storage. Goods held elsewhere do not count.
-TIP_BILL_WHY | 110 | Tip card, why line | Turn Buy on at the capital, or send the goods from a cheaper world. The Bazaar panel shows the steps.
-TIP_OPENING | 110 | Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears | The last stage posts the Opening: a gig to fly the charter cargo to the capital.
-TIP_OPENING_WHY | 110 | Tip card, why line | Accept it on the gig board (J), then dock at the capital. That opens the Star Bazaar and wins the run.
+TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the founding tier | A world has reached the founding tier. Open its system's Space Storage to found the Star Bazaar. It is final.
+TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one Star Bazaar. Choose the system with care, then press Found the Bazaar here in its Space Storage.
+TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in its Space Storage and worlds at a tier.
+TIP_FOUNDED_WHY | 110 | Tip card, why line | The goods are held in the Star Bazaar's own Space Storage. Buy them at a world and send them there.
+TIP_BILL | 110 | Tip card line; trigger: the first time a Bazaar bill item is short | A stage needs goods in the Star Bazaar's Space Storage. Goods held elsewhere do not count.
+TIP_BILL_WHY | 110 | Tip card, why line | Buy the goods at a world and send them to the Star Bazaar. The Bazaar panel shows the steps.
+TIP_OPENING | 110 | Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears | The last stage posts the Opening: a gig to fly the charter cargo to the Star Bazaar.
+TIP_OPENING_WHY | 110 | Tip card, why line | Accept it on the gig board (J), then fly the Flagship to the Star Bazaar. That opens it and wins the run.
 
 ### Prosperity
 TIP_TIER1 | 110 | Tip card line; trigger: the first world reaches tier 1 | Your first world has grown a tier. Worlds grow when your sales meet their needs.
@@ -348,7 +349,7 @@ TIP_HUNGRY_WHY | 110 | Tip card, why line | Find the Hungry tag in a world's Nee
 TIP_UPGRADE | 110 | Tip card line; trigger: the first full lane shows the Upgrade route button, or an add-ship click is refused as full | A full lane cannot take another ship. It can be upgraded instead.
 TIP_UPGRADE_WHY | 110 | Tip card, why line | Open the world the route starts from and press Upgrade route. One fee, a better margin on every trip.
 TIP_HUB | 110 | Tip card line; trigger: the first world can be made a hub (right after TIP_CAPITAL) | A hub keeps the worlds near it fed, using ships from its own pool.
-TIP_HUB_WHY | 110 | Tip card, why line | One hub per system. Press Make this a hub, then add ships. Each delivery adds a hub fee.
+TIP_HUB_WHY | 110 | Tip card, why line | One hub per system. Press Make hub, then add ships. It buys only what the worlds need, below the planet price.
 
 ### Discovery and the Flagship
 TIP_PLATFORM | 110 | Tip card line; trigger: the Flagship first arrives at a dead world | A dead world takes a mining platform, not a trading post.
@@ -357,8 +358,8 @@ TIP_EXPLORE | 110 | Tip card line; trigger: the Ships panel is opened first whil
 TIP_EXPLORE_WHY | 110 | Tip card, why line | Each post costs credits, so it waits at a world while cash is short. Press the button again to stop.
 TIP_DOCK | 110 | Tip card line; trigger: the dock sheet opens for the first time | Dock lets the Flagship load goods from this world's storage and unload them there. The hold has limited room.
 TIP_DOCK_WHY | 110 | Tip card, why line | Unload to storage moves goods into Company storage here. Time is paused while you are docked.
-TIP_BOOST | 110 | Tip card line; trigger: the Flagship first flies with energy in its hold | Boost burns energy from the hold for a short burst of speed. Hold B to use it.
-TIP_BOOST_WHY | 110 | Tip card, why line | Use it on straight legs to beat a deadline. Turning stays slow, and charges refill slowly.
+TIP_BOOST | 110 | Tip card line; trigger: the Flagship first boosts | Boost speeds your Flagship up for the rest of the flight. Press Boost on the ship panel.
+TIP_BOOST_WHY | 110 | Tip card, why line | Use it on straight legs to beat a deadline. Turning stays slow, and Boosts do not refill.
 
 ### Gigs
 TIP_GIG | 110 | Tip card line; trigger: the first gig appears on the board | The gig board (J) lists offers for the Flagship. Accept one to get a map marker.
@@ -386,12 +387,12 @@ TIP_SALVAGE_WHY | 110 | Tip card, why line | It pays less than a Sell order. Add
 TIP_WORKSHOP | 110 | Tip card line; trigger: the first workshop becomes available to build | A workshop turns stock in Space Storage into new goods each cycle. Build it once.
 TIP_WORKSHOP_WHY | 110 | Tip card, why line | With an input missing it stalls and says what it needs. Send the inputs to Space Storage.
 TIP_FABRIC | 110 | Tip card line; trigger: the Fabric becomes available to build | The Fabric turns mined goods into a new good at the trading post.
-TIP_FABRIC_WHY | 110 | Tip card, why line | It crafts from stock in Space Storage. Mine what it needs and send it there.
+TIP_FABRIC_WHY | 110 | Tip card, why line | It crafts only when you switch a recipe on in Space Storage. Send it the goods first.
 TIP_NULLCORE | 110 | Tip card line; trigger: the Fabric is built | The Fabric can build a Null Core. It is built once and fitted to one ship.
 TIP_NULLCORE_WHY | 110 | Tip card, why line | That ship has a lower trip cost and is safe from raids. Fit it to the ship on your busiest lane.
 
 ### Storage and systems
-TIP_SPACE_STORAGE | 110 | Tip card line; trigger: Space Storage is learned | Space Storage is one big store for each system. Planet storage feeds it slowly.
+TIP_SPACE_STORAGE | 110 | Tip card line; trigger: Space Storage is learned | Space Storage is one big store for each system. Goods reach it when you send them.
 TIP_SPACE_STORAGE_WHY | 120 | Tip card, why line | Workshops, link upkeep, Storage Links and routes you send from it take stock out. Click its station to see stock.
 TIP_LINK | 110 | Tip card line; trigger: the Storage Link becomes available | A Storage Link joins the Space Storages of two systems. It moves goods only, never credits.
 TIP_LINK_WHY | 110 | Tip card, why line | It costs goods to build and energy each cycle. With no energy it goes dormant, and may collapse.
@@ -433,13 +434,12 @@ LBL_TRADE_NEEDS_STATION | 60 | Buy, Sell or Send to button in a system without i
 
 ## Locked skills and Space Storage view (added 2026-11-02)
 SS_BTN_CLOSE | 16 | Space Storage view, close button | Close
-SS_LBL_CAPACITY | 48 | Space Storage view, capacity line | Capacity: {cap} per commodity
 
 ## Route end names (added 2026-11-02)
 LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Space Storage
 
 ## Storage projection (added 2026-11-03)
-SS_LBL_STOCK_RULE | 140 | Space Storage view, under the capacity line: the rule for delivered goods | Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it.
+SS_LBL_STOCK_RULE | 160 | Space Storage view, under the system name: the rule for delivered goods | Goods stay until a recipe you switched on, link upkeep, a Storage Link or a route from here takes them. Planet routes and Sells never draw on it.
 SS_TIP_SEND | 90 | Space Storage view, tooltip on Send to... | Send this good from the Space Storage to a planet: click the planet on the map next.
 SS_TIP_SEND_NONE | 70 | Space Storage view, tooltip on a disabled Send to... | Nothing to send: none in stock and none on its way.
 SS_LBL_ROUTES_OUT | 24 | Space Storage view, title of the list of routes sent out of this storage | Sent out from here
@@ -451,6 +451,9 @@ LBL_CONN_WHY_STATION_NO_STOCK | 110 | Planet card, Connections, muted line under
 LBL_CONN_WHY_STATION_SHARED | 110 | Planet card, Connections, muted line under a lane from a Space Storage whose stock other lanes take first; {good} | Other lanes take the Space Storage's {good} first. Send more into it.
 TIP_NC_UPKEEP | 40 | Next cycle tooltip, entry, storage link upkeep takes from this stock; {n} | Link upkeep -{n}
 LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next cycle: +{in} -{out} = {after}
+LBL_AVAIL_CYCLE | 40 | Planet resource button tooltip, units that arrive in this storage each cycle; {in} | Available each cycle: {in}
+LBL_NOW_BUYING | 40 | Planet resource button tooltip, line above the buy price while a buy order runs here | Currently being bought
+LBL_NOW_SELLING | 40 | Planet resource button tooltip, line above the buy price while a sell order runs here | Currently being sold
 
 ## New goods and asteroid clusters (T154, 2026-11-02; names are working names, owner decides)
 GOOD_SILK_NAME | 24 | Commodity name, silk | Starsilk
@@ -1325,7 +1328,7 @@ LBL_CEO_WOMAN_01_PERK | 24 | CEO perk name, Sela Oru | Hard Lanes
 LBL_CEO_WOMAN_02_PERK | 24 | CEO perk name, Tamsin Hale | Station Born
 TXT_CEO_MAN_01_PERK_DESC | 90 | CEO perk line, Marek Voss | Bad events are announced one cycle early.
 TXT_CEO_MAN_02_PERK_DESC | 90 | CEO perk line, Idris Kane | In the first cycle you see price tips on your home market.
-TXT_CEO_WOMAN_01_PERK_DESC | 90 | CEO perk line, Sela Oru | Your first lane carries one step more cargo.
+TXT_CEO_WOMAN_01_PERK_DESC | 90 | CEO perk line, Sela Oru | Your first lane carries one step more cargo. Your Flagship can Boost a few times.
 TXT_CEO_WOMAN_02_PERK_DESC | 90 | CEO perk line, Tamsin Hale | Contract orders ask for more units, so a filled order pays more.
 
 TXT_CEO_MAN_01_BRANCH_TAG | 40 | Pick card, one-line branch tag, Marek Voss | Minerals: rock, every bolt counted
@@ -1344,6 +1347,8 @@ LBL_UNKNOWN_DARK_WORLD | 24 | Map and planet panel, name of a closed dead world 
 LBL_UNKNOWN_WORLD_LINE | 110 | Planet panel of a closed living world, one flavour line, no goods list | Something lives here. Fly closer to learn what it trades.
 LBL_UNKNOWN_DARK_LINE | 110 | Planet panel of a closed dead world, one flavour line, no goods list | A dark world. Fly closer to see what is left.
 BTN_FLY_HERE | 24 | Planet panel, button that sends the Pathfinder to this world | Explore
+BTN_FLY_TO | 24 | Planet panel, same button on a world the Pathfinder has already explored | Fly here
+LBL_PLATFORM_NEEDS_SKILL | 110 | Planet panel of an explored dead world before its mining skill is learned | Explored. A mining platform here needs the Prospecting skill.
 LBL_FLIGHT_TIME | 60 | Planet panel of a closed world, flight time from the Pathfinder; {cycles} is a number | Flight time: {cycles} cycles
 LBL_PATHFINDER_NAME | 24 | Ship panel and map tooltip, name of the scout | Pathfinder
 LBL_PATHFINDER_DESC | 110 | Ship panel, scout line | A scout. It carries no cargo and costs no upkeep. It flies to new worlds and builds posts.
@@ -1510,6 +1515,16 @@ NOT_SKILL_REASON_TIER | 60 | Fills {reason}, first world to reach a tier; {plane
 ### Planet card
 PROS_LBL_NEEDS | 24 | Planet card, header of the need list | Needs
 PROS_LBL_PROGRESS | 24 | Planet card, growth bar label | Growth progress
+PROS_TIP_LADDER | 24 | Planet card, tier name tooltip, header over the tier ladder | Growth
+PROS_TIP_NEXT | 110 | Planet card, tier name tooltip: what the next tier needs; {tier}, {n} cycles still needed, {done}, {total} | Next: {tier}. Meet every need for {n} more cycles ({done}/{total}).
+PROS_TIP_NEXT_1 | 110 | Planet card, tier name tooltip, PROS_TIP_NEXT when one cycle is left; {tier}, {done}, {total} | Next: {tier}. Meet every need for 1 more cycle ({done}/{total}).
+PROS_TIP_RULE | 110 | Planet card, tier name tooltip, under PROS_TIP_NEXT | A cycle with a short need sets growth back.
+PROS_TIP_TOP | 110 | Planet card, tier name tooltip at the top tier | Top tier. This world grows no further.
+PROS_TIP_PERK_NEEDS | 60 | Planet card, tier name tooltip, under each tier name: its need list; {n} goods, {units} units each | {n} needs, {units} units each a cycle
+PROS_TIP_PERK_TAX | 60 | Planet card, tier name tooltip, under each tier name: tax the world pays; {credits} | +{credits} credits tax a cycle
+PROS_TIP_PERK_POINTS | 60 | Planet card, tier name tooltip, under a tier no world has reached yet; {points} | +{points} skill points for the first world here
+PROS_TIP_PERK_BAZAAR | 60 | Planet card, tier name tooltip, under the founding tier while no Bazaar stands | Its system's Space Storage can become the Star Bazaar
+PROS_TIP_PERK_HUB | 60 | Planet card, tier name tooltip, under the hub tier | Can become a hub that feeds nearby worlds
 PROS_NEEDS_NOTE | 110 | Planet card, small line under the Needs header: the numbers are per cycle, not a one-time total | Delivered / wanted, per cycle.
 PROS_LBL_DEMAND | 24 | Planet card, need row, units wanted each cycle | Demand per cycle
 PROS_LBL_SOLD | 24 | Planet card, need row, units sold here this cycle | Sold this cycle
@@ -1524,18 +1539,18 @@ PROS_FED_BY | 24 | Hub panel, label of the empty column | Fed by
 ### Bazaar
 BAZ_NAME | 24 | Name of the win goal, panel and end screen | Star Bazaar
 BAZ_PANEL_TITLE | 24 | Bazaar panel title | The Star Bazaar
-BAZ_FOUND_BTN | 24 | Planet panel, button on a world at the capital tier | Found the Bazaar here
-BAZ_FOUND_PROMPT | 110 | Confirm text before founding; {planet} | Found the Star Bazaar at {planet}? This is final. A run has one capital.
+BAZ_FOUND_BTN | 24 | Space Storage view, button when a world of the system is at the founding tier | Found the Bazaar here
+BAZ_FOUND_PROMPT | 110 | Confirm text before founding (old, planet version; unused since 2026-11-13, see BAZ_FOUND_PROMPT_SITE); {planet} | Found the Star Bazaar at {planet}? This is final. A run has one capital.
 BAZ_FOUND_CONFIRM | 24 | Confirm button | Found it
 BAZ_FOUND_CANCEL | 24 | Cancel button | Not yet
-BAZ_FOUNDED | 110 | Notice, the Bazaar is founded; {planet} | The Star Bazaar is founded at {planet}.
+BAZ_FOUNDED | 110 | Notice, the Bazaar is founded (old, planet version; unused since 2026-11-13, see BAZ_FOUNDED_SITE); {planet} | The Star Bazaar is founded at {planet}.
 BAZ_STAGE_1_NAME | 24 | Bazaar stage 1 (placeholder) | Foundations
 BAZ_STAGE_2_NAME | 24 | Bazaar stage 2 (placeholder) | Halls
 BAZ_STAGE_3_NAME | 24 | Bazaar stage 3 (placeholder) | Towers
 BAZ_STAGE_4_NAME | 24 | Bazaar stage 4 (placeholder) | Great Hall
 BAZ_STAGE_DONE | 110 | Notice, a stage is complete; {stage} is the stage name | Bazaar stage done: {stage}.
 BAZ_LBL_BILL | 24 | Bazaar panel, goods the stage needs | Goods needed
-BAZ_LBL_QUORUM | 24 | Bazaar panel, other worlds the stage needs | Other worlds
+BAZ_LBL_QUORUM | 24 | Bazaar panel, worlds the stage needs | Worlds
 BAZ_LBL_REACH | 24 | Bazaar panel, a world in another system | Reach
 BAZ_LBL_CAPITAL | 24 | Bazaar panel, the capital world | Capital
 BAZ_LBL_WINGS | 24 | Bazaar panel, chosen wings | Wings
@@ -1586,11 +1601,13 @@ NOT_DOCK_NO_STOCK | 110 | Notice, Load refused because Company storage here has 
 NOT_DOCK_NO_POST | 110 | Notice, dock pressed at a world with no trading post | Establish a trading post here to dock and trade.
 NOT_DOCK_FAR | 110 | Notice, dock pressed while the Flagship is away from the world | Fly the Flagship here first.
 LBL_DOCK_HOLD_FULL | 60 | Dock sheet, line under the hold when it is full | The hold is full. Loading is limited to the room left.
-BTN_BOOST | 24 | Ship panel and flight hud, boost button (also a held key) | Boost
-LBL_BOOST_HINT | 110 | Tooltip of the boost button | Faster on straight legs. Burns energy from the hold. Turning stays slow.
+BTN_BOOST | 24 | Boost button (old label, kept for the Russian file) | Boost
+BTN_BOOST_LEFT | 24 | Ship panel, boost button; {n} Boost uses left this run | Boost ({n} left)
+LBL_BOOST_HINT | 110 | Tooltip of the boost button | Faster for the rest of this flight. Uses one Boost. Turning stays slow.
 LBL_BOOST_CHARGES | 40 | Flight hud, boost gauge; {n} charges left | Boost: {n} left
 NOT_BOOST_NO_ENERGY | 110 | Notice, boost pressed with no energy in the hold | No energy in the hold to boost.
-NOT_BOOST_EMPTY | 110 | Notice, boost pressed with no charge left | Boost is recharging.
+NOT_BOOST_EMPTY | 110 | Notice, boost pressed with no use left this run | No Boosts left.
+NOT_BOOST_NOT_FLYING | 110 | Notice, boost pressed while the Flagship is not flying | Boost works only in flight.
 LBL_GIG_BOARD_TITLE | 24 | Gig board heading | Gig board
 LBL_GIG_BOARD_EMPTY | 60 | Gig board with no open offers | No open gigs. New ones come with the cycles.
 LBL_GIG_SIGNAL | 24 | Gig board, tag on a signal offer | Signal
@@ -1657,13 +1674,13 @@ HUB_LBL_SERVED | 24 | Hub panel, worlds it feeds | Fed worlds
 HUB_LBL_GAPS | 24 | Hub panel, needs it cannot meet | Gaps
 HUB_LBL_FEE | 24 | Hub panel, what a delivery costs on top | Hub fee
 HUB_MAKE_BTN | 24 | Planet panel, button on a Town that can be a hub | Make this a hub
-HUB_MAKE_PROMPT | 110 | Confirm text before making a hub; {planet} | Make {planet} a hub? It keeps the worlds near it fed, with ships from its pool.
+HUB_MAKE_PROMPT | 110 | Confirm text before making a hub; {planet} | Make {planet} a hub? It costs credits once and keeps the worlds near it fed, with ships from its pool.
 HUB_MAKE_CONFIRM | 24 | Confirm button | Make hub
 HUB_MAKE_CANCEL | 24 | Cancel button | Not yet
 HUB_MADE | 110 | Notice, a hub is made; {planet} | {planet} is now a hub. Give it ships to start.
 HUB_FIRST | 110 | Notice, the first hub; {planet} | {planet} keeps its neighbours fed now. Your hands are free for other work.
 HUB_RELEASE_BTN | 24 | Hub panel, release button | Release hub
-HUB_RELEASE_PROMPT | 110 | Confirm text before release; {planet} | Release the hub at {planet}? Its ships go back to your fleet and its worlds go back to you.
+HUB_RELEASE_PROMPT | 110 | Confirm text before release; {planet} | Release the hub at {planet}? Its ships and worlds come back to you. The cost is not refunded.
 HUB_RELEASE_CONFIRM | 24 | Confirm button | Release
 HUB_RELEASE_CANCEL | 24 | Cancel button | Keep hub
 HUB_RELEASED | 110 | Notice, a hub is released; {planet} | The hub at {planet} is released. Its worlds need your routes again.
@@ -1744,16 +1761,16 @@ BAZ_WING_3B_DESC | 260 | Same, stage 3 B; {n} is percent (what the code does tod
 
 
 ### Bazaar guidance (2026-11-12, T363)
-Placeholders: {stage} stage name, {amount} units still short, {good} good name (shown goods only), {capital} the capital world, {source} the cheaper world, {price} and {local} credits per unit, {n} count, {tier} tier name, {planet} world name, {line} the step line. Wing descriptions: {n} is the absolute effect amount from data/balance.json (unit named in each row).
-BAZ_HOW | 200 | Bazaar panel, paragraph under the title | The Bazaar is raised in stages. Each needs goods held in the capital's own storage and other worlds grown to a tier. Each must be done before the term ends.
-BAZ_STEP_BILL | 220 | Bazaar panel and capital card, under a short bill row | {stage} needs {amount} more {good} held in {capital}'s storage. Buy it at {source} ({price} cr) and send it to {capital}, or turn Buy on at {capital} ({local} cr).
-BAZ_STEP_BILL_LOCAL | 160 | Same, when only the capital sells the good | {stage} needs {amount} more {good} held in {capital}'s storage. Turn Buy on for it at {capital} ({local} cr).
-BAZ_STEP_BILL_FED | 160 | Same, when a Buy order or route already feeds it | {stage}: {amount} more {good} still to reach {capital}. Your Buy or route is on. Give it a few cycles.
+Placeholders: {stage} stage name, {amount} units still short, {good} good name (shown goods only), {system} the system of the Star Bazaar, {source} the cheaper world, {price} and {local} credits per unit, {n} count, {tier} tier name, {planet} world name, {line} the step line. Wing descriptions: {n} is the absolute effect amount from data/balance.json (unit named in each row).
+BAZ_HOW | 200 | Bazaar panel, paragraph under the title | The Star Bazaar is raised in stages, in the Space Storage where you founded it. Each stage needs goods held in that storage and worlds grown to a tier, and must be done before the term ends.
+BAZ_STEP_BILL | 220 | Bazaar panel and Space Storage view, under a short bill row | {stage} needs {amount} more {good} held in the Star Bazaar's storage. Buy it at {source} ({price} cr) and send it to the Star Bazaar.
+BAZ_STEP_BILL_LOCAL | 160 | Same, when no world in reach is known to sell the good | {stage} needs {amount} more {good} held in the Star Bazaar's storage. Buy it at a world that sells it and send it to the Star Bazaar.
+BAZ_STEP_BILL_FED | 160 | Same, when a route or Storage Link order already feeds it | {stage}: {amount} more {good} still to reach the Star Bazaar. Your route or link is on. Give it a few cycles.
 BAZ_STEP_QUORUM | 120 | Same, quorum step | {stage} needs {n} more worlds at {tier}. Meet their needs every cycle.
 BAZ_STEP_REACH | 120 | Same, reach step | {stage} needs a world in another system. Buy a permit in Skills, then establish a post there.
 BAZ_BTN_BUY_AT | 24 | Bazaar panel, button under a bill row | Buy at {planet}
 BAZ_BTN_SEND_TO | 24 | Bazaar panel, button under a bill row | Send to {planet}
-BAZ_CARD_TITLE | 40 | Capital card block and Bazaar card, title | Star Bazaar: {stage}
+BAZ_CARD_TITLE | 40 | Space Storage view block and Bazaar card, title | Star Bazaar: {stage}
 NOT_BAZAAR_REMIND | 110 | Cycle-end notice while a bill item is short and not fed | Star Bazaar: {line}
 
 ### Recap
@@ -1867,6 +1884,8 @@ GIG_EFF_GOODS | 40 | gigs.gd:616
 {n} {good} in storage.
 GIG_EFF_IDLE | 70 | gigs.gd:638
 The Flagship is held for {n} cycles.
+GIG_EFF_SPEED | 40 | gigs.gd:511
+The Flagship is faster for good.
 GIG_ETA | 60 | gig_board.gd:195
 ETA {cycles} cycles, left {left}
 GIG_ETA_NONE | 30 | gig_board.gd:193
@@ -1896,7 +1915,7 @@ Stolen cargo, loaded into the Flagship hold
 GIG_REWARD_SIGNAL | 30 | gig_board.gd:113
 Unknown reward
 GIG_ROW_OPENING | 50 | gig_board.gd:92
-Charter cargo for {planet}
+Charter cargo for the {planet}
 GIG_ROW_SALVAGE | 24 | gig_board.gd:94
 Cargo pods
 GIG_ROW_SIGNAL | 30 | gig_board.gd:99
@@ -2027,8 +2046,6 @@ LBL_ROUTE_UPGRADE_TIP | 80 | planet_panel.gd:1137
 Raise this lane's margin for {cost} credits.
 LBL_SELL_OFFER | 50 | main.gd:1398
 Sell {commodity} here too?
-LBL_SELL_ORDER_STATE | 40 | planet_panel.gd resource row (sell order status)
-Sell order: {state}
 LBL_SELL_TIP_OFF | 70 | planet_panel.gd resource menu (Sell tooltip)
 {tip}. Standing sell order each cycle.
 LBL_SELL_TIP_ON | 80 | planet_panel.gd resource menu (Sell tooltip)
@@ -2048,7 +2065,33 @@ Ship {k} of {n}
 LBL_SHIP_LIMIT | 50 | ship_panel.gd set_upkeep (free-ships hint)
 Ship limit reached ({cap}).
 LBL_SHIP_RUNNING | 24 | planet_panel.gd:1205
-Running.
+Running
+LBL_LANE_RUNNING_ONE | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+1 ship active
+LBL_LANE_RUNNING_MANY | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+{n} ships active
+LBL_LANE_STALLED_ONE | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+1 ship stalled
+LBL_LANE_STALLED_MANY | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+{n} ships stalled
+LBL_LANE_WAITING_ONE | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+1 ship waiting
+LBL_LANE_WAITING_MANY | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+{n} ships waiting
+LBL_LANE_BLOCKED_ONE | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+1 ship blocked
+LBL_LANE_BLOCKED_MANY | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+{n} ships blocked
+LBL_LANE_ALL_STALLED | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+Lane stalled
+LBL_LANE_ALL_WAITING | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+Lane waiting
+LBL_LANE_ALL_BLOCKED | 24 | planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)
+Lane blocked
+LBL_LANE_MINUS_TIP | 60 | planet_panel.gd _lane_ships_line, tooltip of the - button
+Take a ship off this lane.
+LBL_LANE_PLUS_TIP | 60 | planet_panel.gd _lane_ships_line, tooltip of the + button
+Add a ship to this lane.
 LBL_SKILL_POINTS_HELP | 270 | skill_screen.gd build (help line under the title)
 Skill points: {planet} for each planet you first trade with, {route} for each new route between two planets, {system} for each new system you reach.
 LBL_SPEED_TIP | 30 | main.gd _build_speed_buttons
@@ -2095,7 +2138,7 @@ MENU_VOICE | 24 | game_menu.gd:60
 Voice
 NOTE_SECOND_LANE | 90 | planet_panel.gd:125
 Your first sale here crossed the system line.
-NOT_BAZAAR_OPENING | 130 | main.gd:2425
+NOT_BAZAAR_OPENING | 130 | main.gd (old, planet version; unused since 2026-11-13, see NOT_BAZAAR_OPENING_SITE)
 The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.
 NOT_FABRIC_BUILT | 60 | main.gd:2074
 Fabric built at the trading post.
@@ -2107,6 +2150,8 @@ NOT_OLD_SAVE | 150 | save_game.gd:82
 Your old save is from before Four Markets and cannot continue. Start a new game.
 NOT_PICK_OTHER_DEST | 80 | main.gd
 Pick a different planet as the destination.
+NOT_FIRST_NEED_FILLED | 80 | main.gd:2680
+First delivery to {planet}'s needs! Keep its needs met to help it grow.
 NOT_PROSPERITY_TAX | 70 | main.gd:2513
 Your worlds paid {n} credits in tax.
 NOT_PROSPERITY_TIER_UP | 70 | main.gd:2420
@@ -2258,7 +2303,7 @@ This world is mined out.
 ST_HUB_ALREADY | 60 | hubs.gd:91
 This world is already a hub.
 ST_HUB_EXPLAIN | 320 | hub_panel.gd, block under the title, always shown
-A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys whatever those worlds are short of from the cheapest source in reach and delivers it, for the usual trip cost plus a small hub fee. Untick a world or a good to keep it in your own hands.
+A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys exactly what the ticked worlds are short of, never more, from the cheapest source in reach, below the planet price, and delivers it for the usual trip cost. Untick a world or a good to keep it in your own hands.
 ST_HUB_FED_HUB | 24 | hubs.gd:205
 Fed by hub
 ST_HUB_FED_ROUTE | 40 | hubs.gd:203
@@ -2268,7 +2313,7 @@ ST_HUB_FIRST_NOTICE | 40 | main.gd:2387
 ST_HUB_MAKE | 24 | planet_panel.gd:233
 Make hub
 ST_HUB_MAKE_TIP | 340 | planet_panel.gd:234, hub make button tooltip (also on the reason line)
-Makes this world a hub: it keeps nearby worlds fed on its own. You add ships from your free fleet; each cycle the hub buys what those worlds lack and delivers it, never more than they need. Each delivery costs the trip plus a hub fee. One hub per system; it never draws on Space Storage.
+Makes this world a hub: it keeps nearby worlds fed on its own. It costs credits once. You add ships from your free fleet; each cycle the hub buys what those worlds lack at a discount and delivers it, never more than they need. One hub per system; it never draws on Space Storage.
 ST_HUB_MANUAL | 24 | hub_panel.gd:163
 Kept manual
 ST_HUB_NONE_IN_REACH | 50 | hub_panel.gd:131
@@ -2285,6 +2330,20 @@ ST_HUB_POOL_FREE | 30 | hub_panel.gd:118
 Free ships: {n}
 ST_HUB_POOL_SHIPS | 40 | hub_panel.gd:95
 Ships in pool: {n}
+ST_HUB_SITE_HEAD | 30 | hub_panel.gd Star Bazaar hub, Space Storage supply heading
+Space Storage supply
+ST_HUB_SITE_PROD | 50 | hub_panel.gd Star Bazaar hub, a delivery for production; {good} {qty}
+{good} x{qty} for production
+ST_HUB_SITE_BILL | 50 | hub_panel.gd Star Bazaar hub, a delivery for the stage bill; {good} {qty}
+{good} x{qty} for the stage bill
+ST_HUB_PLUS_CAP | 60 | hub_panel.gd PoolPlus tooltip
+A hub pool holds up to {max} ships.
+ST_HUB_PLUS_MOVE | 60 | hub_panel.gd PoolPlus tooltip
+Press to move a free ship into the pool.
+ST_HUB_PLUS_BUY | 60 | hub_panel.gd PoolPlus tooltip
+No free ship: press to buy one for {price} cr.
+ST_HUB_PLUS_FULL | 40 | hub_panel.gd PoolPlus tooltip
+The pool is full.
 ST_HUB_RELEASE | 24 | hub_panel.gd:136
 Release hub
 ST_HUB_RELEASE_PROMPT | 120 | hub_panel.gd:171
@@ -2334,3 +2393,57 @@ PB_NOTICE_SECOND_MIL | 200 | Notice, a second world is boosted, Military | A sec
 PB_NOTICE_SECOND_LUX | 200 | Notice, a second world is boosted, Luxury | {planet} now stocks for a second patron. Each believes she came first. The broker has seated them at opposite ends of one long ledger.
 PB_NOTICE_SECOND_MIN | 200 | Notice, a second world is boosted, Minerals | {planet} gets a quota too. The crews at the first world want to know where the second was hiding. It was in a drawer.
 PB_NOTICE_SECOND_BIO | 200 | Notice, a second world is boosted, Biotech | The vines at {planet} heard the news from the first world. They are not impressed. They are growing anyway.
+
+## Tutorial window: planet icons
+TUT_WIN_PLANET_ICONS_TITLE | 32 | Tutorial window, title | Planet icons
+TUT_WIN_PLANET_ICONS_TOP | 110 | Tutorial window, line for the icons above a world | Icons above a world are the goods it trades. Right click one to send that good there.
+TUT_WIN_PLANET_ICONS_BOTTOM | 120 | Tutorial window, line for the icons below the name | Icons below the name are what the world needs to grow. They light up when your sales meet the need.
+TUT_WIN_PLANET_ICONS_RING | 80 | Tutorial window, line for the ring | The ring fills as the world grows toward its next tier.
+
+### Star Bazaar in the Space Storage, production switches, hub price and cost (2026-11-13, gameplay-programmer; story-designer to polish)
+TIP_BAZAAR_MARKER | 32 | main.gd, map marker tooltip of the Star Bazaar's station
+Star Bazaar
+LBL_BAZAAR_STATION_NAME | 32 | main.gd planet_name, Space Storage view title, hub panel title, route rows
+Star Bazaar
+BAZ_FOUND_TIP | 90 | Space Storage view, Found button tooltip
+Raise the Star Bazaar in this Space Storage. Once per run, final.
+BAZ_BTN_PANEL | 24 | Space Storage view, opens the Bazaar panel
+Star Bazaar panel
+BAZ_BTN_STORAGE | 24 | Bazaar panel, opens the Space Storage view
+Open the storage
+BAZ_LBL_SITE | 24 | Bazaar panel, the system of the Star Bazaar
+Site
+NEXTUP_BAZAAR_FOUND_SITE | 90 | Bazaar panel before founding; {system}
+Found the Bazaar in the Space Storage of {system}
+END_RECAP_SITE | 40 | end_screen.gd recap line; {system}
+Star Bazaar: {system}
+LBL_WORKSHOP_OFF | 30 | Space Storage view, a built workshop or the fabric with no recipe switched on
+Production off
+LBL_PRODUCTION_ON | 30 | Space Storage view, fabric row, plate recipe on
+Production on
+SS_TIP_PROD_ON | 90 | Space Storage view, tooltip of a lit recipe icon; {good}
+Production is on. Click to switch off {good}.
+SS_TIP_PROD_OFF | 100 | Space Storage view, tooltip of a dim recipe icon; {good}
+Production is off. Click to start making {good} from the stock here.
+NOT_PRODUCTION_OFF | 110 | Board notice after a workshop or the fabric is built
+Production starts off. Switch a recipe on in the Space Storage when you want it made.
+ST_HUB_MAKE_COST | 30 | planet_panel.gd, Make hub button with its one-off cost; {cost}
+Make hub ({cost} cr)
+ST_HUB_NO_CASH | 60 | Make hub button tooltip and notice when cash is short; {cost}
+Making a hub costs {cost} credits.
+ST_HUB_BAZAAR_SYSTEM | 60 | hubs.gd, reason a world of the Bazaar's system cannot be made a hub
+The Star Bazaar is the hub of this system.
+ST_HUB_BAZAAR_NOTE | 200 | hub_panel.gd, note on the Bazaar hub instead of Release hub
+The Star Bazaar is the hub of every world in this system. It buys the goods they need at a discount and never draws on the Space Storage.
+BAZ_FOUND_PROMPT_SITE | 110 | Space Storage view, confirm text before founding; {system}
+Found the Star Bazaar in the Space Storage of {system}? This is final. It becomes the hub of this system.
+BAZ_FOUNDED_SITE | 110 | main.gd notice, the Bazaar is founded; {system}
+The Star Bazaar is founded in {system}.
+BAZ_FOUNDED_WIN_TITLE | 40 | Modal window title, shown when the Bazaar is founded
+The Star Bazaar is founded
+BAZ_FOUNDED_WIN_BODY | 460 | Modal window body, shown when the Bazaar is founded; {system}
+Congratulations. The Star Bazaar now stands in {system}. It is the hub of every world here and draws what it needs from them by itself: their needs, the goods for each stage, and the inputs of any production switched on in the Space Storage. It takes only as much as needed, at a discount, and your ships in its pool carry it, so keep ships in the pool. Stages finish on their own when the goods and worlds are ready.
+BAZ_FOUNDED_WIN_BTN | 24 | Modal window button, closes the window after founding
+Got it
+NOT_BAZAAR_OPENING_SITE | 130 | main.gd notice, the last stage is done; {system}
+The charter cargo is ready. Fly it to the Star Bazaar in {system} to open it.

@@ -213,6 +213,9 @@ const TUT_FALLBACK := {
 }
 var tut_step: int = 0
 var tips_seen: Dictionary = {}  # T316 one-time tips already shown this run (saved)
+var tut_win_seen := {}  # one-time tutorial windows already shown this run (saved as tut_win_seen)
+var tut_win: Control = null  # the open tutorial window, if any
+var _tut_win_prev_paused := false
 var tips_off := false  # Skip tutorial was pressed: no more tips (saved)
 var tip_active := ""  # tip id on the tip card now (the first id when two tips share a card)
 var tip_active_ids: Array = []  # T339 ids on the card now
@@ -251,7 +254,7 @@ var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
 var raids: Raids = Raids.new()  # T296 raids from unreclaimed dead worlds, saved under "raids"
 var boost: Boost = Boost.new()  # T371 production charters and boosted worlds, saved under run.boost (game/boost.gd)
 var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, salvage, the Opening), saved under "gigs"
-var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
+var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: its site system (a Space Storage), stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: finite stock per planet id, saved under "dead_mining"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
 var notice_label: Label
@@ -316,7 +319,6 @@ func _ready() -> void:
 	planet_panel.send_requested.connect(_on_send)
 	planet_panel.buy_send_requested.connect(_on_buy_send)
 	planet_panel.remove_requested.connect(_remove_requested)
-	planet_panel.found_bazaar_requested.connect(_on_found_bazaar)  # T262
 	planet_panel.make_hub_requested.connect(_on_make_hub)  # T291
 	planet_panel.hub_panel_requested.connect(open_hub_panel)  # T291
 	map.planet_clicked.connect(_on_planet_clicked)
@@ -375,6 +377,11 @@ func _ready() -> void:
 	bazaar.setup(self)  # T259
 	hubs.setup(balance, engine, prosperity, trade, storage)  # T289
 	hubs.owned_ships_fn = func() -> int: return ships
+	hubs.bazaar_site_fn = func() -> int: return bazaar.site_system()
+	hubs.station_pos_fn = func(sid: int) -> Vector3: return map.station_pos(sid)
+	hubs.workshops = workshops  # the Star Bazaar hub feeds the production inputs and the stage bill of its Space Storage
+	hubs.fabric = fabric
+	hubs.bazaar = bazaar
 	gigs.setup(self)  # T271
 	gigs.arrival.connect(_on_gig_arrival)
 	raids.setup(self)  # T296
@@ -390,6 +397,8 @@ func _ready() -> void:
 		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
+	if not prosperity.first_need_filled.is_connected(_on_first_need_filled):
+		prosperity.first_need_filled.connect(_on_first_need_filled)
 	if not bazaar.stage_done.is_connected(_on_bazaar_stage_done):
 		bazaar.stage_done.connect(_on_bazaar_stage_done)
 	if not bazaar.wing_offered.is_connected(_on_bazaar_wing_offered):
@@ -433,6 +442,7 @@ func _ready() -> void:
 	space_storage_view = load("res://game/space_storage_view.gd").new()
 	add_child(space_storage_view)
 	space_storage_view.setup(self)
+	space_storage_view.found_bazaar_requested.connect(_on_found_bazaar)  # the Found button lives in the Space Storage view
 	game_menu = load("res://game/game_menu.gd").new()
 	add_child(game_menu)
 	game_menu.setup(self)
@@ -553,7 +563,7 @@ func collect_state() -> Dictionary:
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
-			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off,
+			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off, "tut_win_seen": tut_win_seen.keys(),
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
@@ -587,6 +597,14 @@ func apply_state(s: Dictionary) -> void:
 	for k in (s.get("tips_seen", []) if typeof(s.get("tips_seen", [])) == TYPE_ARRAY else []):
 		tips_seen[str(k)] = true
 	tips_off = bool(s.get("tips_off", false))
+	tut_win_seen = {}
+	for k in (s.get("tut_win_seen", []) if typeof(s.get("tut_win_seen", [])) == TYPE_ARRAY else []):
+		tut_win_seen[str(k)] = true
+	if tut_win != null:
+		tut_win.queue_free()
+		tut_win = null
+	if not s.has("tut_win_seen") and s.has("tips_seen") and tips_seen.has("TIP_TIER1"):
+		tut_win_seen["planet_icons"] = true  # an older save that already got the tier tip
 	tip_active = ""
 	tip_sig = {}
 	tip_reset_flow(true)
@@ -641,6 +659,7 @@ func apply_state(s: Dictionary) -> void:
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
 	bazaar.from_dict(s.get("bazaar"))  # T259; old saves: nothing founded
+	_sync_bazaar_station(false)  # a founded Bazaar's station shows its model at once, no animation
 	workshops.from_dict(s.get("workshops"))  # before the orders: a good that shows once its workshop stands (ingot) opens its sell price
 	engine.local_from_array(s.get("orders"))  # old saves: no local orders; after prosperity: a need opens a sell price (silk at a world that needs it)
 	free_play = bool(s.get("free_play", false))
@@ -668,6 +687,8 @@ func apply_state(s: Dictionary) -> void:
 	if bazaar.wing_pending > 0 and bazaar_panel != null:
 		bazaar_panel.show_wing_choice.call_deferred()  # T299: a wing choice left open when the save was made
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
+	if bazaar.is_founded() and not hubs.hubs.has(-bazaar.site_system()):
+		hubs.take_over_system(bazaar.site_system())  # an older save: the Bazaar takes over the hub of its system, a planet hub there moves in
 	sync_hub_rings()  # T291
 	flight.resync(game_time())
 	_sync_closed()
@@ -801,6 +822,16 @@ func _ensure_stations() -> void:
 	if built and not _loading_state:
 		post_notice(StoryText.get_or("LBL_STATION_BUILT", "Space station built. Click it to open Space Storage."))
 
+## The station of the founded Bazaar's system: Star Bazaar model (swap with the build-in when animate) and "Star Bazaar" marker tooltip.
+func _sync_bazaar_station(animate: bool) -> void:
+	if not bazaar.is_founded():
+		return
+	var sid := bazaar.site_system()
+	if map != null:
+		map.set_station_bazaar(sid, animate)
+	if station_markers.has(sid):
+		station_markers[sid].tooltip_text = StoryText.get_or("TIP_BAZAAR_MARKER", "Star Bazaar")
+
 func _make_station_marker(id: int) -> void:
 	if station_markers.has(id):
 		return
@@ -920,7 +951,16 @@ func _check_second_lane(r: Dictionary) -> void:
 func permit_points(sid: int) -> int:
 	return Systems.permit_points(balance, sid)
 
-## {ok, reason}; reason is "", "owned", "skill", "credits", "points", "over" or "unknown".
+## Points a permit actually takes now: all it needs, or every point the player has when short (points are spent first).
+func permit_points_spent(sid: int) -> int:
+	return mini(maxi(skill_points, 0), permit_points(sid))
+
+## Credits a permit costs now: the permit price plus permit_point_credits for each skill point the player is short of.
+func permit_total_cost(sid: int) -> int:
+	var short := permit_points(sid) - permit_points_spent(sid)
+	return permit_cost(sid) + short * int(balance.get("permit_point_credits", 0))
+
+## {ok, reason}; reason is "", "owned", "skill", "credits", "over" or "unknown". Missing points are paid in credits.
 func can_buy_permit(sid: int) -> Dictionary:
 	if not Systems.ids().has(sid):
 		return {"ok": false, "reason": "unknown"}
@@ -930,10 +970,8 @@ func can_buy_permit(sid: int) -> Dictionary:
 		return {"ok": false, "reason": "owned"}
 	if not has_skill(required_skill(sid)):
 		return {"ok": false, "reason": "skill"}
-	if cash < permit_cost(sid):
+	if cash < permit_total_cost(sid):
 		return {"ok": false, "reason": "credits"}
-	if skill_points < permit_points(sid):
-		return {"ok": false, "reason": "points"}
 	return {"ok": true, "reason": ""}
 
 ## Buys the permit: credits and expansion points, then the system's planets appear on the map.
@@ -943,8 +981,9 @@ func buy_permit(sid: int) -> Dictionary:
 	var v := can_buy_permit(sid)
 	if not v["ok"]:
 		return v
-	cash -= permit_cost(sid)
-	skill_points -= permit_points(sid)
+	var spent := permit_points_spent(sid)
+	cash -= permit_total_cost(sid)
+	skill_points -= spent
 	_open_system(sid)
 	post_notice(StoryText.get_text(str(Systems.get_system(sid).get("permit_notice_id", "NOT_PERMIT_S2"))))
 	if skill_screen != null:
@@ -1854,6 +1893,16 @@ func send_stock_buying(src: int, dst: int, c: String, stop: int = -1) -> Diction
 	r["bought"] = bought
 	return r
 
+## Planet panel "+" on a lane (owner 2026-11-13): one more ship on the same lane, buying one when none is free.
+func add_lane_ship(src: int, dst: int, c: String, stop: int = -1) -> void:
+	var r := send_stock_buying(src, dst, c, stop)
+	if not r["ok"]:
+		post_notice_now(str(r["reason"]))
+		return
+	if bool(r.get("bought", false)):
+		post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
+	post_notice(StoryText.get_text("NOT_LANE_SHIP_ADDED"))
+
 ## N2: destinations of commodity c that this planet already sends to with an assigned ship (one entry per lane).
 func split_targets(planet: int, c: String) -> Array:
 	var out: Array = []
@@ -2046,6 +2095,8 @@ func planet_name(i: int) -> String:
 	if Clusters.is_node(i):  # T156
 		return StoryText.get_or("LBL_CLUSTER_NAME", "Asteroid cluster {id}", {"id": str(clusters.items[Clusters.index_of(i)]["id"])}) if clusters.valid(Clusters.index_of(i)) else "?"
 	if i < 0 and i > -1000:  # a station destination, -system id
+		if bazaar.is_founded() and -i == bazaar.site_system():
+			return StoryText.get_or("LBL_BAZAAR_STATION_NAME", "Star Bazaar")
 		return StoryText.get_or("LBL_SPACE_STORAGE_NAME", "Space Storage")
 	if i < 0 or i >= map.planets.size():
 		return "?"
@@ -2333,8 +2384,20 @@ func build_fabric() -> Dictionary:
 	fabric.built = true
 	fabric.state = "idle"
 	post_notice(StoryText.get_or("NOT_FABRIC_BUILT", "Fabric built at the trading post."))
+	post_notice(StoryText.get_or("NOT_PRODUCTION_OFF", "Production starts off. Switch a recipe on in the Space Storage when you want it made."))
 	_after_change()
 	return v
+
+## Production switch of a crafted good (workshop recipe, or the Fabric's plate): nothing is crafted until it is on (default off).
+func production_on(good: String) -> bool:
+	return fabric.on if good == Fabric.OUTPUT else workshops.is_on(good)
+
+func set_production(good: String, on: bool) -> void:
+	if good == Fabric.OUTPUT:
+		fabric.on = on
+	else:
+		workshops.set_on(good, on)
+	_after_change()
 
 ## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "closed" (availability rule: branch or skill not met), "credits".
 func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary:
@@ -2363,6 +2426,7 @@ func build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary
 	workshops.system[id] = sid
 	workshops.state[id] = "idle"
 	post_notice(StoryText.get_or("NOT_WORKSHOP_BUILT", "{workshop} built in {system}.", {"workshop": StoryText.get_or("WS_" + id.to_upper() + "_NAME", id.capitalize()), "system": Systems.name_of(sid)}))
+	post_notice(StoryText.get_or("NOT_PRODUCTION_OFF", "Production starts off. Switch a recipe on in the Space Storage when you want it made."))
 	_after_change()
 	return v
 
@@ -2627,19 +2691,38 @@ func debug_advance_cycle() -> int:
 func _on_link_notice(text_id: String, vars: Dictionary) -> void:
 	post_notice(StoryText.get_or(text_id, text_id, vars))
 
-## T262: the planet card's confirmed 'Found the Bazaar here'.
-func _on_found_bazaar(planet: int) -> void:
-	if bazaar.found(planet):
-		post_notice(StoryText.get_or("BAZ_FOUNDED", "The Star Bazaar is founded at {planet}.", {"planet": planet_name(planet)}))
+## The Space Storage view's confirmed 'Found the Star Bazaar here' (system id).
+func _on_found_bazaar(sys: int) -> void:
+	if bazaar.found(sys):
+		hubs.take_over_system(sys)  # the Star Bazaar is the hub of its system from now on (free)
+		_sync_bazaar_station(true)
+		sync_hub_rings()
+		# The congratulation window replaces the BAZ_FOUNDED_SITE board notice.
+		_tut_win_open("bazaar_founded", "BAZ_FOUNDED_WIN_TITLE", "", ["BAZ_FOUNDED_WIN_BODY"], "BAZ_FOUNDED_WIN_BTN", {
+			"BAZ_FOUNDED_WIN_TITLE": "The Star Bazaar is founded",
+			"BAZ_FOUNDED_WIN_BODY": "Congratulations! The Star Bazaar now stands in {system}. It draws resources automatically from the other planets of its system: what their needs, your workshops and the stage bill ask for.",
+			"BAZ_FOUNDED_WIN_BTN": "Got it"}, {"system": Systems.name_of(sys)})
 		if planet_panel != null and planet_panel.visible:
 			planet_panel.rebuild()
+		if space_storage_view != null and space_storage_view.visible:
+			space_storage_view.refresh()
+		_refresh()
 
 ## T291: Make hub on a card: designate, redraw the ring and open the panel to set the pool.
 func _on_make_hub(planet: int) -> void:
+	var chk: Dictionary = hubs.can_designate(planet)
+	if not bool(chk["ok"]):
+		post_notice(str(chk["reason"]))
+		return
+	var cost: int = hubs.build_cost()
+	if cash < cost:
+		post_notice(StoryText.get_or("ST_HUB_NO_CASH", "Making a hub costs {cost} credits.", {"cost": cost}))
+		return
 	var r: Dictionary = hubs.designate(planet)
 	if not bool(r["ok"]):
 		post_notice(str(r["reason"]))
 		return
+	cash -= cost  # one-off, nothing comes back on release
 	post_notice(StoryText.get_or("ST_HUB_FIRST_NOTICE", "{planet} is now a hub.", {"planet": planet_name(planet)}))
 	_on_hubs_changed()
 	open_hub_panel(planet)
@@ -2665,6 +2748,8 @@ func sync_hub_rings() -> void:
 		return
 	var list: Array = []
 	for h in hubs.hub_planets():
+		if h < 0:
+			continue  # the Star Bazaar hub covers its whole system: no ring
 		list.append({"planet": h, "radius": hubs.reach_of(h)})
 	map.set_hub_rings(list)
 
@@ -2677,17 +2762,23 @@ func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 		map.beat_tier_up(planet, tier)
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
 
-## T298: the last stage is done: the Opening gig waits at the capital.
-func _on_bazaar_opening_ready(planet: int) -> void:
-	gigs.post_opening(planet)
-	post_notice(StoryText.get_or("NOT_BAZAAR_OPENING", "The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.", {"planet": planet_name(planet)}))
+## First units that fill any need this run: a one-time congratulation, shown at once.
+func _on_first_need_filled(planet: int, _good: String) -> void:
+	if top_bar != null:
+		Juice.flash(top_bar, Ui.col("star_warm").lightened(0.5), 0.5)
+	post_notice_now(StoryText.get_or("NOT_FIRST_NEED_FILLED", "First delivery to {planet}'s needs! Keep its needs met to help it grow.", {"planet": planet_name(planet)}))
+
+## T298: the last stage is done: the Opening gig waits at the Star Bazaar station.
+func _on_bazaar_opening_ready(sys: int) -> void:
+	gigs.post_opening(sys)
+	post_notice(StoryText.get_or("NOT_BAZAAR_OPENING_SITE", "The charter cargo is ready. Fly it to the Star Bazaar in {system} to open it.", {"system": Systems.name_of(sys)}))
 
 ## T299: a stage with wings is done: the choice popup (two cards) opens.
 func _on_bazaar_wing_offered(_stage: int) -> void:
 	if bazaar_panel != null:
 		bazaar_panel.show_wing_choice()
 
-## T298: the Flagship docked at the capital with the charter cargo (Gigs.on_arrived_planet): the Bazaar opens, the run is won.
+## T298: the Flagship docked at the Star Bazaar station with the charter cargo (Gigs.on_arrived_storage): the Bazaar opens, the run is won.
 func on_opening_flown() -> void:
 	if event_notice != null or game_over or not is_inside_tree():
 		_finish_opening()
@@ -2720,7 +2811,7 @@ func _finish_opening() -> void:
 		_finish_outcome(outcome)
 		return
 	# T300: the Opening beat. The win is recorded now (game_over stops the clock, the save is cleared); only the end screen waits for the beat.
-	map.beat_opening(bazaar.capital())
+	map.beat_opening(bazaar.site_system())
 	_show_opening_banner()
 	if DisplayServer.get_name() != "headless":
 		_end_screen_hold = float(balance.get("beat_opening_hold_seconds", 3.4)) * Juice.motion
@@ -2760,10 +2851,10 @@ func _on_salvage_scooped() -> void:
 	if map != null and flight != null:
 		map.beat_scoop(flight.ship_position())
 
-## T266: a Bazaar stage is done: flash and ring at the capital, and a banner that holds for beat_banner_seconds of game time.
+## T266: a Bazaar stage is done: flash and ring at the Star Bazaar station, and a banner that holds for beat_banner_seconds of game time.
 func _on_bazaar_stage_done(n: int) -> void:
 	if map != null:
-		map.beat_stage(bazaar.capital())
+		map.beat_stage(bazaar.site_system())
 	if Juice.motion <= 0.0:
 		return
 	if _beat_banner == null:
@@ -3040,9 +3131,9 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 		bazaar_panel.close_screen()
 		bazaar_panel.close_wing_choice()
 	stats["stages_done"] = bazaar.stage()
-	stats["recap"] = bazaar.recap()  # T298: capital, stages, wings, worlds per tier, reclaimed worlds, decisive moments
+	stats["recap"] = bazaar.recap()  # T298: site system, stages, wings, worlds per tier, reclaimed worlds, decisive moments
 	if bazaar.is_founded():
-		stats["recap"]["capital_name"] = planet_name(bazaar.capital())  # T299
+		stats["recap"]["site_name"] = Systems.name_of(bazaar.site_system())  # T299
 	if _end_screen_hold > 0.0 and is_inside_tree():  # T300: let the Opening beat play first
 		var hold := _end_screen_hold
 		_end_screen_hold = 0.0
@@ -3611,6 +3702,8 @@ func debug_restart_tutorial() -> void:
 	tut_first = {}
 	tut_step = 0
 	tips_seen = {}
+	tut_win_seen = {}
+	_tut_win_close(false)
 	tips_off = false
 	tip_sig = {}
 	_tip_close()
@@ -3681,9 +3774,6 @@ func set_paused(value: bool) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if preface != null or event_notice != null:
-		return
-	if event is InputEventKey and event.keycode == KEY_B and not event.echo and flight != null and flight.is_enabled():  # T270: hold B to boost
-		set_flagship_boost(event.pressed and dock_sheet == null)
 		return
 	if dock_sheet != null:  # T270: the dock sheet is modal; Esc undocks, Space does not unpause
 		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
@@ -4190,7 +4280,7 @@ func _on_dock_closed() -> void:
 	_refresh()
 	save_now()
 
-## T270: boost on/off (hold key B or the ship panel button). A refusal becomes a notice.
+## T270: boost on/off (the ship panel button; no key since 2026-11-13). A refusal becomes a notice.
 func set_flagship_boost(on: bool) -> void:
 	var r: String = flight.set_boost(on) if flight != null and flight.is_enabled() else ""
 	if on and r == "" and flight != null and flight.is_enabled():
@@ -4198,7 +4288,9 @@ func set_flagship_boost(on: bool) -> void:
 	if r == "no_fuel":
 		post_notice_now(StoryText.get_or("NOT_BOOST_NO_ENERGY", "No energy in the hold to boost."))
 	elif r == "no_charges":
-		post_notice_now(StoryText.get_or("NOT_BOOST_EMPTY", "Boost is recharging."))
+		post_notice_now(StoryText.get_or("NOT_BOOST_EMPTY", "No Boosts left."))
+	elif r == "not_flying":
+		post_notice_now(StoryText.get_or("NOT_BOOST_NOT_FLYING", "Boost works only in flight."))
 
 func _on_fly_establish_requested(planet_id: String) -> void:
 	var f = map.flight
@@ -5498,6 +5590,9 @@ func _tip_page_apply() -> void:
 func _tip_tick(delta: float) -> void:
 	if tip_card == null or map == null or engine == null:
 		return
+	if tut_win != null:
+		paused = true  # the window holds the game still
+		return
 	if tips_off or tut_step < 0:
 		if tip_active != "":
 			_tip_close()
@@ -5520,6 +5615,9 @@ func _tip_tick(delta: float) -> void:
 			if tip_due(def):
 				tips_seen[str(def["id"])] = true
 		return
+	if not tut_win_seen.has("planet_icons") and tip_active == "" and tip_can_show() and Conditions.eval("any_tier:1"):
+		_tut_win_open("planet_icons", "TUT_WIN_PLANET_ICONS_TITLE", "res://art/ui/ui_tut_planet_icons.png", ["TUT_WIN_PLANET_ICONS_TOP", "TUT_WIN_PLANET_ICONS_BOTTOM", "TUT_WIN_PLANET_ICONS_RING"])
+		return
 	tip_latch()
 	if tip_active != "" or not tip_can_show():
 		return
@@ -5531,6 +5629,27 @@ func _tip_tick(delta: float) -> void:
 	var id := tip_next()
 	if id != "":
 		_tip_show(id)
+
+## One-time tutorial window (game/tut_window.gd): marks `key` seen, pauses, and restores the paused state on close.
+func _tut_win_open(key: String, title_id: String, image_path: String, line_ids: Array, ok_id: String = "BTN_TIP_OK", fallbacks: Dictionary = {}, vars: Dictionary = {}) -> void:
+	tut_win_seen[key] = true
+	if tut_win != null:  # another window is open: this one replaces it and keeps the paused state saved by the first
+		tut_win.queue_free()
+		tut_win = null
+	else:
+		_tut_win_prev_paused = paused
+	paused = true
+	tut_win = TutWindow.make(title_id, image_path, line_ids, ok_id, fallbacks, vars)
+	tut_win.closed.connect(func(): _tut_win_close(true))
+	add_child(tut_win)
+
+func _tut_win_close(restore: bool) -> void:
+	if tut_win == null:
+		return
+	tut_win.queue_free()
+	tut_win = null
+	if restore:
+		paused = _tut_win_prev_paused
 
 func _build_tip_card() -> void:
 	tip_card = PanelContainer.new()

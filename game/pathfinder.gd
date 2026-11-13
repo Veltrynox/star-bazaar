@@ -36,6 +36,7 @@ signal build_started(planet_id: String)
 signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
 signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
+signal arrived_storage(sys: int)  # a flight to a Space Storage station ended (the Star Bazaar Opening listens)
 signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
 signal jump_started(from_sys: int, to_sys: int, pos: Vector3)  # leg "jump" begins at the exit point of from_sys
 signal jump_ended(sys: int, pos: Vector3)  # the ship appears in sys at the entry point; the last leg starts
@@ -48,6 +49,7 @@ const EPS := 0.0001
 const SUBSTEP := 0.005          # cycles per integration step of a flight (0.3 s of game time)
 
 var main: Node = null
+const Ceos := preload("res://game/ceos.gd")
 var _pos := Vector3.ZERO
 var _sys := 1
 var _state := "idle"            # idle | flying | building
@@ -72,6 +74,7 @@ var _build_left := 0.0
 var _discovered := {}           # planet id -> true
 var _posts := {}                # planet id -> true
 var _platforms := {}            # planet id -> true
+var _fast := false              # gig flagship_speed: permanent, the Flagship flies as fast as the Luxury CEO's ship
 var _legacy := false            # a save from before discovery: every planet counts as established
 var _last_now := -1.0           # game time (cycles) of the last sync
 var _explore := false           # T206: exploration mode: the ship scouts and establishes every planet of its system by itself
@@ -93,6 +96,7 @@ func reset() -> void:
 	_posts = {}
 	_platforms = {}
 	_legacy = false
+	_fast = false
 	_state = "idle"
 	_target = {}
 	_dur = 0.0
@@ -167,7 +171,17 @@ func _is_dead(pid: String) -> bool:
 	return i >= 0 and DeadWorlds.is_dead(_planets()[i])
 
 func _speed_mult() -> float:
-	return maxf(0.1, Ships.speed(Ships.fleet))
+	var s: float = Ships.speed(Ships.fleet)
+	if _fast:
+		for c in Ceos.all():
+			if str(c.get("branch", "")) == "lux":
+				s = maxf(s, Ships.speed(str(c.get("ship", ""))))
+				break
+	return maxf(0.1, s)
+
+## Gig flagship_speed: the permanent speed-up (saved).
+func set_fast() -> void:
+	_fast = true
 
 ## World units per map unit of the data files (MAP_UNIT_SCALE x ORBIT_SCALE): the proposal's distances are data units.
 func _world_per_map_unit() -> float:
@@ -514,6 +528,9 @@ func advance(cycles: float) -> void:
 			_advance_flight(cycles - run)
 			return
 	_advance_flight(cycles)
+	if _boost and _state != "flying":  # the flight ended (arrived or stopped): the Boost is used up
+		_boost = false
+		_burn_owed = 0.0
 
 ## T374: after an abort the idle ship eases its speed to 0 over the usual brake, drifting on along its heading.
 func _coast(cycles: float) -> void:
@@ -740,6 +757,8 @@ func _arrive() -> void:
 	_docked = ""
 	if str(tgt.get("kind", "")) == "point":
 		arrived_point.emit(_sys, _pos)
+	if str(tgt.get("kind", "")) == "storage":
+		arrived_storage.emit(int(tgt.get("index", _sys)))
 	if str(tgt.get("kind", "")) == "planet":
 		var idx := int(tgt.get("index", -1))
 		if idx >= 0 and idx < _planets().size():
@@ -856,8 +875,10 @@ func idle_left() -> float:
 func boost_on() -> bool:
 	return _boost
 
+## The larger of the general flagship_boost_charges and the CEO's own Boost uses (owner 2026-11-13: the military CEO).
 func boost_max_charges() -> int:
-	return maxi(0, int(_bal("flagship_boost_charges", 0.0)))
+	var ceo: int = Ceos.boost_charges(str(main.ceo_id)) if main != null else 0
+	return maxi(maxi(0, int(_bal("flagship_boost_charges", 0.0))), ceo)
 
 func boost_charges() -> int:
 	return boost_max_charges() if _charges < 0 else mini(_charges, boost_max_charges())
@@ -871,6 +892,8 @@ func set_boost(on: bool) -> String:
 		return ""
 	if _boost:
 		return ""
+	if _state != "flying":  # one Boost lasts one flight: nothing to spend it on while idle or building
+		return "not_flying"
 	if _bal("flagship_boost_energy", 0.0) > 0.0 and hold_units("energy") <= 0:
 		return "no_fuel"
 	if boost_charges() <= 0:
@@ -884,6 +907,8 @@ func set_boost(on: bool) -> String:
 	return ""
 
 func _tick_charges(cycles: float) -> void:
+	if _bal("flagship_boost_charges", 0.0) <= 0.0:  # CEO Boost uses are a per-run allowance: they never refill
+		return
 	if _charges < 0 or _charges >= boost_max_charges():
 		return
 	var left := cycles
@@ -955,7 +980,7 @@ func to_dict() -> Dictionary:
 		"leg": _leg, "final_to": _v(_final_to), "jump_from": _jump_from, "jump_t": _jump_t, "jump_dur": _jump_dur,
 		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
 		"hold": _hold.duplicate(), "idle": _idle_left, "boost_charges": _charges, "boost_refill": _refill_left,
-		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
+		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy, "fast": _fast}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
 func from_dict(d) -> void:
@@ -964,6 +989,7 @@ func from_dict(d) -> void:
 		_legacy = true
 		return
 	_legacy = bool(d.get("legacy", false))
+	_fast = bool(d.get("fast", false))
 	for k in d.get("discovered", []):
 		_discovered[str(k)] = true
 	for k in d.get("posts", []):

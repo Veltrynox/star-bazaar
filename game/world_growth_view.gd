@@ -9,6 +9,7 @@ extends Control
 
 const PathfinderView := preload("res://game/pathfinder_view.gd")
 const Juice := preload("res://game/juice.gd")
+const StationScript := preload("res://game/station.gd")
 const REF_H := 941.0  # the design frame height the pixel keys are given in
 
 var map: Node = null  # game/map.gd
@@ -69,6 +70,7 @@ func _draw() -> void:
 		_draw_beats(i, c2, r_px, scale_px)
 		_draw_needs(i, scale_px, font, c2.y + r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px)
 		_draw_goods(i, c2, r_px, scale_px, capital)
+	_draw_station_beats(scale_px)
 
 func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	var p = map.prosperity
@@ -219,6 +221,35 @@ func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 		var sr: float = _k("beat_stage_radius_px", 260.0) * scale_px
 		Juice.draw_shock(self, c, r_px, r_px + sr, u, sc, maxf(1.0, 4.0 * scale_px), 20)
 		Juice.draw_shock(self, c, r_px, r_px + sr * 0.6, clampf((u - 0.18) / 0.82, 0.0, 1.0), Color(sc, 0.6), maxf(1.0, 2.0 * scale_px), 0)
+
+## Beats of the Star Bazaar station (key -system id): the stage flash and ring, and the hub ripple that starts from the station and runs out to its farthest world.
+func _draw_station_beats(scale_px: float) -> void:
+	var cam: Camera3D = map.camera
+	var warm := Ui.col("star_warm")
+	for sid in map.stations:
+		if not map.station_in_view(int(sid)):
+			continue
+		var centre: Vector3 = map.station_pos(int(sid))
+		if cam.is_position_behind(centre):
+			continue
+		var c: Vector2 = cam.unproject_position(centre)
+		var r_px: float = c.distance_to(cam.unproject_position(centre + cam.global_transform.basis.x.normalized() * StationScript.MAP_RADIUS))
+		var u: float = map.beat_progress("hub", -int(sid))
+		if u >= 0.0 and map.hubs != null:
+			var edge: float = c.distance_to(cam.unproject_position(centre + cam.global_transform.basis.x.normalized() * map.hubs.reach_of(-int(sid))))
+			var rip := Color(warm.lerp(Color.WHITE, 0.3), 0.8)
+			for lag in [0.0, 0.14, 0.28]:
+				var uu := clampf((u - lag) / (1.0 - lag), 0.0, 1.0)
+				Juice.draw_shock(self, c, r_px, edge, uu, Color(rip, rip.a * (1.0 - lag)), maxf(1.0, 3.0 * scale_px), 0 if lag > 0.0 else 16)
+		u = map.beat_progress("stage", -int(sid))
+		if u >= 0.0:
+			var flash := clampf(1.0 - u * 4.0, 0.0, 1.0)
+			if flash > 0.0:
+				draw_circle(c, r_px * 1.15, Color(1.0, 0.95, 0.8, flash * _k("beat_flash_alpha", 0.6)))
+			var sc := Color(warm.lerp(Color.WHITE, 0.5), 0.9)
+			var sr: float = _k("beat_stage_radius_px", 260.0) * scale_px
+			Juice.draw_shock(self, c, r_px, r_px + sr, u, sc, maxf(1.0, 4.0 * scale_px), 20)
+			Juice.draw_shock(self, c, r_px, r_px + sr * 0.6, clampf((u - 0.18) / 0.82, 0.0, 1.0), Color(sc, 0.6), maxf(1.0, 2.0 * scale_px), 0)
 
 ## T285: an established, discovered world with its name on screen (the weather chips and the mood face show only there).
 func _established(i: int) -> bool:

@@ -4,7 +4,7 @@ extends RefCounted
 ## Data: data/gigs.json (signals); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
 ## free, an expired signal is gone for the run) and "salvage" (T296: cargo pods a raid dropped, posted by
-## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the capital, no window, no expiry to speak of; docking there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
+## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the Star Bazaar station (a "storage" flight), no window, no expiry to speak of; arriving there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req, rewards}.
@@ -65,7 +65,7 @@ func setup(m: Node) -> void:
 	seed_value = int(rng.randi() & 0x7fffffff)
 	if main.flight != null:
 		main.flight.arrived_point.connect(on_arrived_point)
-		main.flight.arrived.connect(on_arrived_planet)
+		main.flight.arrived_storage.connect(on_arrived_storage)
 
 func reset() -> void:
 	offers = []
@@ -115,13 +115,17 @@ func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int,
 		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count), "lane": lane})
 	changed.emit()
 
-## T298: the Opening offer at the capital (one at a time). Not limited by the board size.
-func post_opening(planet: int) -> void:
+## T298: the Opening offer at the Star Bazaar station of system sys (one at a time). Not limited by the board size.
+## The target has kind "station" (index = system id) and the station's map position, which the Flagship ring and ETA read.
+func post_opening(sys: int) -> void:
 	if has_opening():
 		return
 	_uid += 1
 	var uid := "opening_%d" % _uid
-	offers.append({"uid": uid, "id": "opening", "kind": "opening", "target": {"kind": "planet", "sys": main.system_of(planet), "index": planet}, "due": _now() + _bal("gig_opening_life", 100000.0),
+	var sp: Vector3 = main.map.station_pos(sys) if main.map != null else Vector3.INF
+	if sp == Vector3.INF:
+		sp = Vector3.ZERO
+	offers.append({"uid": uid, "id": "opening", "kind": "opening", "target": {"kind": "station", "sys": sys, "index": sys, "pos": [sp.x, 0.0, sp.z]}, "due": _now() + _bal("gig_opening_life", 100000.0),
 		"accepted": false, "req": {}, "rewards": []})
 	changed.emit()
 
@@ -131,15 +135,19 @@ func has_opening() -> bool:
 			return true
 	return false
 
-## After a load: an Opening still to fly has its offer on the board.
+## After a load: an Opening still to fly has its offer on the board (an older save's offer aimed at a planet is replaced by one at the station).
 func ensure_opening() -> void:
-	if main.bazaar.opening_pending and main.bazaar.capital() >= 0:
-		post_opening(main.bazaar.capital())
-
-## The Flagship docked at a world: at the capital with an open Opening, the Bazaar opens and the run is won.
-func on_arrived_planet(planet_id: String) -> void:
+	if not (main.bazaar.opening_pending and main.bazaar.is_founded()):
+		return
 	var o := opening_offer()
-	if o.is_empty() or str(o["target"].get("kind", "planet")) != "planet" or main.planet_index_of(planet_id) != int(o["target"]["index"]):
+	if not o.is_empty() and str(o["target"].get("kind", "planet")) == "planet":
+		offers.erase(o)
+	post_opening(main.bazaar.site_system())
+
+## The Flagship reached a Space Storage station (a "storage" flight ended): at the Star Bazaar with an open Opening, the Bazaar opens and the run is won.
+func on_arrived_storage(sys: int) -> void:
+	var o := opening_offer()
+	if o.is_empty() or str(o["target"].get("kind", "planet")) != "station" or int(o["target"]["index"]) != sys:
 		return
 	offers.erase(o)
 	changed.emit()
@@ -362,10 +370,12 @@ func accept(uid: String) -> String:
 		return "no_offer"
 	var t: Dictionary = o["target"]
 	var r := ""
-	if str(o["kind"]) == "opening" and main.flight.docked_at() == str(main.map.planets[int(t["index"])].get("id", "")):
-		on_arrived_planet(main.flight.docked_at())  # already at the capital: the charter cargo is delivered at once
+	if str(o["kind"]) == "opening" and not main.flight.is_enabled():
+		on_arrived_storage(int(t["index"]))  # no Flagship flights in this game: the charter cargo is delivered at once
 		return ""
-	if str(t["kind"]) == "planet":
+	if str(t["kind"]) == "station":
+		r = main.flight.request_fly({"kind": "storage", "pos": target_pos(o), "index": int(t["index"])})
+	elif str(t["kind"]) == "planet":
 		r = main.flight.request_fly({"kind": "planet", "index": int(t["index"])})
 	else:
 		var p: Array = t["pos"]
@@ -417,6 +427,8 @@ func _is_flight_target(o: Dictionary) -> bool:
 		return false
 	var ft: Dictionary = main.flight.target()
 	var t: Dictionary = o["target"]
+	if str(t["kind"]) == "station":
+		return str(ft.get("kind", "")) == "storage" and int(ft.get("index", -1)) == int(t["index"])
 	if str(t["kind"]) == "planet":
 		return str(ft.get("kind", "")) == "planet" and int(ft.get("index", -1)) == int(t["index"])
 	if str(ft.get("kind", "")) != "point":
@@ -494,6 +506,9 @@ func apply(effects: Array, ctx: Dictionary) -> Array:
 			"boost_charge":  # T371: one production charter (Boost); the notice comes from Boost.grant
 				main.boost.grant("gig:" + str(ctx.get("id", "GIG")))
 				lines.append(StoryText.get_or("GIG_EFF_BOOST", "You hold a production charter.", {}))
+			"flagship_speed":  # the Flagship permanently flies as fast as the Luxury CEO's ship
+				main.flight.set_fast()
+				lines.append(StoryText.get_or("GIG_EFF_SPEED", "The Flagship is faster for good.", {}))
 			"story":
 				var sid := str(e.get("id", ""))
 				if StoryText.has_text(sid):
@@ -557,7 +572,7 @@ static func lint() -> Array:
 
 static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Dictionary) -> void:
 	var kind := str(e.get("kind", ""))
-	if not ["cash", "cash_fee", "goods", "story", "scout_idle", "boost_charge"].has(kind):
+	if not ["cash", "cash_fee", "goods", "story", "scout_idle", "boost_charge", "flagship_speed"].has(kind):
 		errs.append("%s: unknown effect kind '%s'" % [where, kind])
 	var prefix := {"cash": "gig_cash_", "cash_fee": "gig_fee_", "goods": "gig_lot_", "scout_idle": "gig_idle_"}
 	var key := str(e.get("key", str(prefix.get(kind, "")) + str(e.get("size", ""))))

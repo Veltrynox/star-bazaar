@@ -106,7 +106,7 @@ static func end_cycle(_cycle: int) -> void:
 
 ## True once the run length is used up (the soft ending fires if nothing else did).
 static func timed_out(cycle: int) -> bool:
-	return cycle >= int(bal.get("win_cycle_markets", 80))
+	return cycle >= int(bal.get("win_cycle_markets", 90))
 
 ## Old saves carry share fields (vp, vb, gap, win_streak, sweep_streak, cur) and the old house hits (tier_off, mods): they are ignored on load and not written.
 static func to_dict() -> Dictionary:

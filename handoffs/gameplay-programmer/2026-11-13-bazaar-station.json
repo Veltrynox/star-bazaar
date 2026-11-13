@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-13",
+  "task": "bazaar-station",
+  "status": "done",
+  "files_changed": [
+    "game/bazaar.gd", "game/station.gd", "game/map.gd", "game/main.gd", "game/space_storage_view.gd", "game/planet_panel.gd",
+    "game/bazaar_panel.gd", "game/bazaar_card.gd", "game/gigs.gd", "game/gig_board.gd", "game/pathfinder.gd", "game/hubs.gd", "game/hub_panel.gd",
+    "game/workshops.gd", "game/fabric.gd", "game/route_engine.gd", "game/cash_forecast.gd", "game/world_growth_view.gd", "game/traffic/frontier_beats.gd",
+    "game/end_screen.gd", "game/ending_picker.gd", "data/balance.json", "assets/star_bazaar/star_bazaar.glb (moved from assets/starbazaar.glb, imported)",
+    "qa/check/actions.gd", "qa/check/bot.gd", "qa/check/features.json", "qa/check/styles/trader.gd", "qa/check/styles/founder.gd", "qa/check/styles/captain.gd",
+    "tools/tests/run_tests.gd", "story/screens.md", "story/game-flow.md", "story/gigs.md", "story/voice.md", "data/story_text.json", "gdd.md",
+    "handoffs/gameplay-programmer/2026-11-13-bazaar-station.json"
+  ],
+  "open_questions": [
+    "Standing routes sent from the Star Bazaar's Space Storage and Storage Link orders out of it can still drain bill goods (player orders, no guard added; a guard in the route engine would also need project_storage/forecast changes). Add one?",
+    "Old saves: a founded Bazaar with a planet hub in its system now gets the Bazaar hub at load (planet hub moves in). Brief said 'old saves: none'. Keep?",
+    "Save version stays 24 (loaders migrate: capital -> site system, workshops/fabric with no 'on' -> production on). Bump it?"
+  ],
+  "handoff": "See details. Not run: tests, QA, screenshots. Headless import ran clean, no script errors reported.",
+  "details": {
+    "playable_now": "Found the Bazaar from the Space Storage view (system with a station and a world at bazaar_capital_tier): confirm dialog, station swaps to the Star Bazaar model with the build-in, marker tooltip and view title read Star Bazaar. Bill goods are held in that storage (buy at a world, Send to the Star Bazaar). Last stage posts the Opening gig: Flagship flies a storage flight to the station, arriving wins. Production is off until a recipe icon is clicked. Try: debug-lower bazaar_capital_tier, learn Space Storage, open the station view, press Found.",
+    "built": {
+      "site": "Bazaar holds _site (system id): site_system(), can_found(sys), found(sys), site_key(), founding_worlds(sys). capital() removed. Quorum counts every world; reach = a quorum world outside the site system. Bill and consume use system:<n>. Old save capital -> that planet's system.",
+      "found_button": "In space_storage_view (signal found_bazaar_requested, main._on_found_bazaar). Removed from planet card together with the planet BazaarBlock. Tier tooltip PROS_TIP_PERK_BAZAAR points to the system's Space Storage. Space Storage view shows a BazaarBlock (stage, bill lines, Bazaar panel and Hub panel buttons).",
+      "guidance": "next_step/bill_lines/step_line/is_fed rewritten (records now carry 'site', no 'planet'/'local_price'). is_fed = a route with b == -site or a Storage Link order into the site. Buy at / Send to buttons in bazaar_panel: Send to runs begin_buy_and_send then main._on_station_clicked(site). route_engine.bill_need_fn removed.",
+      "opening": "gigs.post_opening(sys): offer target {kind: station, index: sys, pos}. New Pathfinder signal arrived_storage(sys) -> Gigs.on_arrived_storage -> main.on_opening_flown -> bazaar.open(). map.beat_stage(sys) / beat_opening(sys) play at the station (world_growth_view _draw_station_beats, frontier_beats.opening(at, in_view)). If flights are disabled the Opening is delivered at once on Accept.",
+      "model": "assets/star_bazaar/star_bazaar.glb imported. station.gd bazaar flag + set_bazaar(on, animate); map.add_station(sid, animate, bazaar), map.set_station_bazaar. MAP_RADIUS 0.1284 -> 0.1541 for both models; pick radius (40 px) and marker lift (0.45) unchanged and still fit.",
+      "production": "Workshops.on (per crafted good) and Fabric.on, default off. run() only uses recipes that are on; nothing on = state idle, 'Production off'. Recipe rows of built workshops and the fabric plate row get an icon toggle (ProdToggle_<good>, lit/dim, tooltip). main.production_on/set_production. Save: workshops 'on' array, fabric 'on'; no key + built = on. Buy-order priority (route_engine.feeds_workshop) and cash_forecast.no_earn_routes only count recipes that are on; a send into the Bazaar storage counts as used.",
+      "hub": "Bazaar hub key = -system id in Hubs.hubs. take_over_system(sys) (free) moves pool, ticked worlds + old hub world, skipped needs; planet hubs in that system cannot be made (ST_HUB_BAZAAR_SYSTEM). Reach = whole system, no tier check, never Space Storage. hub_panel opens via main.open_hub_panel(-sys) (hub panel sentinel is now NONE, not -1); no Release for it. Map: no ring, shuttles and ripple start at the station. Saved as planet 'station:<sys>'.",
+      "pricing_and_cost": "balance: hub_discount_pct 15, hub_fee_pct 0, hub_build_cost 1320, data_version 90, source note updated. Hubs.hub_price applies to source price, unit_price (refunds) and cash needed. Make hub: Hubs.build_cost(); main._on_make_hub takes the cash once (button 'Make hub (N cr)', disabled with reason when short); release refunds nothing; old saves charge nothing. Money dropdown / cash forecast do not list build costs (workshop builds are not there either), so nothing added."
+    },
+    "audit": {
+      "automatic_stock_takers": "Workshops and fabric: guarded by production off by default (remaining danger only if the player switches on a recipe whose inputs are bill goods). Null Core build: player button, takes plate and nullglass, no bill good. Storage Link: build cost (rivets, energy) and upkeep (energy) are player-initiated/energy only; standing link orders OUT of the site and routes sent FROM the site storage (T373) are player standing orders and can drain bill goods: NO guard added (see open question). Flagship dock sheet 'Company storage' and gig/event/asteroid/stock effects touch planet storage only (cut_capacity and event stock use planet keys). Hub never draws on Space Storage (planet stock only).",
+      "inflow": "Only ships sent to the station (Send to, Buy at + Send) and Storage Link orders put goods into a Space Storage; there is no slow planet feed in code (storage.add only via routes/links/hubs-planet). The bill can be met this way and the guidance names it.",
+      "other": "fabric_inputs_unrouted unchanged (routes only). dest_hint.gd / good_info.gd / availability rules unchanged (availability keys on workshop_built, not production). Tips: capital/founded/bill_short/opening states still read bazaar API that exists; bill_short now means not fed by route/link. conditions.gd atoms unchanged (bazaar_stage). Tech.add_crafted untouched (only fires when something is crafted). save_game.gd: no version bump. debug_menu lists balance keys generically (new keys appear). chains.json/events: no capital or crafting conditions found. Epilogue ids EPI_CAPITAL / EPI_UNFINISHED_CAPITAL are not used in code (story note only).",
+      "qa": "actions: found_bazaar(sys) via space_storage_view signal, make_hub needs cash, hub_candidates needs cost+500, production_all_on() after builds and each tick, bazaar_status 'site'. trader/founder: found by system, bill lanes into station dst (-site), no capital sell orders, NO_SITE sentinel in founder. features.json entry renamed. Not run.",
+      "tests_changed": "tools/tests/run_tests.gd: bazaar win test (site, station, bill from storage, recap site, on_arrived_storage); _test_bazaar_guidance and _ui (site, route-based fed, old capital save, Bazaar block in the storage view, no found button/block on planet card); fabric test (production off then on); workshop status, cells, recipe tests (switch production on, production-off check, old save loads on); _test_hub_explain_ids (new ids); NEW _test_bazaar_station (found rule, hub takeover, Make hub cost, discount, bill, production off). Not run."
+    },
+    "text_ids": {
+      "changed_text": ["BAZ_HOW", "BAZ_STEP_BILL", "BAZ_STEP_BILL_LOCAL", "BAZ_STEP_BILL_FED", "BAZ_FOUND_BTN (place only)", "PROS_TIP_PERK_BAZAAR", "SS_LBL_STOCK_RULE (max 160)", "TIP_CAPITAL", "TIP_CAPITAL_WHY", "TIP_FOUNDED", "TIP_FOUNDED_WHY", "TIP_BILL", "TIP_BILL_WHY", "TIP_OPENING", "TIP_OPENING_WHY", "TUT_G10_DONE_WHY", "ST_HUB_EXPLAIN", "ST_HUB_MAKE_TIP", "BAZ_LBL_QUORUM (Worlds)", "GIG_ROW_OPENING", "BAZ_CARD_TITLE (place)", "gigs.md GIG07 notes", "game-flow.md, voice.md, gdd.md paragraphs"],
+      "new_text": ["TIP_BAZAAR_MARKER", "LBL_BAZAAR_STATION_NAME", "BAZ_FOUND_TIP", "BAZ_BTN_PANEL", "BAZ_BTN_STORAGE", "BAZ_LBL_SITE", "NEXTUP_BAZAAR_FOUND_SITE", "END_RECAP_SITE", "LBL_WORKSHOP_OFF", "LBL_PRODUCTION_ON", "SS_TIP_PROD_ON", "SS_TIP_PROD_OFF", "NOT_PRODUCTION_OFF", "ST_HUB_MAKE_COST", "ST_HUB_NO_CASH", "ST_HUB_BAZAAR_SYSTEM", "ST_HUB_BAZAAR_NOTE", "BAZ_FOUND_PROMPT_SITE", "BAZ_FOUNDED_SITE", "NOT_BAZAAR_OPENING_SITE"],
+      "now_unused": ["BAZ_FOUND_PROMPT", "BAZ_FOUNDED", "NOT_BAZAAR_OPENING", "BAZ_LBL_CAPITAL", "END_RECAP_CAPITAL", "NEXTUP_BAZAAR_FOUND", "BAZ_BTN_BUY_AT stays used", "EPI_CAPITAL", "EPI_UNFINISHED_CAPITAL"],
+      "note": "The three *_SITE ids are new because the Russian files hold {planet} for the old ids and build_story.py rejects a placeholder change; Russian texts of the other changed ids are now stale (not touched, English only)."
+    },
+    "decisions": [
+      "Hub key for the Bazaar is -system id; hub_panel sentinel changed to NONE because -1 is system 1.",
+      "Old founded save without a Bazaar hub gets one at load (planet hub there moves in).",
+      "No guard on standing routes/link orders out of the site storage.",
+      "The Opening offer target kind is 'station'; an older save's planet-target Opening is replaced at load."
+    ],
+    "headless_import": "Ran clean: star_bazaar.glb imported, no script parse errors in the output. build_story.py ran: exit 0."
+  }
+}

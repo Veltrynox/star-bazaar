@@ -681,7 +681,7 @@
   },
   {
    "id": "SS_POST_DESC",
-   "text": "A buffer for the whole system. Company storage feeds it slowly. It holds goods and adds no flow.",
+   "text": "A buffer for the whole system. Goods reach it when you send them. It holds goods and adds no flow.",
    "max": 110,
    "place": "Space Storage post, one-line description"
   },
@@ -828,6 +828,12 @@
    "text": "Not enough credits.",
    "max": 110,
    "place": "Skill screen, permit line when credits are short"
+  },
+  {
+   "id": "PERMIT_POINTS_SHORT",
+   "text": "Short {short} skill points: pays {points} points and {credits} credits in all.",
+   "max": 110,
+   "place": "Galaxy view permit card, when skill points are short; {short}, {points} (points still spent) and {credits} (total credits) are filled in"
   },
   {
    "id": "NOT_ROUTE_NEEDS_C3",
@@ -1083,7 +1089,7 @@
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "You build it, stage by stage, on one world grown into a capital. Finishing it wins the game.",
+   "text": "You build it, stage by stage, in the Space Storage of one system. Finishing it wins the game.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1101,49 +1107,49 @@
   },
   {
    "id": "TIP_CAPITAL",
-   "text": "A world has reached the capital tier. You can found the Star Bazaar there. It is final.",
+   "text": "A world has reached the founding tier. Open its system's Space Storage to found the Star Bazaar. It is final.",
    "max": 110,
-   "place": "Tip card line; trigger: the first world reaches the capital tier"
+   "place": "Tip card line; trigger: the first world reaches the founding tier"
   },
   {
    "id": "TIP_CAPITAL_WHY",
-   "text": "A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.",
+   "text": "A run has one Star Bazaar. Choose the system with care, then press Found the Bazaar here in its Space Storage.",
    "max": 110,
    "place": "Tip card, why line"
   },
   {
    "id": "TIP_FOUNDED",
-   "text": "The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.",
+   "text": "The Bazaar is built in stages. Each needs goods in its Space Storage and worlds at a tier.",
    "max": 110,
    "place": "Tip card line; trigger: the Bazaar is founded"
   },
   {
    "id": "TIP_FOUNDED_WHY",
-   "text": "Goods are held in the capital's storage. Set Buy there, or send them from a cheaper world.",
+   "text": "The goods are held in the Star Bazaar's own Space Storage. Buy them at a world and send them there.",
    "max": 110,
    "place": "Tip card, why line"
   },
   {
    "id": "TIP_BILL",
-   "text": "A stage needs goods in the capital's own storage. Goods held elsewhere do not count.",
+   "text": "A stage needs goods in the Star Bazaar's Space Storage. Goods held elsewhere do not count.",
    "max": 110,
    "place": "Tip card line; trigger: the first time a Bazaar bill item is short"
   },
   {
    "id": "TIP_BILL_WHY",
-   "text": "Turn Buy on at the capital, or send the goods from a cheaper world. The Bazaar panel shows the steps.",
+   "text": "Buy the goods at a world and send them to the Star Bazaar. The Bazaar panel shows the steps.",
    "max": 110,
    "place": "Tip card, why line"
   },
   {
    "id": "TIP_OPENING",
-   "text": "The last stage posts the Opening: a gig to fly the charter cargo to the capital.",
+   "text": "The last stage posts the Opening: a gig to fly the charter cargo to the Star Bazaar.",
    "max": 110,
    "place": "Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears"
   },
   {
    "id": "TIP_OPENING_WHY",
-   "text": "Accept it on the gig board (J), then dock at the capital. That opens the Star Bazaar and wins the run.",
+   "text": "Accept it on the gig board (J), then fly the Flagship to the Star Bazaar. That opens it and wins the run.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1215,7 +1221,7 @@
   },
   {
    "id": "TIP_HUB_WHY",
-   "text": "One hub per system. Press Make this a hub, then add ships. Each delivery adds a hub fee.",
+   "text": "One hub per system. Press Make hub, then add ships. It buys only what the worlds need, below the planet price.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1257,13 +1263,13 @@
   },
   {
    "id": "TIP_BOOST",
-   "text": "Boost burns energy from the hold for a short burst of speed. Hold B to use it.",
+   "text": "Boost speeds your Flagship up for the rest of the flight. Press Boost on the ship panel.",
    "max": 110,
-   "place": "Tip card line; trigger: the Flagship first flies with energy in its hold"
+   "place": "Tip card line; trigger: the Flagship first boosts"
   },
   {
    "id": "TIP_BOOST_WHY",
-   "text": "Use it on straight legs to beat a deadline. Turning stays slow, and charges refill slowly.",
+   "text": "Use it on straight legs to beat a deadline. Turning stays slow, and Boosts do not refill.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1383,7 +1389,7 @@
   },
   {
    "id": "TIP_FABRIC_WHY",
-   "text": "It crafts from stock in Space Storage. Mine what it needs and send it there.",
+   "text": "It crafts only when you switch a recipe on in Space Storage. Send it the goods first.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1401,7 +1407,7 @@
   },
   {
    "id": "TIP_SPACE_STORAGE",
-   "text": "Space Storage is one big store for each system. Planet storage feeds it slowly.",
+   "text": "Space Storage is one big store for each system. Goods reach it when you send them.",
    "max": 110,
    "place": "Tip card line; trigger: Space Storage is learned"
   },
@@ -1592,12 +1598,6 @@
    "place": "Space Storage view, close button"
   },
   {
-   "id": "SS_LBL_CAPACITY",
-   "text": "Capacity: {cap} per commodity",
-   "max": 48,
-   "place": "Space Storage view, capacity line"
-  },
-  {
    "id": "LBL_SPACE_STORAGE_NAME",
    "text": "Space Storage",
    "max": 32,
@@ -1605,9 +1605,9 @@
   },
   {
    "id": "SS_LBL_STOCK_RULE",
-   "text": "Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it.",
-   "max": 140,
-   "place": "Space Storage view, under the capacity line: the rule for delivered goods"
+   "text": "Goods stay until a recipe you switched on, link upkeep, a Storage Link or a route from here takes them. Planet routes and Sells never draw on it.",
+   "max": 160,
+   "place": "Space Storage view, under the system name: the rule for delivered goods"
   },
   {
    "id": "SS_TIP_SEND",
@@ -1674,6 +1674,24 @@
    "text": "Next cycle: +{in} -{out} = {after}",
    "max": 48,
    "place": "Storage view, projected stock after the next cycle"
+  },
+  {
+   "id": "LBL_AVAIL_CYCLE",
+   "text": "Available each cycle: {in}",
+   "max": 40,
+   "place": "Planet resource button tooltip, units that arrive in this storage each cycle; {in}"
+  },
+  {
+   "id": "LBL_NOW_BUYING",
+   "text": "Currently being bought",
+   "max": 40,
+   "place": "Planet resource button tooltip, line above the buy price while a buy order runs here"
+  },
+  {
+   "id": "LBL_NOW_SELLING",
+   "text": "Currently being sold",
+   "max": 40,
+   "place": "Planet resource button tooltip, line above the buy price while a sell order runs here"
   },
   {
    "id": "GOOD_SILK_NAME",
@@ -6177,7 +6195,7 @@
   },
   {
    "id": "TXT_CEO_WOMAN_01_PERK_DESC",
-   "text": "Your first lane carries one step more cargo.",
+   "text": "Your first lane carries one step more cargo. Your Flagship can Boost a few times.",
    "max": 90,
    "place": "CEO perk line, Sela Oru"
   },
@@ -6246,6 +6264,18 @@
    "text": "Explore",
    "max": 24,
    "place": "Planet panel, button that sends the Pathfinder to this world"
+  },
+  {
+   "id": "BTN_FLY_TO",
+   "text": "Fly here",
+   "max": 24,
+   "place": "Planet panel, same button on a world the Pathfinder has already explored"
+  },
+  {
+   "id": "LBL_PLATFORM_NEEDS_SKILL",
+   "text": "Explored. A mining platform here needs the Prospecting skill.",
+   "max": 110,
+   "place": "Planet panel of an explored dead world before its mining skill is learned"
   },
   {
    "id": "LBL_FLIGHT_TIME",
@@ -7058,6 +7088,66 @@
    "place": "Planet card, growth bar label"
   },
   {
+   "id": "PROS_TIP_LADDER",
+   "text": "Growth",
+   "max": 24,
+   "place": "Planet card, tier name tooltip, header over the tier ladder"
+  },
+  {
+   "id": "PROS_TIP_NEXT",
+   "text": "Next: {tier}. Meet every need for {n} more cycles ({done}/{total}).",
+   "max": 110,
+   "place": "Planet card, tier name tooltip: what the next tier needs; {tier}, {n} cycles still needed, {done}, {total}"
+  },
+  {
+   "id": "PROS_TIP_NEXT_1",
+   "text": "Next: {tier}. Meet every need for 1 more cycle ({done}/{total}).",
+   "max": 110,
+   "place": "Planet card, tier name tooltip, PROS_TIP_NEXT when one cycle is left; {tier}, {done}, {total}"
+  },
+  {
+   "id": "PROS_TIP_RULE",
+   "text": "A cycle with a short need sets growth back.",
+   "max": 110,
+   "place": "Planet card, tier name tooltip, under PROS_TIP_NEXT"
+  },
+  {
+   "id": "PROS_TIP_TOP",
+   "text": "Top tier. This world grows no further.",
+   "max": 110,
+   "place": "Planet card, tier name tooltip at the top tier"
+  },
+  {
+   "id": "PROS_TIP_PERK_NEEDS",
+   "text": "{n} needs, {units} units each a cycle",
+   "max": 60,
+   "place": "Planet card, tier name tooltip, under each tier name: its need list; {n} goods, {units} units each"
+  },
+  {
+   "id": "PROS_TIP_PERK_TAX",
+   "text": "+{credits} credits tax a cycle",
+   "max": 60,
+   "place": "Planet card, tier name tooltip, under each tier name: tax the world pays; {credits}"
+  },
+  {
+   "id": "PROS_TIP_PERK_POINTS",
+   "text": "+{points} skill points for the first world here",
+   "max": 60,
+   "place": "Planet card, tier name tooltip, under a tier no world has reached yet; {points}"
+  },
+  {
+   "id": "PROS_TIP_PERK_BAZAAR",
+   "text": "Its system's Space Storage can become the Star Bazaar",
+   "max": 60,
+   "place": "Planet card, tier name tooltip, under the founding tier while no Bazaar stands"
+  },
+  {
+   "id": "PROS_TIP_PERK_HUB",
+   "text": "Can become a hub that feeds nearby worlds",
+   "max": 60,
+   "place": "Planet card, tier name tooltip, under the hub tier"
+  },
+  {
    "id": "PROS_NEEDS_NOTE",
    "text": "Delivered / wanted, per cycle.",
    "max": 110,
@@ -7133,13 +7223,13 @@
    "id": "BAZ_FOUND_BTN",
    "text": "Found the Bazaar here",
    "max": 24,
-   "place": "Planet panel, button on a world at the capital tier"
+   "place": "Space Storage view, button when a world of the system is at the founding tier"
   },
   {
    "id": "BAZ_FOUND_PROMPT",
    "text": "Found the Star Bazaar at {planet}? This is final. A run has one capital.",
    "max": 110,
-   "place": "Confirm text before founding; {planet}"
+   "place": "Confirm text before founding (old, planet version; unused since 2026-11-13, see BAZ_FOUND_PROMPT_SITE); {planet}"
   },
   {
    "id": "BAZ_FOUND_CONFIRM",
@@ -7157,7 +7247,7 @@
    "id": "BAZ_FOUNDED",
    "text": "The Star Bazaar is founded at {planet}.",
    "max": 110,
-   "place": "Notice, the Bazaar is founded; {planet}"
+   "place": "Notice, the Bazaar is founded (old, planet version; unused since 2026-11-13, see BAZ_FOUNDED_SITE); {planet}"
   },
   {
    "id": "BAZ_STAGE_1_NAME",
@@ -7197,9 +7287,9 @@
   },
   {
    "id": "BAZ_LBL_QUORUM",
-   "text": "Other worlds",
+   "text": "Worlds",
    "max": 24,
-   "place": "Bazaar panel, other worlds the stage needs"
+   "place": "Bazaar panel, worlds the stage needs"
   },
   {
    "id": "BAZ_LBL_REACH",
@@ -7469,11 +7559,17 @@
    "id": "BTN_BOOST",
    "text": "Boost",
    "max": 24,
-   "place": "Ship panel and flight hud, boost button (also a held key)"
+   "place": "Boost button (old label, kept for the Russian file)"
+  },
+  {
+   "id": "BTN_BOOST_LEFT",
+   "text": "Boost ({n} left)",
+   "max": 24,
+   "place": "Ship panel, boost button; {n} Boost uses left this run"
   },
   {
    "id": "LBL_BOOST_HINT",
-   "text": "Faster on straight legs. Burns energy from the hold. Turning stays slow.",
+   "text": "Faster for the rest of this flight. Uses one Boost. Turning stays slow.",
    "max": 110,
    "place": "Tooltip of the boost button"
   },
@@ -7491,9 +7587,15 @@
   },
   {
    "id": "NOT_BOOST_EMPTY",
-   "text": "Boost is recharging.",
+   "text": "No Boosts left.",
    "max": 110,
-   "place": "Notice, boost pressed with no charge left"
+   "place": "Notice, boost pressed with no use left this run"
+  },
+  {
+   "id": "NOT_BOOST_NOT_FLYING",
+   "text": "Boost works only in flight.",
+   "max": 110,
+   "place": "Notice, boost pressed while the Flagship is not flying"
   },
   {
    "id": "LBL_GIG_BOARD_TITLE",
@@ -7809,7 +7911,7 @@
   },
   {
    "id": "HUB_MAKE_PROMPT",
-   "text": "Make {planet} a hub? It keeps the worlds near it fed, with ships from its pool.",
+   "text": "Make {planet} a hub? It costs credits once and keeps the worlds near it fed, with ships from its pool.",
    "max": 110,
    "place": "Confirm text before making a hub; {planet}"
   },
@@ -7845,7 +7947,7 @@
   },
   {
    "id": "HUB_RELEASE_PROMPT",
-   "text": "Release the hub at {planet}? Its ships go back to your fleet and its worlds go back to you.",
+   "text": "Release the hub at {planet}? Its ships and worlds come back to you. The cost is not refunded.",
    "max": 110,
    "place": "Confirm text before release; {planet}"
   },
@@ -8193,27 +8295,27 @@
   },
   {
    "id": "BAZ_HOW",
-   "text": "The Bazaar is raised in stages. Each needs goods held in the capital's own storage and other worlds grown to a tier. Each must be done before the term ends.",
+   "text": "The Star Bazaar is raised in stages, in the Space Storage where you founded it. Each stage needs goods held in that storage and worlds grown to a tier, and must be done before the term ends.",
    "max": 200,
    "place": "Bazaar panel, paragraph under the title"
   },
   {
    "id": "BAZ_STEP_BILL",
-   "text": "{stage} needs {amount} more {good} held in {capital}'s storage. Buy it at {source} ({price} cr) and send it to {capital}, or turn Buy on at {capital} ({local} cr).",
+   "text": "{stage} needs {amount} more {good} held in the Star Bazaar's storage. Buy it at {source} ({price} cr) and send it to the Star Bazaar.",
    "max": 220,
-   "place": "Bazaar panel and capital card, under a short bill row"
+   "place": "Bazaar panel and Space Storage view, under a short bill row"
   },
   {
    "id": "BAZ_STEP_BILL_LOCAL",
-   "text": "{stage} needs {amount} more {good} held in {capital}'s storage. Turn Buy on for it at {capital} ({local} cr).",
+   "text": "{stage} needs {amount} more {good} held in the Star Bazaar's storage. Buy it at a world that sells it and send it to the Star Bazaar.",
    "max": 160,
-   "place": "Same, when only the capital sells the good"
+   "place": "Same, when no world in reach is known to sell the good"
   },
   {
    "id": "BAZ_STEP_BILL_FED",
-   "text": "{stage}: {amount} more {good} still to reach {capital}. Your Buy or route is on. Give it a few cycles.",
+   "text": "{stage}: {amount} more {good} still to reach the Star Bazaar. Your route or link is on. Give it a few cycles.",
    "max": 160,
-   "place": "Same, when a Buy order or route already feeds it"
+   "place": "Same, when a route or Storage Link order already feeds it"
   },
   {
    "id": "BAZ_STEP_QUORUM",
@@ -8243,7 +8345,7 @@
    "id": "BAZ_CARD_TITLE",
    "text": "Star Bazaar: {stage}",
    "max": 40,
-   "place": "Capital card block and Bazaar card, title"
+   "place": "Space Storage view block and Bazaar card, title"
   },
   {
    "id": "NOT_BAZAAR_REMIND",
@@ -8594,6 +8696,12 @@
    "place": "gigs.gd:638"
   },
   {
+   "id": "GIG_EFF_SPEED",
+   "text": "The Flagship is faster for good.",
+   "max": 40,
+   "place": "gigs.gd:511"
+  },
+  {
    "id": "GIG_ETA",
    "text": "ETA {cycles} cycles, left {left}",
    "max": 60,
@@ -8679,7 +8787,7 @@
   },
   {
    "id": "GIG_ROW_OPENING",
-   "text": "Charter cargo for {planet}",
+   "text": "Charter cargo for the {planet}",
    "max": 50,
    "place": "gig_board.gd:92"
   },
@@ -9074,12 +9182,6 @@
    "place": "main.gd:1398"
   },
   {
-   "id": "LBL_SELL_ORDER_STATE",
-   "text": "Sell order: {state}",
-   "max": 40,
-   "place": "planet_panel.gd resource row (sell order status)"
-  },
-  {
    "id": "LBL_SELL_TIP_OFF",
    "text": "{tip}. Standing sell order each cycle.",
    "max": 70,
@@ -9135,9 +9237,87 @@
   },
   {
    "id": "LBL_SHIP_RUNNING",
-   "text": "Running.",
+   "text": "Running",
    "max": 24,
    "place": "planet_panel.gd:1205"
+  },
+  {
+   "id": "LBL_LANE_RUNNING_ONE",
+   "text": "1 ship active",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_RUNNING_MANY",
+   "text": "{n} ships active",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_STALLED_ONE",
+   "text": "1 ship stalled",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_STALLED_MANY",
+   "text": "{n} ships stalled",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_WAITING_ONE",
+   "text": "1 ship waiting",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_WAITING_MANY",
+   "text": "{n} ships waiting",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_BLOCKED_ONE",
+   "text": "1 ship blocked",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_BLOCKED_MANY",
+   "text": "{n} ships blocked",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_ALL_STALLED",
+   "text": "Lane stalled",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_ALL_WAITING",
+   "text": "Lane waiting",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_ALL_BLOCKED",
+   "text": "Lane blocked",
+   "max": 24,
+   "place": "planet_panel.gd _lane_ships_line (tiny lane status; parts joined by a dot)"
+  },
+  {
+   "id": "LBL_LANE_MINUS_TIP",
+   "text": "Take a ship off this lane.",
+   "max": 60,
+   "place": "planet_panel.gd _lane_ships_line, tooltip of the - button"
+  },
+  {
+   "id": "LBL_LANE_PLUS_TIP",
+   "text": "Add a ship to this lane.",
+   "max": 60,
+   "place": "planet_panel.gd _lane_ships_line, tooltip of the + button"
   },
   {
    "id": "LBL_SKILL_POINTS_HELP",
@@ -9281,7 +9461,7 @@
    "id": "NOT_BAZAAR_OPENING",
    "text": "The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.",
    "max": 130,
-   "place": "main.gd:2425"
+   "place": "main.gd (old, planet version; unused since 2026-11-13, see NOT_BAZAAR_OPENING_SITE)"
   },
   {
    "id": "NOT_FABRIC_BUILT",
@@ -9312,6 +9492,12 @@
    "text": "Pick a different planet as the destination.",
    "max": 80,
    "place": "main.gd"
+  },
+  {
+   "id": "NOT_FIRST_NEED_FILLED",
+   "text": "First delivery to {planet}'s needs! Keep its needs met to help it grow.",
+   "max": 80,
+   "place": "main.gd:2680"
   },
   {
    "id": "NOT_PROSPERITY_TAX",
@@ -9765,7 +9951,7 @@
   },
   {
    "id": "ST_HUB_EXPLAIN",
-   "text": "A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys whatever those worlds are short of from the cheapest source in reach and delivers it, for the usual trip cost plus a small hub fee. Untick a world or a good to keep it in your own hands.",
+   "text": "A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys exactly what the ticked worlds are short of, never more, from the cheapest source in reach, below the planet price, and delivers it for the usual trip cost. Untick a world or a good to keep it in your own hands.",
    "max": 320,
    "place": "hub_panel.gd, block under the title, always shown"
   },
@@ -9795,7 +9981,7 @@
   },
   {
    "id": "ST_HUB_MAKE_TIP",
-   "text": "Makes this world a hub: it keeps nearby worlds fed on its own. You add ships from your free fleet; each cycle the hub buys what those worlds lack and delivers it, never more than they need. Each delivery costs the trip plus a hub fee. One hub per system; it never draws on Space Storage.",
+   "text": "Makes this world a hub: it keeps nearby worlds fed on its own. It costs credits once. You add ships from your free fleet; each cycle the hub buys what those worlds lack at a discount and delivers it, never more than they need. One hub per system; it never draws on Space Storage.",
    "max": 340,
    "place": "planet_panel.gd:234, hub make button tooltip (also on the reason line)"
   },
@@ -9846,6 +10032,48 @@
    "text": "Ships in pool: {n}",
    "max": 40,
    "place": "hub_panel.gd:95"
+  },
+  {
+   "id": "ST_HUB_SITE_HEAD",
+   "text": "Space Storage supply",
+   "max": 30,
+   "place": "hub_panel.gd Star Bazaar hub, Space Storage supply heading"
+  },
+  {
+   "id": "ST_HUB_SITE_PROD",
+   "text": "{good} x{qty} for production",
+   "max": 50,
+   "place": "hub_panel.gd Star Bazaar hub, a delivery for production; {good} {qty}"
+  },
+  {
+   "id": "ST_HUB_SITE_BILL",
+   "text": "{good} x{qty} for the stage bill",
+   "max": 50,
+   "place": "hub_panel.gd Star Bazaar hub, a delivery for the stage bill; {good} {qty}"
+  },
+  {
+   "id": "ST_HUB_PLUS_CAP",
+   "text": "A hub pool holds up to {max} ships.",
+   "max": 60,
+   "place": "hub_panel.gd PoolPlus tooltip"
+  },
+  {
+   "id": "ST_HUB_PLUS_MOVE",
+   "text": "Press to move a free ship into the pool.",
+   "max": 60,
+   "place": "hub_panel.gd PoolPlus tooltip"
+  },
+  {
+   "id": "ST_HUB_PLUS_BUY",
+   "text": "No free ship: press to buy one for {price} cr.",
+   "max": 60,
+   "place": "hub_panel.gd PoolPlus tooltip"
+  },
+  {
+   "id": "ST_HUB_PLUS_FULL",
+   "text": "The pool is full.",
+   "max": 40,
+   "place": "hub_panel.gd PoolPlus tooltip"
   },
   {
    "id": "ST_HUB_RELEASE",
@@ -10028,6 +10256,168 @@
    "place": "Notice, a second world is boosted, Biotech"
   },
   {
+   "id": "TUT_WIN_PLANET_ICONS_TITLE",
+   "text": "Planet icons",
+   "max": 32,
+   "place": "Tutorial window, title"
+  },
+  {
+   "id": "TUT_WIN_PLANET_ICONS_TOP",
+   "text": "Icons above a world are the goods it trades. Right click one to send that good there.",
+   "max": 110,
+   "place": "Tutorial window, line for the icons above a world"
+  },
+  {
+   "id": "TUT_WIN_PLANET_ICONS_BOTTOM",
+   "text": "Icons below the name are what the world needs to grow. They light up when your sales meet the need.",
+   "max": 120,
+   "place": "Tutorial window, line for the icons below the name"
+  },
+  {
+   "id": "TUT_WIN_PLANET_ICONS_RING",
+   "text": "The ring fills as the world grows toward its next tier.",
+   "max": 80,
+   "place": "Tutorial window, line for the ring"
+  },
+  {
+   "id": "TIP_BAZAAR_MARKER",
+   "text": "Star Bazaar",
+   "max": 32,
+   "place": "main.gd, map marker tooltip of the Star Bazaar's station"
+  },
+  {
+   "id": "LBL_BAZAAR_STATION_NAME",
+   "text": "Star Bazaar",
+   "max": 32,
+   "place": "main.gd planet_name, Space Storage view title, hub panel title, route rows"
+  },
+  {
+   "id": "BAZ_FOUND_TIP",
+   "text": "Raise the Star Bazaar in this Space Storage. Once per run, final.",
+   "max": 90,
+   "place": "Space Storage view, Found button tooltip"
+  },
+  {
+   "id": "BAZ_BTN_PANEL",
+   "text": "Star Bazaar panel",
+   "max": 24,
+   "place": "Space Storage view, opens the Bazaar panel"
+  },
+  {
+   "id": "BAZ_BTN_STORAGE",
+   "text": "Open the storage",
+   "max": 24,
+   "place": "Bazaar panel, opens the Space Storage view"
+  },
+  {
+   "id": "BAZ_LBL_SITE",
+   "text": "Site",
+   "max": 24,
+   "place": "Bazaar panel, the system of the Star Bazaar"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_FOUND_SITE",
+   "text": "Found the Bazaar in the Space Storage of {system}",
+   "max": 90,
+   "place": "Bazaar panel before founding; {system}"
+  },
+  {
+   "id": "END_RECAP_SITE",
+   "text": "Star Bazaar: {system}",
+   "max": 40,
+   "place": "end_screen.gd recap line; {system}"
+  },
+  {
+   "id": "LBL_WORKSHOP_OFF",
+   "text": "Production off",
+   "max": 30,
+   "place": "Space Storage view, a built workshop or the fabric with no recipe switched on"
+  },
+  {
+   "id": "LBL_PRODUCTION_ON",
+   "text": "Production on",
+   "max": 30,
+   "place": "Space Storage view, fabric row, plate recipe on"
+  },
+  {
+   "id": "SS_TIP_PROD_ON",
+   "text": "Production is on. Click to switch off {good}.",
+   "max": 90,
+   "place": "Space Storage view, tooltip of a lit recipe icon; {good}"
+  },
+  {
+   "id": "SS_TIP_PROD_OFF",
+   "text": "Production is off. Click to start making {good} from the stock here.",
+   "max": 100,
+   "place": "Space Storage view, tooltip of a dim recipe icon; {good}"
+  },
+  {
+   "id": "NOT_PRODUCTION_OFF",
+   "text": "Production starts off. Switch a recipe on in the Space Storage when you want it made.",
+   "max": 110,
+   "place": "Board notice after a workshop or the fabric is built"
+  },
+  {
+   "id": "ST_HUB_MAKE_COST",
+   "text": "Make hub ({cost} cr)",
+   "max": 30,
+   "place": "planet_panel.gd, Make hub button with its one-off cost; {cost}"
+  },
+  {
+   "id": "ST_HUB_NO_CASH",
+   "text": "Making a hub costs {cost} credits.",
+   "max": 60,
+   "place": "Make hub button tooltip and notice when cash is short; {cost}"
+  },
+  {
+   "id": "ST_HUB_BAZAAR_SYSTEM",
+   "text": "The Star Bazaar is the hub of this system.",
+   "max": 60,
+   "place": "hubs.gd, reason a world of the Bazaar's system cannot be made a hub"
+  },
+  {
+   "id": "ST_HUB_BAZAAR_NOTE",
+   "text": "The Star Bazaar is the hub of every world in this system. It buys the goods they need at a discount and never draws on the Space Storage.",
+   "max": 200,
+   "place": "hub_panel.gd, note on the Bazaar hub instead of Release hub"
+  },
+  {
+   "id": "BAZ_FOUND_PROMPT_SITE",
+   "text": "Found the Star Bazaar in the Space Storage of {system}? This is final. It becomes the hub of this system.",
+   "max": 110,
+   "place": "Space Storage view, confirm text before founding; {system}"
+  },
+  {
+   "id": "BAZ_FOUNDED_SITE",
+   "text": "The Star Bazaar is founded in {system}.",
+   "max": 110,
+   "place": "main.gd notice, the Bazaar is founded; {system}"
+  },
+  {
+   "id": "BAZ_FOUNDED_WIN_TITLE",
+   "text": "The Star Bazaar is founded",
+   "max": 40,
+   "place": "Modal window title, shown when the Bazaar is founded"
+  },
+  {
+   "id": "BAZ_FOUNDED_WIN_BODY",
+   "text": "Congratulations. The Star Bazaar now stands in {system}. It is the hub of every world here and draws what it needs from them by itself: their needs, the goods for each stage, and the inputs of any production switched on in the Space Storage. It takes only as much as needed, at a discount, and your ships in its pool carry it, so keep ships in the pool. Stages finish on their own when the goods and worlds are ready.",
+   "max": 460,
+   "place": "Modal window body, shown when the Bazaar is founded; {system}"
+  },
+  {
+   "id": "BAZ_FOUNDED_WIN_BTN",
+   "text": "Got it",
+   "max": 24,
+   "place": "Modal window button, closes the window after founding"
+  },
+  {
+   "id": "NOT_BAZAAR_OPENING_SITE",
+   "text": "The charter cargo is ready. Fly it to the Star Bazaar in {system} to open it.",
+   "max": 130,
+   "place": "main.gd notice, the last stage is done; {system}"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -10077,13 +10467,13 @@
   },
   {
    "id": "SK_FND_STORAGE_FLAVOUR",
-   "text": "One hold for all the crew owns. Someone has to count it every night.",
+   "text": "But keep an eye on it. It's valuable.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_FND_STORAGE_PLAIN",
-   "text": "Lets you keep one large company storage per system, the Space Storage. Planet storage feeds it slowly.",
+   "text": "You may now claim your own piece of space! Keep resources there and craft unique ones.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -12309,25 +12699,25 @@
   },
   {
    "id": "GIG03_TITLE",
-   "text": "The quota drum",
+   "text": "The unused charter",
    "max": 32,
    "place": "Gig 03, arrival window title"
   },
   {
    "id": "GIG03_HOOK",
-   "text": "The sensors catch a crash beacon in the dark. Its frequency belongs to a Belo Industries hauler. Belo ships have been seen carrying living cargo sealed in black slime, the kind clinics refuse to sign for and the Bureau prefers not to list. The beacon still repeats its call, and nobody on that hull has answered it. Something drifts near the wreck. Do we look?",
+   "text": "A Bureau courier pod, drifting alone, still pinging for a desk that no longer exists. Its stamp is from a Plan that was dropped before it ran. Pods like this carry orders for one world: what it must produce, and how much it may keep. Nobody ever came to collect this one. Do we look?",
    "max": 420,
    "place": "Gig 03, signal hint"
   },
   {
    "id": "GIG03_ARRIVE",
-   "text": "A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a quota page with a blank line for the world. If you take up the quota, the scout stays long. If you copy the ledger, the quota stays blank.",
+   "text": "The pod opens on a production charter, never used. It lets one world produce more and store more. The line for the world is blank. You can write one of your worlds on it, or copy the pod's ledger and sell the copy. Either way the scout is held here a while.",
    "max": 280,
    "place": "Gig 03, arrival window text"
   },
   {
    "id": "GIG03_A_BTN",
-   "text": "Take up the quota",
+   "text": "Claim the charter",
    "max": 28,
    "place": "Gig 03, button A"
   },
@@ -12339,55 +12729,55 @@
   },
   {
    "id": "GIG03_A_OUT_MIL",
-   "text": "You write one of your worlds on the blank line, and the stamp takes. The quota is yours now, and the yard there will know it. The Plan has one line fewer to mourn.",
+   "text": "You write one of your worlds on the blank line, and the stamp takes. That world holds the charter now, and its yard will know it. The Plan has one line fewer to mourn.",
    "max": 280,
    "place": "Gig 03, outcome A, Military"
   },
   {
    "id": "GIG03_A_OUT_LUX",
-   "text": "You write a world on the blank line, in your best hand, and the page seems pleased. A quota for a gift that never came is yours now. The drum taps once more.",
+   "text": "You write one of your worlds on the blank line, in your best hand, and the page seems pleased. That world holds the charter now. It was meant for a gift that never came.",
    "max": 280,
    "place": "Gig 03, outcome A, Luxury"
   },
   {
    "id": "GIG03_A_OUT_MIN",
-   "text": "You write a world on the blank line, and the drum stops tapping. The old quota wanted rock and never got it. It is yours now.",
+   "text": "You write one of your worlds on the blank line, and the stamp takes. That world holds the charter now. It was meant for rock the Plan never got.",
    "max": 280,
    "place": "Gig 03, outcome A, Minerals"
   },
   {
    "id": "GIG03_A_OUT_BIO",
-   "text": "You write a world on the blank line. The ink dries green at the edges, which ink should not do. The quota is yours now. The drum goes quiet.",
+   "text": "You write one of your worlds on the blank line. The ink dries green at the edges, which ink should not do. That world holds the charter now.",
    "max": 280,
    "place": "Gig 03, outcome A, Biotech"
   },
   {
    "id": "GIG03_B_OUT_MIL",
-   "text": "The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The lot stays closed behind you.",
+   "text": "The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The charter stays blank, and the pod goes back to drifting.",
    "max": 280,
    "place": "Gig 03, outcome B, Military"
   },
   {
    "id": "GIG03_B_OUT_LUX",
-   "text": "The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The lot stays closed behind you.",
+   "text": "The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The charter stays blank, and the pod goes back to drifting.",
    "max": 280,
    "place": "Gig 03, outcome B, Luxury"
   },
   {
    "id": "GIG03_B_OUT_MIN",
-   "text": "The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The lot stays closed behind you.",
+   "text": "The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The charter stays blank, and the pod goes back to drifting.",
    "max": 280,
    "place": "Gig 03, outcome B, Minerals"
   },
   {
    "id": "GIG03_B_OUT_BIO",
-   "text": "The ledger lists which trays came from which shelf, and when. You copy it, and a clinic pays a small sum for the copy. The lot stays closed behind you.",
+   "text": "The ledger lists which trays came from which shelf, and when. You copy it, and a clinic pays a small sum for the copy. The charter stays blank, and the pod goes back to drifting.",
    "max": 280,
    "place": "Gig 03, outcome B, Biotech"
   },
   {
    "id": "GIG03_EPI",
-   "text": "The Bureau marks the quota drum as found. It does not mark it as finished.",
+   "text": "The Bureau marks the pod as found. It does not mark the charter as used.",
    "max": 140,
    "place": "Gig 03, epilogue line"
   },
@@ -12594,6 +12984,54 @@
    "text": "The garden is listed as tended. No keeper is named on the page.",
    "max": 140,
    "place": "Gig 06, epilogue line"
+  },
+  {
+   "id": "GIG08_TITLE",
+   "text": "The drive yard",
+   "max": 32,
+   "place": "Gig 08, arrival window title"
+  },
+  {
+   "id": "GIG08_HOOK",
+   "text": "A low thrum, steady, like an engine that never learned to hurry. It comes from an old yard the Bureau struck from the Plan after its last drive was judged too quick for any hull in the book. The board lists the yard as closed. The thrum has not missed a beat.",
+   "max": 420,
+   "place": "Gig 08, signal hint"
+  },
+  {
+   "id": "GIG08_ARRIVE",
+   "text": "A dry dock, open to the dark. One drive sits on the cradle, lean and old, with a maker's plate in a hand you do not know. It would fit the Flagship. A buyer's note waits on the desk. Fitting the drive takes the scout a long wait. Selling it takes a short one.",
+   "max": 280,
+   "place": "Gig 08, arrival window text"
+  },
+  {
+   "id": "GIG08_A_BTN",
+   "text": "Take the drive refit",
+   "max": 28,
+   "place": "Gig 08, button A"
+  },
+  {
+   "id": "GIG08_B_BTN",
+   "text": "Sell the drive",
+   "max": 28,
+   "place": "Gig 08, button B"
+  },
+  {
+   "id": "GIG08_A_OUT_MIL",
+   "text": "The yard crew cuts the old drive out and fits the new one. The Flagship hums higher, and the deck stops shaking. It flies faster now, for good. The spare plates stay on the cradle.",
+   "max": 280,
+   "place": "Gig 08, outcome A, Military"
+  },
+  {
+   "id": "GIG08_B_OUT_MIL",
+   "text": "A depot clerk counts out a small sum for the drive and signs the page. The cradle goes empty. The Flagship leaves as slow as it came, and the thrum behind you stops.",
+   "max": 280,
+   "place": "Gig 08, outcome B, Military"
+  },
+  {
+   "id": "GIG08_EPI",
+   "text": "The Bureau lists the yard as closed. The dock light is still on.",
+   "max": 140,
+   "place": "Gig 08, epilogue line"
   },
   {
    "id": "GIG07_TITLE",
@@ -13461,7 +13899,7 @@
   },
   {
    "id": "EV50_BODY",
-   "text": "A damp season at Tillam raised spore cultures in every crate, more than anyone could sell. Spore cultures at Tillam cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.",
+   "text": "A damp season at Mossfell raised spore cultures in every crate, more than anyone could sell. Spore cultures at Mossfell cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.",
    "max": 280,
    "place": "pool event text"
   },

@@ -1,5 +1,5 @@
 extends PanelContainer
-## Compact, always-visible Star Bazaar card in the right column (once the Bazaar is founded): the capital, the stage being built,
+## Compact, always-visible Star Bazaar card in the right column (once the Bazaar is founded): the Star Bazaar's system, the stage being built,
 ## each goods bill row as have / need, the other-worlds quorum and the term left. Reads main.bazaar only, never writes. It replaces
 ## nothing: the full Bazaar panel (key / rail button) still opens for the detail. Refreshed about twice a second, not every frame.
 
@@ -49,7 +49,7 @@ func refresh() -> void:
 		return
 	var bz = main.bazaar
 	var lines: Array = []  # [left, right, style]
-	lines.append([StoryText.get_or("BAZ_PANEL_TITLE", "The Star Bazaar").to_upper(), main.planet_name(bz.capital()), "LabelCaption"])
+	lines.append([StoryText.get_or("BAZ_PANEL_TITLE", "The Star Bazaar").to_upper(), main.Systems.name_of(bz.site_system()), "LabelCaption"])
 	var total: int = bz.stages_total()
 	if bz.complete():
 		lines.append([StoryText.get_or("BAZ_NAME", "Star Bazaar"), "", ""])
@@ -64,7 +64,7 @@ func refresh() -> void:
 			var need: int = int(r["need"])
 			lines.append([label, "%d / %d" % [mini(int(r["have"]), need), need], "" if bool(r["ok"]) else "LabelMuted"])
 		var q: Dictionary = bz.quorum_status()
-		lines.append([StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": int(q["have"]), "m": int(q["need"]), "tier": StoryText.get_or("PROS_TIER_%d" % int(q["tier"]), "Tier %d" % int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"), ""])
+		lines.append([StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": mini(int(q["have"]), int(q["need"])), "m": int(q["need"]), "tier": StoryText.get_or("PROS_TIER_%d" % int(q["tier"]), "Tier %d" % int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"), ""])
 	if not main.free_play:
 		var left: int = maxi(0, int(main.balance.get("win_cycle_markets", 0)) - int(main.cycle))
 		lines.append([StoryText.get_or("BAZ_TERM_LEFT", "Term left: {cycles} cycles", {"cycles": left}), "", "LabelMuted"])

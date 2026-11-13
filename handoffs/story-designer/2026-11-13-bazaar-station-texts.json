@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-13",
+  "task": "bazaar-station-texts",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "handoffs/story-designer/2026-11-13-bazaar-station-texts.json"],
+  "open_questions": [
+    "TIP_SPACE_STORAGE, SS_POST_DESC said planet storage feeds Space Storage slowly; the programmer handoff says no such feed exists. Reworded to 'goods reach it when you send them'. Confirm.",
+    "HUB_LBL_FEE ('Hub fee') is unused in game code; delete the id?",
+    "Unused story-only ids still tell the capital rule (EPI_CAPITAL, EPI_UNFINISHED_CAPITAL, BAZ_LBL_CAPITAL, END_RECAP_CAPITAL); left as is."
+  ],
+  "handoff": "Reworded to the new rule: BAZ_HOW, BAZ_STEP_BILL_FED, ST_HUB_EXPLAIN, TIP_HUB_WHY, TIP_FABRIC_WHY, SS_POST_DESC, TIP_SPACE_STORAGE, HUB_MAKE_PROMPT, HUB_RELEASE_PROMPT, story arc lines 2 and 9. All other listed ids already read correctly. build_story.py exit 0. All ready to wire; Russian stale."
+}

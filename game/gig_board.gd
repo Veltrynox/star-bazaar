@@ -94,14 +94,14 @@ func _def(o: Dictionary) -> Dictionary:
 
 func title_text(o: Dictionary) -> String:
 	if str(o["kind"]) == "opening":
-		return StoryText.get_or("GIG_ROW_OPENING", "Charter cargo for {planet}", {"planet": main.planet_name(int(o["target"]["index"]))})
+		return StoryText.get_or("GIG_ROW_OPENING", "Charter cargo for {planet}", {"planet": main.planet_name(-int(o["target"]["index"]))})  # target = the Star Bazaar station (index = system id)
 	if str(o["kind"]) == "salvage":
 		return StoryText.get_or("GIG_ROW_SALVAGE", "Cargo pods")
 	return StoryText.get_or(str(_def(o).get("title", "")), StoryText.get_or("GIG_ROW_SIGNAL", "Unknown signal"))
 
 func world_text(o: Dictionary) -> String:
-	if str(o["kind"]) == "opening" and str(o["target"].get("kind", "planet")) == "planet":
-		return main.planet_name(int(o["target"]["index"]))
+	if str(o["kind"]) == "opening":
+		return main.planet_name(-int(o["target"]["index"])) if str(o["target"].get("kind", "planet")) == "station" else main.planet_name(int(o["target"]["index"]))
 	return StoryText.get_or("GIG_WHERE_SPACE", "Open space")
 
 func reward_text(o: Dictionary) -> String:

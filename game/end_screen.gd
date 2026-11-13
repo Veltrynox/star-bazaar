@@ -66,16 +66,16 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
 	return out.slice(0, 4)
 
-## T299: the recap block above the ending text: capital, stages, wings, worlds grown, reclaimed worlds, the three decisive moments.
+## T299: the recap block above the ending text: the Star Bazaar system, stages, wings, worlds grown, reclaimed worlds, the three decisive moments.
 ## Data from Bazaar.recap() (stats.recap). Texts by id with plain fallbacks (END_RECAP_*; the story task writes them). Empty recap: nothing drawn.
 ## Moments are named by their story id (event or chain step); a moment with no text is skipped.
 func _recap_block(box: Control, rc: Dictionary) -> void:
 	if rc.is_empty():
 		return
 	var lines := []
-	var cap := int(rc.get("capital", -1))
-	if cap >= 0:
-		lines.append(StoryText.get_or("END_RECAP_CAPITAL", "Capital: {planet}", {"planet": str(rc.get("capital_name", "#%d" % cap))}))
+	var site := int(rc.get("site", -1))
+	if site >= 0:
+		lines.append(StoryText.get_or("END_RECAP_SITE", "Star Bazaar: {system}", {"system": str(rc.get("site_name", "#%d" % site))}))
 	lines.append(StoryText.get_or("END_RECAP_STAGES", "Stages raised: {n} of {m}", {"n": int(rc.get("stages", 0)), "m": int(rc.get("stages_total", 0))}))
 	for w in rc.get("wings", []):
 		lines.append(StoryText.get_or("END_RECAP_WING", "Wing: {wing}", {"wing": StoryText.get_or("BAZ_%s_NAME" % w, str(w))}))

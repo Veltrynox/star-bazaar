@@ -7,6 +7,7 @@ const PlanetPanel := preload("res://game/planet_panel.gd")
 const RatingBar := PlanetPanel.RatingBar
 
 signal closed
+signal found_bazaar_requested(sys: int)  # confirmed in the dialog; main founds the Star Bazaar here
 
 var main: Control
 var system_id: int = -1
@@ -48,7 +49,8 @@ func refresh() -> void:
 	var head := HBoxContainer.new()
 	box.add_child(head)
 	var title := Label.new()
-	title.text = StoryText.get_or("SS_POST_NAME", "Space Storage")
+	var is_bz: bool = main.bazaar.is_founded() and main.bazaar.site_system() == system_id
+	title.text = StoryText.get_or("LBL_BAZAAR_STATION_NAME", "Star Bazaar") if is_bz else StoryText.get_or("SS_POST_NAME", "Space Storage")
 	title.theme_type_variation = "LabelTitle"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
@@ -63,13 +65,11 @@ func refresh() -> void:
 	box.add_child(sys)
 	var key: String = main.storage.system_key(system_id)
 	var cap: int = main.storage.capacity_of(key)
-	var cl := Label.new()
-	cl.text = StoryText.get_or("SS_LBL_CAPACITY", "Capacity: {cap} per commodity", {"cap": cap})
-	box.add_child(cl)
-	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it."))
+	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Goods stay until a recipe you switched on, link upkeep, a Storage Link or a route from here takes them. Planet routes and Sells never draw on it."))
 	rule.name = "StockRule"
 	rule.add_theme_color_override("font_color", Ui.col("ink_muted"))
 	box.add_child(rule)
+	_bazaar_block(is_bz)
 	for c in main.commodities:
 		if not Availability.feature("space_storage_stock_rows") or not Availability.good(str(c)):
 			continue  # data/availability.json: only visible goods have a stock row
@@ -107,6 +107,87 @@ func refresh() -> void:
 	_fabric_rows()
 	_build_blocks()
 	size = Vector2.ZERO
+
+## The Star Bazaar in this storage: the Found button (once per run, when a world of this system stands at the founding tier), or the stage, the
+## bill still short (the goods are held right here) with its one instruction line, and the Bazaar and hub panel buttons.
+func _bazaar_block(is_bz: bool) -> void:
+	var bz = main.bazaar
+	if not is_bz:
+		if bz.can_found(system_id):
+			box.add_child(HSeparator.new())
+			var fb := Button.new()
+			fb.name = "FoundBazaarButton"
+			fb.text = StoryText.get_or("BAZ_FOUND_BTN", "Found the Bazaar here")
+			fb.tooltip_text = StoryText.get_or("BAZ_FOUND_TIP", "Raise the Star Bazaar in this Space Storage. Once per run, final.")
+			fb.pressed.connect(_ask_found_bazaar)
+			box.add_child(fb)
+		return
+	box.add_child(HSeparator.new())
+	var wrap := VBoxContainer.new()
+	wrap.name = "BazaarBlock"
+	wrap.add_theme_constant_override("separation", 4)
+	box.add_child(wrap)
+	if not bz.complete():
+		var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % bz.current_stage(), "Stage %d" % bz.current_stage())
+		var cap := _wrapped(StoryText.get_or("BAZ_CARD_TITLE", "Star Bazaar: {stage}", {"stage": stage_name}))
+		cap.theme_type_variation = "LabelCaption"
+		wrap.add_child(cap)
+		for rec in bz.bill_lines():
+			var ln := _wrapped(bz.step_line(rec))
+			ln.name = "BazaarStep"
+			ln.theme_type_variation = "LabelMuted"
+			wrap.add_child(ln)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	wrap.add_child(row)
+	var pb := Button.new()
+	pb.name = "BazaarPanelButton"
+	pb.text = StoryText.get_or("BAZ_BTN_PANEL", "Star Bazaar panel")
+	pb.pressed.connect(func():
+		close_view()
+		main.toggle_bazaar_panel())
+	row.add_child(pb)
+	if main.hubs.hubs.has(-system_id):
+		var hb := Button.new()
+		hb.name = "BazaarHubButton"
+		hb.text = StoryText.get_or("ST_HUB_OPEN", "Hub panel")
+		hb.pressed.connect(func():
+			close_view()
+			main.open_hub_panel(-system_id))
+		row.add_child(hb)
+
+func _ask_found_bazaar() -> void:
+	var dlg := ConfirmationDialog.new()
+	dlg.name = "FoundBazaarDialog"
+	dlg.dialog_text = StoryText.get_or("BAZ_FOUND_PROMPT_SITE", "Found the Star Bazaar in the Space Storage of {system}? This is final. It becomes the hub of this system.", {"system": main.Systems.name_of(system_id)})
+	dlg.ok_button_text = StoryText.get_or("BAZ_FOUND_CONFIRM", "Found it")
+	dlg.cancel_button_text = StoryText.get_or("BAZ_FOUND_CANCEL", "Not yet")
+	var sid := system_id
+	dlg.confirmed.connect(func(): found_bazaar_requested.emit(sid))
+	dlg.canceled.connect(dlg.queue_free)
+	dlg.confirmed.connect(dlg.queue_free)
+	add_child(dlg)
+	dlg.popup_centered()
+
+## A good as its own production switch (owner rule: the good is the button): lit when its recipe is on, dim when off. Tooltip says what a click does.
+func _prod_toggle(g: String, is_on: bool) -> Button:
+	var tb := Button.new()
+	tb.name = "ProdToggle_" + g
+	tb.theme_type_variation = "ButtonSmall"
+	tb.icon = Ui.good_icon(g, 16).texture
+	tb.expand_icon = false
+	tb.add_theme_constant_override("icon_max_width", 16)
+	var gc: Color = Ui.commodity_col(g) if Ui.commodity_col(g) != Color.WHITE else Ui.col("ink")
+	var shown := gc if is_on else Color(gc.r, gc.g, gc.b, 0.35)
+	for st in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color"]:
+		tb.add_theme_color_override(st, shown)
+	tb.tooltip_text = (StoryText.get_or("SS_TIP_PROD_ON", "Production is on. Click to switch off {good}.", {"good": Ui.good_name(g).to_lower()}) if is_on
+		else StoryText.get_or("SS_TIP_PROD_OFF", "Production is off. Click to start making {good} from the stock here.", {"good": Ui.good_name(g).to_lower()}))
+	tb.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	tb.pressed.connect(func():
+		main.set_production(g, not is_on)
+		refresh())
+	return tb
 
 ## T373: Send to... pressed: the view gives way to the map and the next planet clicked becomes the destination (main.begin_station_send).
 func _on_send(c: String) -> void:
@@ -170,8 +251,18 @@ func _fabric_rows() -> void:
 	else:
 		var st := Label.new()
 		st.name = "FabricStatus"
-		st.text = StoryText.get_or("FAB_MADE", "made {n} {good}", {"n": f.made, "good": Ui.good_name("plate").to_lower()}) if f.state == "running" else (Workshops.why_text(f.reason) if f.state == "stalled" else StoryText.get_or("FAB_READY", "ready"))
+		st.text = StoryText.get_or("FAB_MADE", "made {n} {good}", {"n": f.made, "good": Ui.good_name("plate").to_lower()}) if f.on and f.state == "running" else (Workshops.why_text(f.reason) if f.on and f.state == "stalled" else (StoryText.get_or("FAB_READY", "ready") if f.on else StoryText.get_or("LBL_WORKSHOP_OFF", "Production off")))
 		box.add_child(st)
+		if Availability.good("plate"):  # the plate recipe switch: the good is the button
+			var fr := HBoxContainer.new()
+			fr.name = "FabricProduction"
+			fr.add_theme_constant_override("separation", 8)
+			fr.add_child(_prod_toggle(f.OUTPUT, f.on))
+			var fl := _wrapped(StoryText.get_or("LBL_PRODUCTION_ON", "Production on") if f.on else StoryText.get_or("LBL_WORKSHOP_OFF", "Production off"))
+			fl.name = "FabricProductionState"
+			fl.theme_type_variation = "LabelSmall"
+			fr.add_child(fl)
+			box.add_child(fr)
 	var miss: Array = unrouted if not unrouted.is_empty() else _inputs_unreached(f)
 	miss = Availability.visible_goods(miss)
 	if not miss.is_empty():  # QA 2026-11-03: fabric can be built before its inputs have a route
@@ -236,7 +327,17 @@ func _workshop_rows() -> void:
 			var rl := _wrapped(ws.recipe_line(str(g)))
 			rl.name = "WorkshopRecipe_" + str(g)
 			rl.theme_type_variation = "LabelSmall"
-			box.add_child(rl)
+			if ws.built[id]:  # a built workshop: the crafted good is its production switch
+				var rr := HBoxContainer.new()
+				rr.name = "WorkshopRecipeRow_" + str(g)
+				rr.add_theme_constant_override("separation", 8)
+				rr.add_child(_prod_toggle(str(g), ws.is_on(str(g))))
+				rl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				rl.custom_minimum_size = Vector2(230, 0)
+				rr.add_child(rl)
+				box.add_child(rr)
+			else:
+				box.add_child(rl)
 		if ws.built[id]:
 			var line: String = ws.status_text(id)
 			var bl := _wrapped(line)

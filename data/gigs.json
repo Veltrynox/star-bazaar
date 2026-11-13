@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "_doc": "Gig engine (T271, game/gigs.gd). One list for every Flagship job; the kind field is open (signal today; salvage and the Opening are posted in code). Texts are ids in data/story_text.json (story/gigs.md); every number is a data/balance.json key (gig_*), never a literal. A signal: id, kind, weight (seeded draw), when (a Conditions tree; the gig is also never offered twice, and only when every good it names passes Availability), system (0 = the system the Flagship is in), expires (balance key), title/hook/body (text ids), epilogue (text id), options (two neutral ones: text id, outcome id prefix, gives, costs). Outcome text = <outcome>_<MIL|LUX|MIN|BIO> of the run's branch. Effect kinds: cash {size|key}, cash_fee {size|key} (cost), goods {good | by_branch {mil,lux,min,bio,other}, size|key} (lands in the nearest established world's storage), story {id}, scout_idle {size|key} (cost). size maps to balance gig_cash_<size>, gig_fee_<size>, gig_lot_<size>, gig_idle_<size>. Never skill points, never share.",
+  "_doc": "Gig engine (T271, game/gigs.gd). One list for every Flagship job; the kind field is open (signal today; salvage and the Opening are posted in code). Texts are ids in data/story_text.json (story/gigs.md); every number is a data/balance.json key (gig_*), never a literal. A signal: id, kind, weight (seeded draw), when (a Conditions tree; the gig is also never offered twice, and only when every good it names passes Availability), system (0 = the system the Flagship is in), expires (balance key), title/hook/body (text ids), epilogue (text id), options (two neutral ones: text id, outcome id prefix, gives, costs). Outcome text = <outcome>_<MIL|LUX|MIN|BIO> of the run's branch. Effect kinds: cash {size|key}, cash_fee {size|key} (cost), goods {good | by_branch {mil,lux,min,bio,other}, size|key} (lands in the nearest established world's storage), story {id}, scout_idle {size|key} (cost), boost_charge (one production charter), flagship_speed (permanent: the Flagship flies as fast as the Luxury CEO's ship). size maps to balance gig_cash_<size>, gig_fee_<size>, gig_lot_<size>, gig_idle_<size>. Never skill points, never share.",
   "gigs": [
     {
       "id": "GIG01", "kind": "signal", "weight": 1, "system": 0,
@@ -84,6 +84,20 @@
         {"id": "b", "text": "GIG06_B_BTN", "outcome": "GIG06_B_OUT",
          "gives": [{"kind": "goods", "by_branch": {"lux": "blooms", "bio": "food"}, "size": "small"}],
          "costs": [{"kind": "cash_fee", "size": "small"}]}
+      ]
+    },
+    {
+      "id": "GIG08", "kind": "signal", "weight": 1, "system": 0,
+      "when": {"all": ["cycle_at_least:balance.gig_first_cycle", "branch_is:mil"]},
+      "expires": "balance.gig_expire_cycles",
+      "title": "GIG08_TITLE", "hook": "GIG08_HOOK", "body": "GIG08_ARRIVE", "epilogue": "GIG08_EPI",
+      "options": [
+        {"id": "a", "text": "GIG08_A_BTN", "outcome": "GIG08_A_OUT",
+         "gives": [{"kind": "flagship_speed"}],
+         "costs": [{"kind": "scout_idle", "size": "long"}]},
+        {"id": "b", "text": "GIG08_B_BTN", "outcome": "GIG08_B_OUT",
+         "gives": [{"kind": "cash", "size": "small"}],
+         "costs": [{"kind": "scout_idle", "size": "short"}]}
       ]
     }
   ]

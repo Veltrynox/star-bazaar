@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "note": "2026-11-05. stats 1-3, total 5. stat effect = steps * balance[step_key]: haggling -> sale_price_pct (all markets, cash only), thrift -> upkeep_mult (1 - steps*ceo_step_thrift, combined with skills, floor balance.upkeep_floor), nerve -> event_cut_pct all. id = portrait id. branch = market id the CEO starts in (mil, lux, min, bio; one per CEO), ship = ship type id of data/ships.json (one per CEO). look = the CEO's default ship look (T357): shape and palette ids of data/exhaust.json, hue 0..1 turn of the hull texture; the player can change it on the company screen, the run keeps its own look (save key ship_look).",
+ "note": "2026-11-05. stats 1-3, total 5. stat effect = steps * balance[step_key]: haggling -> sale_price_pct (all markets, cash only), thrift -> upkeep_mult (1 - steps*ceo_step_thrift, combined with skills, floor balance.upkeep_floor), nerve -> event_cut_pct all. id = portrait id. branch = market id the CEO starts in (mil, lux, min, bio; one per CEO), ship = ship type id of data/ships.json (one per CEO). boost_charges_key (optional, owner 2026-11-13) = balance key of the Flagship Boost uses this CEO gets per run (no refill). look = the CEO's default ship look (T357): shape and palette ids of data/exhaust.json, hue 0..1 turn of the hull texture; the player can change it on the company screen, the run keeps its own look (save key ship_look).",
  "step_keys": {
   "haggling": "ceo_step_haggling",
   "thrift": "ceo_step_thrift",
@@ -78,7 +78,8 @@
     "type": "route_capacity_pct",
     "target": "first_lane",
     "key": "ceo_perk_woman_01_pct"
-   }
+   },
+   "boost_charges_key": "ceo_perk_woman_01_boost_charges"
   },
   {
    "id": "ceo_woman_02",

@@ -163,20 +163,19 @@ func refresh() -> void:
 		target_text]
 	stats_label.text = "\n".join(lines)
 
-## Hold fill, goods held and boost charges; the hold and boost rows are hidden while the hold has no room.
+## Hold fill and goods held; the Boost button shows the uses left; the hold and boost rows are hidden while the hold has no room.
 func _set_hold() -> void:
 	var cap: int = main.flight.hold_cap()
 	hold_label.visible = cap > 0
-	boost_button.visible = cap > 0
+	boost_button.visible = cap > 0 and main.flight.boost_max_charges() > 0  # only a CEO with Boost uses sees it
 	if cap <= 0:
 		return
 	var goods: Dictionary = main.flight.hold_goods()
 	var lines: Array = [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": main.flight.hold_total(), "m": cap})]
 	for g in goods:
 		lines.append("%s: %d" % [Ui.good_name(str(g)), int(goods[g])])
-	lines.append(StoryText.get_or("LBL_BOOST_CHARGES", "Boost: {n} left", {"n": main.flight.boost_charges()}))
 	hold_label.text = "\n".join(lines)
-	boost_button.text = "%s (B)" % StoryText.get_or("BTN_BOOST", "Boost")
-	boost_button.tooltip_text = StoryText.get_or("LBL_BOOST_HINT", "Faster on straight legs. Burns energy from the hold. Turning stays slow.")
+	boost_button.text = StoryText.get_or("BTN_BOOST_LEFT", "Boost ({n} left)", {"n": main.flight.boost_charges()})
+	boost_button.tooltip_text = StoryText.get_or("LBL_BOOST_HINT", "Faster for the rest of this flight. Uses one Boost. Turning stays slow.")
 	if boost_button.button_pressed != main.flight.boost_on():
 		boost_button.set_pressed_no_signal(main.flight.boost_on())

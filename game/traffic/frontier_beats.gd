@@ -2,7 +2,7 @@ extends Control
 ## T300: the frontier and finale beats (design/proposals/2026-11-06-empire-growth-v2.md 3.4 Juice and 4). Visual only, reads state, never changes it.
 ##   raid(a, b, nest)   raiders dart in from the nest side to the hit lane, a flash and ring on the hit point, pods tumble out, raiders leave.
 ##   scoop(at)          pods zip from around the Flagship into it.
-##   opening(capital)   the system's ships converge on the capital, the ring round it lights segment by segment, then a short screen flash.
+##   opening(at, in_view)   the system's ships converge on the Star Bazaar station, the ring round it lights segment by segment, then a short screen flash.
 ## Ships are free ships of the map's traffic layer (keys "fx_*", cleared when the beat ends); flashes and rings are drawn here in screen
 ## space. The node ignores the mouse, so it never blocks a click. Beats advance on the game clock (frozen while paused, scaled by the
 ## chosen speed) and all lengths and counts are balance beat_* keys (placeholders); Juice.motion scales them, 0 switches the beats off.
@@ -10,6 +10,7 @@ extends Control
 
 const Juice := preload("res://game/juice.gd")
 const LIFT := 0.35
+const StationScript := preload("res://game/station.gd")
 
 var map: Node = null   # game/map.gd
 var _fx: Array = []    # {kind, t, dur, ...}
@@ -106,24 +107,24 @@ func scoop(at: Vector3) -> void:
 
 # ---- opening ---------------------------------------------------------------------------------------------------------
 
-## i: planet index of the capital. Every other world in view sends ships to it, then the ring lights and the screen flashes.
-func opening(i: int) -> void:
-	if not _on() or i < 0 or i >= map.positions.size():
+## at: world position of the Star Bazaar station, in_view: its system is drawn. Every world in view sends ships to it, then the ring lights and the screen flashes.
+func opening(at: Vector3, in_view: bool) -> void:
+	if not _on() or at == Vector3.INF:
 		return
 	_uid += 1
 	var keys: Array = []
-	if map.planet_in_view(i):
+	if in_view:
 		var per := clampi(roundi(_k("beat_opening_ships", 2.0)), 1, 4)
 		for j in map.positions.size():
-			if j == i or not map.planet_in_view(j):
+			if not map.planet_in_view(j):
 				continue
 			for s in per:
 				var key := "fx_open_%d_%d_%d" % [_uid, j, s]
 				keys.append(key)
 				var off := Vector2(float(s) * 0.12, float(s) * -0.08)
-				map.traffic.set_free_ship(key, _p2(map.positions[j]) + off, _p2(map.positions[i]) + off * 0.3, "corvette", Ui.col("star_warm"), LIFT, 0.8)
+				map.traffic.set_free_ship(key, _p2(map.positions[j]) + off, _p2(at) + off * 0.3, "corvette", Ui.col("star_warm"), LIFT, 0.8)
 	Juice.play_tone(map, "opening")
-	_add({"kind": "opening", "t": 0.0, "dur": _k("beat_opening_seconds", 3.2) * Juice.motion, "keys": keys, "planet": i})
+	_add({"kind": "opening", "t": 0.0, "dur": _k("beat_opening_seconds", 3.2) * Juice.motion, "keys": keys, "pos": at, "in_view": in_view})
 
 # ---- clock and drawing -----------------------------------------------------------------------------------------------
 
@@ -174,12 +175,12 @@ func _draw() -> void:
 				_draw_opening(f, u, warm, scale_px)
 
 func _draw_opening(f: Dictionary, u: float, warm: Color, scale_px: float) -> void:
-	var i := int(f["planet"])
+	var at: Vector3 = f["pos"]
 	var total := clampi(roundi(_k("beat_opening_segments", 12.0)), 3, 48)
-	if map.planet_in_view(i) and not map.camera.is_position_behind(map.positions[i]):
-		var c: Vector2 = map.camera.unproject_position(map.positions[i])
+	if bool(f.get("in_view", false)) and not map.camera.is_position_behind(at):
+		var c: Vector2 = map.camera.unproject_position(at)
 		var right: Vector3 = map.camera.global_transform.basis.x.normalized()
-		var r_px := c.distance_to(map.camera.unproject_position(map.positions[i] + right * map.planet_radius(i) * map.PLANET_VISIBLE / map.PLANET_RADIUS))
+		var r_px := c.distance_to(map.camera.unproject_position(at + right * StationScript.MAP_RADIUS))
 		var rr := r_px + _k("beat_opening_ring_px", 34.0) * scale_px
 		var gap := 0.06
 		var fade := 1.0 - clampf((u - 0.9) / 0.1, 0.0, 1.0)

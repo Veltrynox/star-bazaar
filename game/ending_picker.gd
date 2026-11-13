@@ -52,7 +52,7 @@ static func techs_of(market: String) -> Array:
 ## {market, ending_id, capstone (MKT_7 learned), tech_done (0..3), rival_broken, rival_broken_bot (0 none), flag ("good"|"bad"),
 ##  decisive (T284: Chains.decisive_moments(), the three choices that moved the lean most),
 ##  stages_done (T259: Star Bazaar stages completed),
-##  recap (T298: Bazaar.recap(): capital, stages, wings, worlds_per_tier, reclaimed, decisive; {} when not given)}.
+##  recap (T298: Bazaar.recap(): site, stages, wings, worlds_per_tier, reclaimed, decisive; {} when not given)}.
 static func inputs(market: String, balance: Dictionary, stages_done: int = 0, recap: Dictionary = {}) -> Dictionary:
 	var mk := market.to_lower()
 	var done := 0

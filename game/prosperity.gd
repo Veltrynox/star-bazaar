@@ -24,6 +24,7 @@ extends RefCounted
 ## Saved by main under "prosperity". Old saves: established worlds start at tier 1 (nothing stored).
 
 signal tier_up(planet: int, tier: int)
+signal first_need_filled(planet: int, good: String)  # first units that fill any need this run (main posts a congratulation)
 signal reclaimed(planet: int)  # T295: a Barren world filled its reclamation ring and turned living (main marks its post as built)
 
 const PATH := "res://data/prosperity.json"
@@ -44,6 +45,7 @@ var _warned_empty: Dictionary = {}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
 var _carry: Dictionary = {}     # T261: fractional need-fill bonus units not yet counted (not saved)
+var _first_fill_done := false
 var _reached := 0               # T258: highest tier any world has reached this run (skill points paid up to it)
 var branch_fn: Callable = Callable()  # () -> String: the run's branch (CEO market id, "" when none), set by main; picks overrides_by_branch
 var weather = null              # T280: Events (shortage_mult, shortage_hunger), set by main; null in tests that do not need it
@@ -62,6 +64,7 @@ func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	_hunger = {}
 	_carry = {}
 	_reached = 0
+	_first_fill_done = false
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	data = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 
@@ -308,6 +311,9 @@ func add_fill(i: int, good: String, units: int) -> void:
 		units += extra
 	d[good] = int(d.get(good, 0)) + units
 	_sold[pid] = d
+	if not _first_fill_done and is_need(i, good):
+		_first_fill_done = true
+		first_need_filled.emit(i, good)
 
 ## ---- Need pricing (T257) ----
 func is_need(i: int, good: String) -> bool:
@@ -478,7 +484,7 @@ func _update_hunger(i: int, pid: String) -> void:
 		_hunger[pid] = next
 
 func to_dict() -> Dictionary:
-	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "last_sold": _last_sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true), "reached": _reached}
+	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "last_sold": _last_sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true), "reached": _reached, "first_fill": _first_fill_done}
 
 func from_dict(s) -> void:
 	_tier = {}
@@ -489,6 +495,7 @@ func from_dict(s) -> void:
 	_hunger = {}
 	_carry = {}
 	_reached = 0
+	_first_fill_done = false
 	if typeof(s) != TYPE_DICTIONARY:
 		return  # old saves: established worlds start at tier 1
 	for k in s.get("tier", {}):
@@ -519,6 +526,12 @@ func from_dict(s) -> void:
 			if _pid(i) == str(k):
 				_apply_reclaimed_look(i)
 	_reached = maxi(0, int(s.get("reached", 0)))  # old saves: no back pay, claim_new_tiers() starts from the saved top below
+	var any_progress := _reached > 0 or top_tier() > 1
+	for k in _sold:
+		for g in _sold[k]:
+			if int(_sold[k][g]) > 0:
+				any_progress = true
+	_first_fill_done = bool(s["first_fill"]) if s.has("first_fill") else any_progress
 	var hg = s.get("hunger", {})
 	if typeof(hg) == TYPE_DICTIONARY:
 		for k in hg:

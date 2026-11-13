@@ -141,6 +141,8 @@ func _run() -> void:
 	await _test_gig_clearance()
 	await _test_skill_link_route()
 	_test_engine_plume()
+	await _test_hub_same_system()
+	await _test_bazaar_station()
 	_test_hub_explain_ids()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -2336,7 +2338,7 @@ func _test_main() -> void:
 	var bal: Dictionary = m.balance
 	var win_cycle := int(bal["win_cycle_markets"])
 	check(not bal.has("win_cash") and not bal.has("win_cycle"), "goal: old win_cash and win_cycle keys are gone")
-	check(win_cycle == 80, "goal: run length is win_cycle_markets (80)")
+	check(win_cycle == 90, "goal: run length is win_cycle_markets (90)")
 
 	# --- T259: a market share no longer wins; the Star Bazaar does ---
 	_wipe_user()
@@ -2348,7 +2350,7 @@ func _test_main() -> void:
 		m._end_cycle()
 	check(not m.game_over and ended.is_empty(), "win: no share win, no swept loss")
 	var bz: Bazaar = m.bazaar
-	check(not bz.is_founded() and bz.capital() == -1 and bz.stage() == 0 and not bz.can_found(0), "bazaar: nothing founded at the start, home world is below the capital tier")
+	check(not bz.is_founded() and bz.site_system() == -1 and bz.stage() == 0 and not bz.can_found(1), "bazaar: nothing founded at the start, no Space Storage station or no world at the founding tier yet")
 	m.balance["bazaar_capital_tier"] = 1
 	m.balance["bazaar_stages"] = 2
 	m.balance["bazaar_reach_stage"] = 2
@@ -2356,8 +2358,11 @@ func _test_main() -> void:
 		for t in range(1, 5):
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
-	var cap := 0
-	check(bz.can_found(cap) and bz.found(cap) and bz.capital() == cap and not bz.found(cap) and not bz.can_found(1), "bazaar: found once, final")
+	var site := 1
+	check(not bz.can_found(site), "bazaar: a system without its Space Storage station cannot be the site")
+	m.station_systems.append(site)
+	var site_key: String = Storage.system_key(site)
+	check(bz.can_found(site) and bz.found(site) and bz.site_system() == site and not bz.found(site) and not bz.can_found(site), "bazaar: found once in a Space Storage, final")
 	check(Conditions.eval("bazaar_stage:1") == false and Conditions.eval("bazaar_stage:0") == true, "bazaar: atom bazaar_stage reads the stages done")
 	m.balance["bazaar_bill_s1_t1"] = 5
 	var staged := []
@@ -2365,9 +2370,9 @@ func _test_main() -> void:
 	m._end_cycle()
 	check(bz.stage() == 0 and not bz.bill_ok() and bz.bill_status().size() == 1 and bz.bill_status()[0]["need"] == 5, "bazaar: an unmet bill holds the stage", str(bz.bill_status()))
 	var g1: String = bz._branch_goods(1)[0]
-	m.storage.add(m.storage.planet_key(cap), g1, 7)
+	m.storage.add(site_key, g1, 7)
 	m._end_cycle()
-	check(bz.stage() == 1 and staged == [1] and m.storage.amount(m.storage.planet_key(cap), g1) == 2 and not m.game_over, "bazaar: stage done at cycle end, the bill is removed", str(staged))
+	check(bz.stage() == 1 and staged == [1] and m.storage.amount(site_key, g1) == 2 and not m.game_over, "bazaar: stage done at cycle end, the bill is taken from the Space Storage", str(staged))
 	m.balance["bazaar_quorum_count_s2"] = 1
 	m.balance["bazaar_quorum_tier_s2"] = 1
 	check(not bz.quorum_status()["ok"] or bz.reach_needed(), "bazaar: stage 2 asks for a quorum and reach")
@@ -2381,12 +2386,12 @@ func _test_main() -> void:
 	m.balance["bazaar_wing_wing_2a"] = 10
 	check(bz.choose_wing(0) and bz.wings == ["WING_2A"] and Bazaar.wing_bonus("tax_pct") == 10.0 and not bz.choose_wing(0), "wings: a pick is kept and its balance amount counts")
 	var rc := bz.recap()
-	check(rc["capital"] == cap and rc["stages"] == 2 and rc["wings"] == ["WING_2A"] and rc.has("worlds_per_tier") and rc.has("reclaimed") and rc.has("decisive"), "recap: capital, stages, wings, worlds per tier, reclaimed, decisive", str(rc))
+	check(rc["site"] == site and rc["stages"] == 2 and rc["wings"] == ["WING_2A"] and rc.has("worlds_per_tier") and rc.has("reclaimed") and rc.has("decisive"), "recap: site, stages, wings, worlds per tier, reclaimed, decisive", str(rc))
 	var bz2 := Bazaar.new()
 	bz2.setup(m)
 	bz2.from_dict(bz.to_dict())
-	check(bz2.wings == ["WING_2A"] and bz2.opening_pending and bz2.capital() == cap, "wings and Opening survive a save", str(bz.to_dict()))
-	m.gigs.on_arrived_planet(str(m.map.planets[cap].get("id", "")))
+	check(bz2.wings == ["WING_2A"] and bz2.opening_pending and bz2.site_system() == site, "wings and Opening survive a save", str(bz.to_dict()))
+	m.gigs.on_arrived_storage(site)
 	await process_frame
 	m.event_notice.confirmed.emit(0)  # the Opening window, then its outcome popup
 	await process_frame
@@ -2629,7 +2634,7 @@ func _test_main() -> void:
 		if str(k).begins_with("skill_cost_") and not SkillTree.has(str(k).trim_prefix("skill_cost_")):
 			old_gone = false
 	check(old_gone and not bal.has("skill_A4_route_units") and not bal.has("skill_B3_margin") and not bal.has("skill_C4_permit_discount"), "skills: no old A/B/C/M/F balance keys left")
-	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 4 and int(bal["permit_points_2"]) == 2 and int(bal["permit_points_3"]) == 2, "skills: economy retunes applied (route 1, system 4, permits 2/2)")
+	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 4 and int(bal["permit_points_2"]) == 3 and int(bal["permit_points_3"]) == 3, "skills: economy retunes applied (route 1, system 4, permits 3/3)")
 	await _free_main(m)
 	await _test_skill_screen()
 	await _test_skill_screen_ui()
@@ -4221,7 +4226,8 @@ func _test_systems() -> void:
 	check(m.can_buy_permit(2)["reason"] == "credits", "sys2: permit needs credits")
 	m.cash = int(bal["permit_2_cost"]) + 50
 	m.skill_points = 0
-	check(m.can_buy_permit(2)["reason"] == "points", "sys2: permit needs points")
+	check(m.can_buy_permit(2)["reason"] == "credits", "sys2: short points are paid in credits (permit_point_credits each)")
+	check(m.permit_total_cost(2) == int(bal["permit_2_cost"]) + int(bal["permit_points_2"]) * int(bal["permit_point_credits"]), "sys2: no points means the whole point price in credits")
 	m.skill_points = int(bal["permit_points_2"]) + 1
 	var r: Dictionary = m.buy_permit(2)
 	check(r["ok"] and m.cash == 50 and m.skill_points == 1 and m.open_systems.has(2), "sys2: permit spends permit_2_cost and permit_points_2")
@@ -6540,6 +6546,13 @@ func _test_fabric() -> void:
 	check(m.fabric.built, "fabric: an already built fabric stays built without routes")
 	var key: String = m.storage.system_key(1)
 	m.storage.ensure(key)
+	m.storage.add(key, "dross", 2)
+	m.storage.add(key, "nullglass", 1)
+	m.fabric.run(m.storage)
+	check(not m.fabric.on and m.fabric.reason == "off" and m.storage.amount(key, "plate") == 0 and m.storage.amount(key, "dross") == 2, "fabric: production starts off, nothing is crafted or eaten")
+	m.storage.remove(key, "dross", 2)
+	m.storage.remove(key, "nullglass", 1)
+	m.set_production("plate", true)
 	# stalls without inputs
 	m.fabric.run(m.storage)
 	check(m.fabric.state == "stalled" and m.fabric.reason == "needs dross", "fabric: stalls with 'needs dross'", m.fabric.reason)
@@ -6794,6 +6807,9 @@ func _test_workshop_status() -> void:
 	m._ensure_stations()
 	m.open_systems.append(2)  # munitions needs system 2 open (availability rule)
 	check(m.build_workshop("munitions")["ok"], "workshop status: munitions built")
+	check(not m.workshops.any_on("munitions") and m.workshops.status_text("munitions") == StoryText.get_or("LBL_WORKSHOP_OFF", "Production off"), "workshop: a new workshop has production off")
+	for g in Goods.recipes_of("munitions"):
+		m.set_production(str(g), true)  # production starts off; the status tests below need it on
 	m.open_systems.erase(2)  # built while open; the status tests below need system 2 closed again
 	var key: String = m.storage.system_key(1)
 	var ws = m.workshops
@@ -6873,6 +6889,14 @@ func _test_workshops_in_cells() -> void:
 	var k2: String = m.storage.system_key(2)
 	m.storage.add(k1, "energy", 6)
 	m.storage.add(k1, "spyware", 6)
+	m.storage.add(k2, "energy", 6)
+	m.storage.add(k2, "spyware", 6)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.workshops.state["munitions"] == "idle" and m.storage.amount(k2, "energy") == 6 and m.storage.amount(k2, "rounds") == 0, "cells: production off crafts nothing and eats nothing")
+	m.storage.remove(k2, "energy", 6)
+	m.storage.remove(k2, "spyware", 6)
+	for g in Goods.recipes_of("munitions"):
+		m.set_production(str(g), true)
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
 	check(m.workshops.state["munitions"] == "stalled" and m.storage.amount(k1, "energy") == 6 and m.storage.amount(k1, "rounds") == 0, "cells: stock in system 1 is not used by a system 2 workshop")
 	m.storage.add(k2, "energy", 6)
@@ -6885,7 +6909,7 @@ func _test_workshops_in_cells() -> void:
 	check(m.workshops.system_of("munitions") == 2 and m.workshops.built["munitions"], "cells: system survives save and load")
 	var old := {"munitions": {"built": true, "state": "idle", "reason": "", "made": {}}}
 	m.workshops.from_dict(old)
-	check(m.workshops.built["munitions"] and m.workshops.system_of("munitions") == 1, "cells: old save without system loads as system 1")
+	check(m.workshops.built["munitions"] and m.workshops.system_of("munitions") == 1 and m.workshops.is_on("rounds"), "cells: old save without system loads as system 1, production on")
 	# availability: a hidden workshop shows no Build in any cell
 	m.workshops.setup(m.balance)
 	m.open_systems.erase(2)
@@ -6941,6 +6965,8 @@ func _test_workshops() -> void:
 	m.cash = 5000
 	check(m.build_workshop("munitions")["ok"] and m.cash == 5000 - cost and m.workshops.built["munitions"], "workshop: build cost paid once")
 	check(not m.build_workshop("munitions")["ok"] and m.cash == 5000 - cost, "workshop: a second build is refused")
+	for g in Goods.recipes_of("munitions"):
+		m.set_production(str(g), true)  # production starts off
 	# recipe run: cells = 2 energy + 1 chips -> batch_out, armour not open yet
 	Tech.reset()
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
@@ -6968,6 +6994,8 @@ func _test_workshops() -> void:
 	m.learned_skills.append("MIN_1")
 	m.cash = 5000
 	check(m.build_workshop("smelter")["ok"], "workshop: smelter builds after MIN_1")
+	for g in Goods.recipes_of("smelter"):
+		m.set_production(str(g), true)
 	m.storage.add(key, "ore", 20)
 	var ingot_out: int = int(m.balance["ingot_batch_out"])
 	check(m.workshops.batches("smelter") == int(m.balance["workshop_batches_per_cycle"]), "workshop: base batches from balance")
@@ -7021,7 +7049,7 @@ func _test_workshops() -> void:
 	m.workshops.built["munitions"] = false
 	m.workshops.built["smelter"] = false
 	m.apply_state(JSON.parse_string(JSON.stringify(st)))
-	check(m.workshops.built["munitions"] and m.workshops.built["smelter"] and not m.workshops.built["atelier"], "workshop: save round trip keeps built workshops")
+	check(m.workshops.built["munitions"] and m.workshops.built["smelter"] and not m.workshops.built["atelier"] and m.workshops.is_on("ingot"), "workshop: save round trip keeps built workshops and their production switches")
 	m.apply_state({"cycle": 1})
 	check(not m.workshops.built["munitions"], "workshop: an old save has none built")
 	await _free_main(m)
@@ -8542,7 +8570,7 @@ func _test_learn_lock_and_permit_card() -> void:
 	m.cash = int(bal["permit_2_cost"]) + 10
 	m.skill_points = 0
 	gv.select_system(2)
-	check(gv.permit_button.disabled and _all_text(gv.side_box).contains(StoryText.get_text("NOT_SKILL_NO_POINTS")), "permit card: not enough points shows the reason")
+	check(gv.permit_button.disabled and _all_text(gv.side_box).contains("Short %d skill points" % int(bal["permit_points_2"])), "permit card: short points shows the credit price")
 	m.skill_points = int(bal["permit_points_2"]) + 1
 	gv.select_system(2)
 	check(not gv.permit_button.disabled, "permit card: buyable state enables the button")
@@ -9101,7 +9129,7 @@ func _test_lane_units_shared() -> void:
 	m._on_planet_clicked(0)
 	await process_frame
 	check(m.planet_panel.find_children("LaneUnits", "Label", true, false).size() == 2, "lane units: the planet card lists both lanes")
-	var whys := m.planet_panel.find_children("LaneWhy", "Label", true, false)
+	var whys: Array = m.planet_panel.find_children("LaneWhy", "Label", true, false)
 	check(whys.size() == 1 and (whys[0] as Label).text.contains("first"), "lane units: the card says in plain words why the second lane carries nothing", str(whys))
 	m._on_planet_clicked(2)
 	await process_frame
@@ -9714,7 +9742,7 @@ func _test_gig_expiry_abort() -> void:
 	aborted.clear()
 	expired.clear()
 	g.post_salvage("T374B", f.system_id(), Vector3(start.x - 2.0, 0.0, start.z), "energy", 1, 1, 5.0)
-	var r := f.request_fly({"kind": "point", "pos": Vector3(start.x + 5.0, 0.0, start.z + 1.0)})
+	var r: String = str(f.request_fly({"kind": "point", "pos": Vector3(start.x + 5.0, 0.0, start.z + 1.0)}))
 	g.tick(m.game_time() + 6.0)
 	check(r == "" and f.state() == "flying" and aborted.is_empty() and expired.size() == 1 and expired[0][2] == false, "gig expiry: a gig the ship is not flying to leaves the flight alone")
 	# mid-jump: the ship lands at the entry point
@@ -9873,8 +9901,79 @@ func _test_engine_plume() -> void:
 	check(ShipLook.look_of_ceo("no_such_ceo") == d, "look: unknown CEO falls back to the default look")
 
 func _test_hub_explain_ids() -> void:
-	for id in ["ST_HUB_EXPLAIN", "ST_HUB_MAKE_TIP"]:
+	for id in ["ST_HUB_EXPLAIN", "ST_HUB_MAKE_TIP", "ST_HUB_MAKE_COST", "ST_HUB_NO_CASH", "ST_HUB_BAZAAR_SYSTEM", "ST_HUB_BAZAAR_NOTE"]:
 		check(StoryText.get_or(id, "") != "", "hub texts: %s exists and is not empty" % id)
+
+## Hub coordinates are local to a solar system: even identical positions in another system are never in reach.
+func _test_hub_same_system() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m._open_system(2)
+	var ashgate: int = m.planet_index_of("planet_3")
+	var tillam: int = m.planet_index_of("planet_2")
+	var brannock: int = m.planet_index_of("s2_p1")
+	var positions: Array = []
+	positions.resize(m.map.planets.size())
+	positions.fill(Vector3.ZERO)
+	m.engine.positions_fn = func() -> Array: return positions
+	m.balance["hub_reach_t1"] = 1
+	var reached: Array = m.hubs.worlds_in_reach(ashgate)
+	check(m.hubs.in_reach(ashgate, tillam) and reached.has(tillam), "hub: a same-system world at the same position is in reach")
+	check(not m.hubs.in_reach(ashgate, brannock) and not reached.has(brannock), "hub: a different-system world at the same position is never in reach")
+	await _free_main(m)
+
+## The Star Bazaar is the Space Storage of a system: found rule, bill in the storage, hub takeover, hub price and Make hub cost, production switches.
+func _test_bazaar_station() -> void:
+	var m: Control = await _new_main(false, false)
+	m._dismiss_preface()
+	var bz: Bazaar = m.bazaar
+	m.balance["bazaar_capital_tier"] = 1
+	for n in range(1, 5):
+		for t in range(1, 9):
+			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
+		m.balance["bazaar_quorum_count_s%d" % n] = 0
+	m.balance["bazaar_bill_s1_t1"] = 5
+	check(not bz.can_found(1), "bazaar site: no Space Storage station, no founding")
+	m.station_systems.append(1)
+	# a planet hub in the system moves into the Bazaar hub at founding
+	m.balance["hub_tier"] = 1
+	m.balance["hub_pool_max"] = 4
+	m.cash = 100000
+	var hub_world := -1
+	for w in bz.founding_worlds(1):
+		if bool(m.hubs.can_designate(int(w))["ok"]):
+			hub_world = int(w)
+			break
+	check(hub_world >= 0, "bazaar site: a world of system 1 can be made a hub")
+	if hub_world >= 0:
+		var cash0: int = m.cash
+		m._on_make_hub(hub_world)
+		check(m.hubs.is_hub(hub_world) and m.cash == cash0 - int(m.balance["hub_build_cost"]), "hub: Make hub costs hub_build_cost once", str(m.cash))
+		m.hubs.hubs[hub_world]["pool"] = 1
+		m.hubs.set_world_off(hub_world, hub_world, false)
+	m._on_found_bazaar(1)
+	check(bz.is_founded() and bz.site_system() == 1 and m.hubs.hubs.has(-1), "bazaar site: founded in system 1, the Bazaar is its hub")
+	if hub_world >= 0:
+		check(not m.hubs.is_hub(hub_world) and int(m.hubs.hubs[-1]["pool"]) == 1 and m.hubs.hubs[-1]["on"].has(hub_world), "hub: the planet hub's pool and its own world moved into the Bazaar hub")
+		check(not bool(m.hubs.can_designate(hub_world)["ok"]), "hub: no world of the Bazaar's system can be made a hub afterwards")
+	check(m.hubs.in_reach(-1, 0) == (int(m.system_of(0)) == 1), "hub: the Bazaar's reach is its whole system, no distance check")
+	check(m.hubs.hub_price(100) == 100 - int(m.balance["hub_discount_pct"]) and int(m.balance["hub_fee_pct"]) == 0, "hub: the hub pays hub_discount_pct below the planet price, no fee")
+	var rt: Dictionary = m.hubs.to_array()[0] if not m.hubs.to_array().is_empty() else {}
+	m.hubs.from_array(m.hubs.to_array())
+	check(m.hubs.hubs.has(-1), "hub: the Bazaar hub survives a save", str(rt))
+	# the bill is held in the Space Storage and taken from it
+	var key: String = Storage.system_key(1)
+	var g1: String = bz._branch_goods(1)[0]
+	m.storage.add(key, g1, 7)
+	check(bz.bill_status()[0]["have"] == 7 and bz.bill_ok(), "bazaar site: the bill counts goods in the Space Storage")
+	bz.end_cycle()
+	check(bz.stage() == 1 and m.storage.amount(key, g1) == 2, "bazaar site: the stage takes its bill from the Space Storage")
+	# production starts off
+	m.storage.add(key, "ore", 10)
+	m.workshops.built["smelter"] = true
+	m.workshops.run(m.storage)
+	check(m.storage.amount(key, "ore") == 10 and m.workshops.status_text("smelter") == StoryText.get_or("LBL_WORKSHOP_OFF", "Production off"), "workshop: with production off the stock is untouched")
+	await _free_main(m)
 
 ## T361: Bazaar.next_step, the fed flag, the reminder cadence and an older (v23) save.
 func _test_bazaar_guidance() -> void:
@@ -9888,26 +9987,30 @@ func _test_bazaar_guidance() -> void:
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	m.balance["bazaar_bill_s1_t1"] = 50
-	var cap := 0
-	check(str(bz.next_step()["kind"]) == "found", "guidance: before founding the step is found")
-	check(bz.found(cap), "guidance: founded")
+	var site := 1
+	m.station_systems.append(site)
+	check(str(bz.next_step()["kind"]) == "found" and int(bz.next_step()["site"]) == site, "guidance: before founding the step is found, naming the system")
+	check(bz.found(site), "guidance: founded in a Space Storage")
 	var rec: Dictionary = bz.next_step()
 	var vis := Availability.visible_goods(bz._branch_goods(1))
-	check(str(rec["kind"]) == "bill" and vis.has(str(rec["good"])) and int(rec["amount"]) == 50 and not bool(rec["fed"]) and int(rec["planet"]) == cap, "guidance: unmet tier-1 bill names a visible good and the amount", str(rec))
+	check(str(rec["kind"]) == "bill" and vis.has(str(rec["good"])) and int(rec["amount"]) == 50 and not bool(rec["fed"]) and int(rec["site"]) == site, "guidance: unmet tier-1 bill names a visible good and the amount", str(rec))
 	check(bz.bill_lines().size() == 1 and bz.step_line(rec) != "", "guidance: one bill line, one instruction line", bz.step_line(rec))
-	m.engine.set_local(cap, str(rec["good"]), "buy", true)
-	check(bool(bz.next_step()["fed"]) == m.engine.local_on(cap, str(rec["good"]), "buy"), "guidance: a Buy order at the capital sets fed")
-	m.engine.local_of(cap, str(rec["good"]))["buy"] = false
-	check(not bool(bz.next_step()["fed"]), "guidance: fed is false again with the order off")
+	var feed: Dictionary = m.engine.new_record(0, -site, str(rec["good"]))  # a route delivering the good into the Space Storage
+	m.engine.routes.append(feed)
+	check(bool(bz.next_step()["fed"]), "guidance: a route into the Star Bazaar's Space Storage sets fed")
+	m.engine.routes.erase(feed)
+	check(not bool(bz.next_step()["fed"]), "guidance: fed is false again with the route gone")
 	check(bz.remind_line(10) != "" and bz.remind_line(11) == "" and bz.remind_line(13) == "" and bz.remind_line(14) != "", "guidance: the reminder fires once then waits bazaar_remind_cycles")
 	var d: Dictionary = bz.to_dict()
 	d.erase("last_remind")
 	bz.from_dict(d)
-	check(bz.capital() == cap and bz.last_remind == 0, "guidance: a v23 bazaar block loads with no reminder cycle")
+	check(bz.site_system() == site and bz.last_remind == 0, "guidance: a v23 bazaar block loads with no reminder cycle")
+	bz.from_dict({"capital": 0, "stage": 1})
+	check(bz.site_system() == int(m.system_of(0)) and bz.stage() == 1, "guidance: an old save with a capital planet loads with the site = that planet's system")
 	check(SaveGame.VERSION == 24, "guidance: save version 24")
 	m.queue_free()
 
-## T362: Bazaar panel step lines and buttons, the two-slot Next Up strip, the capital card block.
+## T362: Bazaar panel step lines and buttons, the two-slot Next Up strip, the Star Bazaar block in the Space Storage view.
 func _test_bazaar_guidance_ui() -> void:
 	var m: Control = await _new_main(false, false)
 	m._dismiss_preface()
@@ -9918,8 +10021,9 @@ func _test_bazaar_guidance_ui() -> void:
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	m.balance["bazaar_bill_s1_t1"] = 50
-	var cap := 0
-	bz.found(cap)
+	var site := 1
+	m.station_systems.append(site)
+	bz.found(site)
 	check(m.next_up._slots.size() == 2 and m.next_up.compute().size() == 2, "T362: the Next Up strip has two slots")
 	m.bazaar_panel.open_screen()
 	await process_frame
@@ -9928,16 +10032,16 @@ func _test_bazaar_guidance_ui() -> void:
 	var rec: Dictionary = bz.bill_lines()[0]
 	var want_buttons: bool = int(rec["source"]) >= 0 and not bool(rec["fed"])
 	check(_find_all_named(m.bazaar_panel, "StepButtons").size() == (1 if want_buttons else 0), "T362: Buy at and Send to show for an unfed row with a source")
-	m.engine.set_local(cap, str(rec["good"]), "buy", true)
+	var feed: Dictionary = m.engine.new_record(0, -site, str(rec["good"]))
+	m.engine.routes.append(feed)
 	m.bazaar_panel.refresh()
 	await process_frame
 	check(_find_all_named(m.bazaar_panel, "StepButtons").is_empty(), "T362: the buttons hide when the row is fed")
-	m.engine.local_of(cap, str(rec["good"]))["buy"] = false
-	m.planet_panel.show_planet(cap)
-	check(m.planet_panel.box.get_node_or_null("BazaarBlock") != null, "T362: the capital card shows the Bazaar block")
-	var other := 1 if cap != 1 else 2
-	m.planet_panel.show_planet(other)
-	check(m.planet_panel.box.get_node_or_null("BazaarBlock") == null, "T362: another world's card has no Bazaar block")
+	m.engine.routes.erase(feed)
+	m.space_storage_view.open_for(site)
+	check(_find_all_named(m.space_storage_view, "BazaarBlock").size() == 1, "the Star Bazaar's Space Storage view shows the Bazaar block")
+	m.planet_panel.show_planet(0)
+	check(m.planet_panel.box.get_node_or_null("BazaarBlock") == null and m.planet_panel.box.get_node_or_null("FoundBazaarButton") == null, "a planet card has no Bazaar block and no Found button any more")
 	m.queue_free()
 
 func _find_all_named(n: Node, nm: String) -> Array:

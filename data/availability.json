@@ -276,13 +276,6 @@
               {
                 "all": [
                   "skill_learned:FND_PROSPECT",
-                  "platform_built:dead_1",
-                  "branch_is:bio"
-                ]
-              },
-              {
-                "all": [
-                  "skill_learned:FND_PROSPECT",
                   "platform_built:dead_2",
                   "branch_is:bio"
                 ]
@@ -291,7 +284,7 @@
           }
         ]
       },
-      "note": "Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
+      "note": "2026-11-13: workshop system-2 gate, owner request: dead_1 no longer mines spores for bio (it mines food), so only the dead_2 platform clause remains. Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought). 2026-11-12: also shown once Prospecting is learned and the dead world that mines it for this company has a platform, even before system 2 opens."
     },
     {
       "kind": "good",
@@ -446,7 +439,7 @@
           }
         ]
       },
-      "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_1 AND the workshop built (the good cannot exist before). Inputs food + spores; spores exist only in system 2."
+      "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_1 AND the workshop built (the good cannot exist before). Inputs food + spores; spores exist only in system 2 (2026-11-13: workshop system-2 gate, owner request: spores sold only at s2_p3)."
     },
     {
       "kind": "good",

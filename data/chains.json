@@ -2999,7 +2999,7 @@
       "once": true,
       "effect": {
         "type": "price_pct",
-        "planet": "planet_2",
+        "planet": "s2_p3",
         "good": "spores",
         "direction": "down",
         "key": "event_pct_spores",

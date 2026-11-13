@@ -55,7 +55,7 @@
    "trip_mult": 0.75,
    "price_mult": 1.05,
    "cap_add": 0,
-   "speed": 1.3,
+   "speed": 1.7303,
    "engines": [
     {"pos": [0.9, 0.05, 0.05], "size": 0.5},
     {"pos": [0.9, -0.11, -0.08], "size": 0.5},

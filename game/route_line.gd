@@ -560,20 +560,27 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok:
 ## (owner 2026-11-12). Any other state is the plain tag_text. Pure; tested.
 static func tag_parts(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "", commodity: String = "", tint: Color = Color.WHITE) -> Array:
 	var plain := tag_text(status, ships, net, reason, net_ok, cost, why, units, shared)
+	# The lane's good icon leads the tag in every state (blocked, waiting, no stock...) so the player always sees
+	# what the route carries (owner 2026-11-13). A running lane with a unit count shows it next to the count instead.
+	var gi: Texture2D = Ui.icon(commodity) if commodity != "" else null
+	var gc := Ui.commodity_col(commodity) if commodity != "" else tint
+	if gc == Color.WHITE:
+		gc = tint
+	var lead: Array = [["i", gi, gc], ["t", " "]] if gi != null else []
 	if status != "running" or (not net_ok and why != "" and why != "none"):
-		return [["t", plain]]
+		return lead + [["t", plain]]
 	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
 	var credit: Texture2D = Ui.icon("credit")
 	var out: Array = [["t", n + " \u00b7 "]]
+	if not (net_ok and units > 0):
+		out = lead + out
 	if not net_ok:
 		out.append(["t", "\u2212%d " % cost])
 	else:
 		if units > 0:
-			var gi: Texture2D = Ui.icon(commodity) if commodity != "" else null
 			if gi != null:
-				var gc := Ui.commodity_col(commodity)
 				out.append(["t", "%d " % units])
-				out.append(["i", gi, gc if gc != Color.WHITE else tint])
+				out.append(["i", gi, gc])
 				out.append(["t", " \u00b7 "])
 			else:
 				out.append(["t", (StoryText.get_or("LBL_ROUTE_UNIT_ONE", "{n} unit", {"n": units}) if units == 1 else StoryText.get_or("LBL_ROUTE_UNITS", "{n} units", {"n": units})) + " \u00b7 "])

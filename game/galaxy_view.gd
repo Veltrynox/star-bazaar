@@ -748,14 +748,16 @@ func _build_permit_card(sid: int) -> void:
 	var cost_l := _wrapped(StoryText.get_or("PERMIT_COST_LINE", "Cost: {credits} credits and {points} skill points.",
 		{"credits": main.permit_cost(sid), "points": main.permit_points(sid)}), "LabelSmall")
 	side_box.add_child(cost_l)
+	var short: int = main.permit_points(sid) - main.permit_points_spent(sid)
+	if short > 0:
+		side_box.add_child(_wrapped(StoryText.get_or("PERMIT_POINTS_SHORT", "Short {short} skill points: pays {points} points and {credits} credits in all.",
+			{"short": short, "points": main.permit_points_spent(sid), "credits": main.permit_total_cost(sid)}), "LabelSmall"))
 	var reason := ""
 	match v["reason"]:
 		"skill":
 			reason = StoryText.get_or("PERMIT_NEEDS_C1", "Needs Permit Charter.")
 		"credits":
 			reason = StoryText.get_or("PERMIT_NO_CREDITS", "Not enough credits.")
-		"points":
-			reason = StoryText.get_text("NOT_SKILL_NO_POINTS")
 	if reason != "":
 		side_box.add_child(_wrapped(reason, "LabelSmall"))
 	var btn := Button.new()

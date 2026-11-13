@@ -24,6 +24,7 @@ var balance: Dictionary = {}
 var trade: RefCounted
 var storage: RefCounted
 var commodities: Array = []
+var hub_hold: Dictionary = {}  # "storage key|good" -> units earmarked for hub records this settle; need-fill from storage leaves them
 var routes: Array = []        # Array of route records (Dictionary)
 var mix: Dictionary = {}      # N3: planet -> {goods, bonus, mk} sold so far this cycle (mk: markets seen, common raws left out)
 var sales_up_units: Dictionary = {}  # good -> units of sales_units sold at a planet with a price-up event this settle
@@ -35,7 +36,6 @@ var debris_planets: Array = []  # T98: planets with debris; routes from them car
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
 var raids: RefCounted = null  # T296: Raids (game/raids.gd), set by main; null = no raids. Lane malus and the trip share a raid takes.
 var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units storage upkeep takes from this stock next cycle (set by main)
-var bill_need_fn: Callable = Callable()  # (planet, good) -> units the Bazaar stage bill still needs there (0 off the capital), set by Bazaar.setup; empty = none
 var owned_ships_fn: Callable = Callable()  # () -> ships the company owns; the ones on no route pay ship_idle_upkeep (set by main; empty = none)
 var workshops: RefCounted = null  # set by main: built workshops decide which Buy orders settle first
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
@@ -347,7 +347,7 @@ func idle_ship_count() -> int:
 func idle_ship_cost() -> int:
 	return idle_ship_count() * maxi(0, int(balance.get("ship_idle_upkeep", 0)))
 
-## True when a Buy order at `planet` for `c` feeds the input of a built workshop: some route carries `c` from that planet into the
+## True when a Buy order at `planet` for `c` feeds the input of a built workshop with that recipe switched on: some route carries `c` from that planet into the
 ## Space Storage of the workshop's system and the good is an input of one of its recipes.
 func feeds_workshop(planet: int, c: String) -> bool:
 	if workshops == null:
@@ -357,7 +357,7 @@ func feeds_workshop(planet: int, c: String) -> bool:
 			continue
 		var fed := false
 		for g in Goods.recipes_of(ws):
-			if Goods.recipe(g).has(c):
+			if Goods.recipe(g).has(c) and workshops.is_on(str(g)):  # production off: nothing crafts, so the feed lane gets no priority
 				fed = true
 		if not fed:
 			continue
@@ -501,11 +501,12 @@ func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 func margin_below_upkeep(src: int, dst: int, c: String) -> bool:
 	return route_margin(src, dst, c) < fixed_cost()
 
-## LUX_1 Price Whisper: the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
+## LUX_1 Price Whisper: the open planet in the same solar system where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
 func best_partner(src: int, c: String) -> Dictionary:
 	var best := {"planet": -1, "margin": 0}
+	var src_system: int = int(trade.planets[src].get("system", 1))
 	for i in trade.planets.size():
-		if i == src or not check_connection(src, i, c)["ok"]:
+		if i == src or int(trade.planets[i].get("system", 1)) != src_system or not check_connection(src, i, c)["ok"]:
 			continue
 		var buy: int = trade.price(src, c + "_buy")
 		var sell: int = sold_price(i, c)
@@ -1274,9 +1275,7 @@ func _fill_needs_from_storage(out: Array) -> int:
 			var room: int = int(prosperity.demand_for(i, g)) - int(prosperity.sold(i, g))
 			if room <= 0:
 				continue
-			var have: int = storage.amount(key, g)
-			if bill_need_fn.is_valid():
-				have = maxi(0, have - int(bill_need_fn.call(i, g)))
+			var have: int = maxi(0, storage.amount(key, g) - int(hub_hold.get("%s|%s" % [key, g], 0)))
 			var n: int = storage.remove(key, g, mini(room, have)) if have > 0 else 0
 			if n <= 0:
 				continue

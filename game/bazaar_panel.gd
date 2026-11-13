@@ -1,6 +1,6 @@
 extends PanelContainer
 ## T263: the Bazaar panel (design/proposals/2026-11-06-empire-growth-v2.md sections 3.7 and 4). Replaces the share panel on the
-## rail (key M): capital, stages, the bill of the stage being built (delivered / short), quorum, reach and term left.
+## rail (key M): the Star Bazaar's system, stages, the bill of the stage being built (delivered / short), quorum, reach and term left.
 ## Reads Bazaar (game/bazaar.gd) only; computes no rule. Does not pause the game. Wing choice popup (T299): show_wing_choice() after each stage with wings, two cards, pick one; the chosen wings are listed in the panel.
 ## Texts by id from StoryText with plain fallbacks. Goods are named only when Availability shows them (bill_status does that).
 
@@ -36,7 +36,7 @@ func setup(main_node: Control) -> void:
 	close.pressed.connect(close_screen)
 	head.add_child(close)
 	var how := Label.new()  # T362: always visible, what the Bazaar asks of the player
-	how.text = StoryText.get_or("BAZ_HOW", "The Bazaar is raised in stages. Each stage needs goods held in the capital's own storage, other worlds grown to a tier, and must finish before the term ends.")
+	how.text = StoryText.get_or("BAZ_HOW", "The Bazaar is raised in stages in a system's Space Storage. Each stage needs goods held in that storage, worlds grown to a tier, and must finish before the term ends.")
 	how.theme_type_variation = "LabelMuted"
 	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_root.add_child(how)
@@ -197,20 +197,35 @@ func refresh() -> void:
 		c.queue_free()
 	var bz = main.bazaar
 	if not bz.is_founded():
-		_head("BAZ_LBL_CAPITAL", "Capital")
-		var cand := -1
-		for i in main.map.planets.size():
-			if bz.can_found(i):
-				cand = i
-				break
+		_head("BAZ_LBL_SITE", "Site")
+		var cand := int(bz.next_step()["site"])
 		if cand >= 0:
-			_row(StoryText.get_or("NEXTUP_BAZAAR_FOUND", "Found the Bazaar at {planet}", {"planet": main.planet_name(cand)}))
+			_row(StoryText.get_or("NEXTUP_BAZAAR_FOUND_SITE", "Found the Bazaar in the Space Storage of {system}", {"system": main.Systems.name_of(cand)}))
 		else:
 			_row(StoryText.get_or("NEXTUP_IDLE", "Keep trading. Check the planet cards."), "", "LabelMuted")
 		_term()
 		return
-	_head("BAZ_LBL_CAPITAL", "Capital")
-	_row(main.planet_name(bz.capital()))
+	_head("BAZ_LBL_SITE", "Site")
+	_row(main.Systems.name_of(bz.site_system()))
+	var brow := HBoxContainer.new()
+	brow.name = "SiteButtons"
+	brow.add_theme_constant_override("separation", 8)
+	var sb := Button.new()
+	sb.name = "OpenStorageButton"
+	sb.text = StoryText.get_or("BAZ_BTN_STORAGE", "Open the storage")
+	sb.pressed.connect(func():
+		close_screen()
+		main._on_station_clicked(bz.site_system()))
+	brow.add_child(sb)
+	if main.hubs.hubs.has(-bz.site_system()):
+		var hb := Button.new()
+		hb.name = "OpenHubButton"
+		hb.text = StoryText.get_or("ST_HUB_OPEN", "Hub panel")
+		hb.pressed.connect(func():
+			close_screen()
+			main.open_hub_panel(-bz.site_system()))
+		brow.add_child(hb)
+	_body.add_child(brow)
 	# stages: done ones marked, the one being built named
 	var total: int = bz.stages_total()
 	for n in range(1, total + 1):
@@ -244,9 +259,9 @@ func refresh() -> void:
 				li += 1
 		else:
 			_row(StoryText.get_or("PROS_NEED_MET", "Met"), "", "LabelSmall")
-	_head("BAZ_LBL_QUORUM", "Other worlds")
+	_head("BAZ_LBL_QUORUM", "Worlds")
 	var q: Dictionary = bz.quorum_status()
-	_row(StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": int(q["have"]), "m": int(q["need"]), "tier": _tier_name(int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"))
+	_row(StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": mini(int(q["have"]), int(q["need"])), "m": int(q["need"]), "tier": _tier_name(int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"))
 	if not bool(q["ok"]):
 		_step({"kind": "quorum", "stage": bz.current_stage(), "n": maxi(0, int(q["need"]) - int(q["have"])), "tier": int(q["tier"])}, false)
 	if bz.reach_needed():
@@ -266,7 +281,7 @@ func _step(rec: Dictionary, buttons: bool) -> void:
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.add_child(t)
 	if not buttons or bool(rec.get("fed", false)) or int(rec.get("source", -1)) < 0:
-		return  # fed: the line says so; no source: the line says Buy it at the capital (its card block has that button)
+		return  # fed: the line says so; no source: the line says to buy it at a world that sells it
 	var src := int(rec["source"])
 	var good := str(rec["good"])
 	var row := HBoxContainer.new()
@@ -279,7 +294,7 @@ func _step(rec: Dictionary, buttons: bool) -> void:
 	row.add_child(b1)
 	var b2 := Button.new()
 	b2.name = "SendToButton"
-	b2.text = StoryText.get_or("BAZ_BTN_SEND_TO", "Send to {planet}", {"planet": main.planet_name(bz.capital())})
+	b2.text = StoryText.get_or("BAZ_BTN_SEND_TO", "Send to {planet}", {"planet": StoryText.get_or("LBL_BAZAAR_STATION_NAME", "Star Bazaar")})
 	b2.pressed.connect(_send_to.bind(src, good))
 	row.add_child(b2)
 	_body.add_child(row)
@@ -292,14 +307,14 @@ func _buy_at(src: int, good: String) -> void:
 	main.selected_planet = src
 	main.planet_panel.show_lit(src, good)
 
-## Send to: the existing Buy and send flow (begin_buy_and_send) from the source, the capital already clicked as the destination.
+## Send to: the existing Buy and send flow (begin_buy_and_send) from the source, the Star Bazaar station already clicked as the destination.
 func _send_to(src: int, good: String) -> void:
 	close_screen()
 	main.cancel_pending()
 	main.focus_next_up(src)
 	main.selected_planet = src
 	main.begin_buy_and_send(good)
-	main._on_planet_clicked(main.bazaar.capital())
+	main._on_station_clicked(main.bazaar.site_system())
 
 func _term() -> void:
 	if main.free_play:

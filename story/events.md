@@ -276,7 +276,7 @@ Tags updated 2026-11-04 to match data/chains.json pool_new (planets and goods as
 | EV47 | [price down: Voltara, alloy] | I |
 | EV48 | [price up: Quillon, plate] | P |
 | EV49 | [planet closed: Ashgate] | I |
-| EV50 | [price down: Tillam, spores] | Q |
+| EV50 | [price down: Mossfell, spores] | Q |
 | EV51 | [price up: Brannock, seed] | Q |
 
 EV40_TITLE | pool event title | Rivet guns pile up at Voltara
@@ -300,7 +300,7 @@ EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was no
 EV49_EFF | pool event weather line | Weather: no house changes its next weather.
 
 EV50_TITLE | pool event title | Spores come in cheap
-EV50_BODY | pool event text | A damp season at Tillam raised spore cultures in every crate, more than anyone could sell. Spore cultures at Tillam cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.
+EV50_BODY | pool event text | A damp season at Mossfell raised spore cultures in every crate, more than anyone could sell. Spore cultures at Mossfell cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.
 EV50_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
 

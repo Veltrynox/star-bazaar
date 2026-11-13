@@ -122,6 +122,11 @@ static func effects() -> Array:
 		out.append(e)
 	return out
 
+## Flagship Boost uses per run this CEO gets (balance value of its boost_charges_key); 0 when it has none (owner 2026-11-13).
+static func boost_charges(id: String) -> int:
+	var k := str(def(id).get("boost_charges_key", ""))
+	return maxi(0, int(_bal().get(k, 0))) if k != "" else 0
+
 ## Perk route_capacity_pct aimed at the first lane: the fraction, 0 when the current CEO has no such perk.
 static func first_lane_pct() -> float:
 	for e in effects():
