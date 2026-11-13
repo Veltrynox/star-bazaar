@@ -3,7 +3,7 @@ extends Node3D
 ## radius is MAP_RADIUS world units. Size and pivot are measured at runtime, so a new model needs no constants.
 
 const SPIN_DEG_PER_SEC := 6.0       # tune the spin here (degrees per second)
-const MAP_RADIUS := 0.0917          # world units, outer radius on the map
+const MAP_RADIUS := 0.1284          # world units, outer radius on the map (0.0917 x 1.4, owner 2026-11-13)
 const BUILD_SECONDS := 1.5
 const MODEL_PATH := "res://assets/space_station/space station 3d model-2.glb"
 const ROUGHNESS_MAX := 0.75         # the GLB is roughness 0.9, which reads dull in the map light
