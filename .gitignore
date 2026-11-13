@@ -2,7 +2,9 @@
 build/
 .godot/
 tools/godot/
-.claude/
+.claude/*
+!.claude/agents/
+.claude/agents/.claude/
 build/StarBazaar.zip
 __pycache__/
 dcc/backup/
