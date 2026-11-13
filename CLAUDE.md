@@ -42,6 +42,9 @@
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
 - Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). Run it only when the owner asks (see Scope discipline); then it must pass before the change is handed off.
 
+## System-local coordinates
+- Planet coordinates are local to their solar system. Any distance-based mechanic must require matching system ids before comparing planet positions, unless its design explicitly allows cross-system reach.
+
 ## GDD sync (commit gate)
 - `gdd.md` is the short-form design truth (no balance numbers; numbers live in `data/`). A hook (`tools/gdd_sync.py`, set in `.claude/settings.json`) blocks `git commit` when the commit changes `game/`, `data/` or `story/` and does not include `gdd.md`.
 - Fix: have doc-manager update `gdd.md` (or `gdd-skills.md`) from the diff, stage it in the same commit, commit again. For a change with no design effect (refactor, fix that already matches the GDD), put `[no-gdd]` in the commit command.
