@@ -19,7 +19,7 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 ## 3. Category prefixes (one example each)
 | Prefix | Form | Example | Folder |
 |---|---|---|---|
-| `ui_` | `ui_<type>_<subject>[_<state>]`, type from {glyph, panel, header, thumb} | `ui_glyph_pause_grey.png` | `art/ui/` |
+| `ui_` | `ui_<type>_<subject>[_<state>]`, type from {glyph, panel, header, thumb, tut} (tut: illustration in a tutorial window) | `ui_glyph_pause_grey.png`, `ui_tut_planet_icons.png` | `art/ui/` |
 | `icon_` | `icon_<commodity key>_<size>` (key = data key) | `icon_energy_64.png` | `art/icons/` |
 | `sun_` | frame sequence or source sheet | `sun_00.png`, `sun_sheet_flare_8x8_v02.png` | `art/sun/frames/<subject>/`, `art_source/` |
 | `planet_` | planet surfaces and body maps | `planet_surface_01.jpg`; surface banners: atlas `planet_surface_banner_atlas.png`, sources `planet_surface_<id>_<name>_full.png` in `art_source/` | `art/planet/` |
