@@ -15,9 +15,9 @@ uniform vec3 pack_tangent = vec3(1.0, 0.0, 0.0);  // pack-local unit vector of t
 uniform float pack_radius = 0.2;        // across-radius of the pack, world units
 uniform float pack_stretch = 3.0;       // length along the tangent vs across
 uniform float pack_flatten = 0.5;       // pack height as a share of its width
-uniform float drift_speed = 0.12;       // rad/s of the drift path
-uniform float tumble_speed = 0.5;       // rad/s of a rock's own turn
-uniform float bob_speed = 0.35;         // rad/s of the gentle up-down
+uniform float drift_speed = 0.06;       // rad/s of the drift path
+uniform float tumble_speed = 0.25;       // rad/s of a rock's own turn
+uniform float bob_speed = 0.175;         // rad/s of the gentle up-down
 
 vec3 rot(vec3 v, vec3 k, float ang) {  // Rodrigues: turn v about unit axis k
 	float c = cos(ang);
