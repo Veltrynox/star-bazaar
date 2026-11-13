@@ -18,7 +18,7 @@ var prosperity: RefCounted = null    # Prosperity
 var trade: RefCounted = null
 var storage: RefCounted = null
 var owned_ships_fn: Callable = Callable()  # () -> int, ships owned (set by main)
-var hubs: Dictionary = {}            # planet index -> {pool: int, skip: Array of planet indexes, skip_needs: Array of "planet|good"}
+var hubs: Dictionary = {}            # planet index -> {pool: int, on: Array of planet indexes the player added, skip_needs: Array of "planet|good"}
 var records: Array = []              # this cycle's hub delivery records
 var status: Dictionary = {}          # "planet|good" -> status code of the last plan(), see STATUS_*
 var spent_last := 0                  # credits the last plan() paid for goods
@@ -98,7 +98,7 @@ func can_designate(planet: int) -> Dictionary:
 func designate(planet: int) -> Dictionary:
 	var r := can_designate(planet)
 	if bool(r["ok"]):
-		hubs[planet] = {"pool": 0, "skip": [], "skip_needs": []}
+		hubs[planet] = {"pool": 0, "on": [], "skip_needs": []}  # no world is served until the player ticks it (owner 2026-11-13)
 	return r
 
 ## Ships the player could still put into pools (owned - on routes - already pooled).
@@ -122,13 +122,14 @@ func release(planet: int) -> void:
 	hubs.erase(planet)  # T290: the pool is part of the entry, so free_for_pool() counts those ships as free again
 
 ## Tier of a hub no longer standing (post lost) keeps the hub; only a release removes it.
+## Worlds in reach start off: the hub serves only the worlds the player ticked (owner 2026-11-13), plus its own world.
 func set_world_off(hub: int, world: int, off: bool) -> void:
 	if not hubs.has(hub):
 		return
-	var arr: Array = hubs[hub]["skip"]
-	if off and not arr.has(world):
+	var arr: Array = hubs[hub]["on"]
+	if not off and not arr.has(world):
 		arr.append(world)
-	elif not off:
+	elif off:
 		arr.erase(world)
 
 func set_need_off(hub: int, world: int, good: String, off: bool) -> void:
@@ -142,7 +143,7 @@ func set_need_off(hub: int, world: int, good: String, off: bool) -> void:
 		arr.erase(key)
 
 func is_world_off(hub: int, world: int) -> bool:
-	return hubs.has(hub) and hubs[hub]["skip"].has(world)
+	return hubs.has(hub) and world != hub and not hubs[hub]["on"].has(world)
 
 func is_need_off(hub: int, world: int, good: String) -> bool:
 	return hubs.has(hub) and hubs[hub]["skip_needs"].has("%d|%s" % [world, good])
@@ -358,10 +359,10 @@ func end_settle() -> int:
 func to_array() -> Array:
 	var out: Array = []
 	for h in hub_planets():
-		var skip: Array = []
-		for w in hubs[h]["skip"]:
-			skip.append(_pid(int(w)))
-		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "skip": skip, "skip_needs": hubs[h]["skip_needs"].duplicate()})
+		var on: Array = []
+		for w in hubs[h]["on"]:
+			on.append(_pid(int(w)))
+		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "on": on, "skip_needs": hubs[h]["skip_needs"].duplicate()})
 	return out
 
 func from_array(saved) -> void:
@@ -375,9 +376,9 @@ func from_array(saved) -> void:
 		if typeof(e) != TYPE_DICTIONARY or not by_id.has(str(e.get("planet", ""))):
 			continue
 		var h: int = by_id[str(e["planet"])]
-		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, int(_bal("hub_pool_max", 0))), "skip": [], "skip_needs": []}
-		for pid in e.get("skip", []):
+		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, int(_bal("hub_pool_max", 0))), "on": [], "skip_needs": []}
+		for pid in e.get("on", []):  # an older save (key "skip") loads with no world ticked, like a new hub
 			if by_id.has(str(pid)):
-				hubs[h]["skip"].append(by_id[str(pid)])
+				hubs[h]["on"].append(by_id[str(pid)])
 		for k in e.get("skip_needs", []):
 			hubs[h]["skip_needs"].append(str(k))
