@@ -859,8 +859,8 @@ func _jump_connect(f) -> void:
 
 ## T375: the Flagship stopped because its gig ran out. The ship brakes with a backward shudder, an amber ring collapses onto it,
 ## the old course line flickers out (_draw_lost). All on the game clock, scaled by Juice.motion; at 0 only the notice shows.
-func _on_flight_aborted(_reason: String, _pos: Vector3) -> void:
-	if Juice.motion <= 0.0 or flight == null or not is_instance_valid(flight):
+func _on_flight_aborted(reason: String, _pos: Vector3) -> void:
+	if reason != "gig_expired" or Juice.motion <= 0.0 or flight == null or not is_instance_valid(flight):
 		return
 	if int(_call(flight, "system_id", [], 1)) != _view_sys:
 		return

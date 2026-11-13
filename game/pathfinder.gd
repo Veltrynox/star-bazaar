@@ -585,8 +585,12 @@ func exploring() -> bool:
 	return _explore
 
 ## Switches the mode. On needs discovery on; turning it on while flying or building lets that finish first.
+## Turning it off stops the ship on the spot when it is on an exploration flight (any manual order already ended the mode).
 func set_exploring(on: bool) -> void:
+	var was := _explore
 	_explore = on and is_enabled()
+	if was and not _explore:
+		abort_flight("explore_off")
 
 ## Planets of the ship's current system, by index, that still need the ship (not established).
 func _explore_open() -> Array:
