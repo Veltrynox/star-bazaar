@@ -174,7 +174,7 @@ func _after_boot() -> void:
 		main.tut_skip_btn.pressed.emit()  # Skip tutorial on the guided card
 		record_feature("setup.tutorial_skip", not bool(main.tut_lock_active()), "tutorial still locked", false)
 	if max_cycles <= 0:
-		max_cycles = int(main.balance.get("win_cycle_markets", 80))
+		max_cycles = int(main.balance.get("win_cycle_markets", 90))
 	style = load("res://qa/check/styles/%s.gd" % style_name).new()
 	style.setup(self)
 	_prev_pts = int(main.skill_points)
@@ -314,7 +314,7 @@ func _play_one() -> void:
 		finished = true
 		return
 	if c > max_cycles and ended_count == 0:
-		if max_cycles >= int(main.balance.get("win_cycle_markets", 80)):
+		if max_cycles >= int(main.balance.get("win_cycle_markets", 90)):
 			issue("term_overrun", "cycle %d past the cycle limit %d without an ending" % [c, max_cycles])
 		finished = true
 		return
@@ -341,6 +341,7 @@ func _play_one() -> void:
 
 
 func _wing_policy() -> void:
+	act.production_all_on()  # recipes that opened after a workshop was built (production is off by default)
 	if int(main.bazaar.wing_pending) > 0:
 		act.pick_wing(int(style.wing_pick(int(main.bazaar.wing_pending))))
 		record_feature("bazaar.wing_seen", true, "", false)
@@ -385,6 +386,7 @@ func _advance_cycle() -> void:
 	var chunks := 0
 	while int(main.cycle) == start and not main.game_over and chunks < MAX_CHUNKS:
 		chunks += 1
+		act.close_tut_win()
 		if bool(main.paused):
 			if not _unpause():
 				break
@@ -411,6 +413,7 @@ func _advance_cycle() -> void:
 ## The game was paused by something inside the cycle: answer it, then press play again.
 func _unpause() -> bool:
 	for _i in 4:
+		act.close_tut_win()
 		if main.event_notice != null:
 			act.answer_events(event_policy())
 		if main.dock_sheet != null:
@@ -680,7 +683,7 @@ func _state_sig() -> Dictionary:
 	var sk: Array = main.learned_skills.duplicate()
 	sk.sort()
 	return {"cash": int(main.cash), "cycle": int(main.cycle), "ships": int(main.ships), "routes": routes, "skills": sk, "storage_total": stor,
-		"tiers": tiers, "bazaar_stage": int(main.bazaar.stage()), "capital": int(main.bazaar.capital()), "open_systems": main.open_systems.duplicate(),
+		"tiers": tiers, "bazaar_stage": int(main.bazaar.stage()), "site": int(main.bazaar.site_system()), "open_systems": main.open_systems.duplicate(),
 		"points": int(main.skill_points), "workshops": main.workshops.built.duplicate(), "orders": main.engine.local.size()}
 
 

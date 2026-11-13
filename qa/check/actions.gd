@@ -19,7 +19,7 @@ extends RefCounted
 ## ROUTES   send(src, dst, good, via)                  route.send_card | route.send_buy | route.send_quick | route.to_station
 ##            | route.cluster | route.mine_dead | route.cross_system | route.second_ship | route.send_stop
 ##            via = "card" (planet_panel.send_requested + map.planet_clicked), "buy" (buy_send_requested + click),
-##            "quick" (map.good_icon_right_clicked + click), "mine" (planet_panel.mine_requested + click),
+##            "quick" (map.good_icon_right_clicked + click), "mine" (planet_panel.buy_send_requested + click),
 ##            dst = -system_id sends to that system's Space Storage (map.station_clicked), src = Clusters.node_id(i) = cluster ore
 ##          send_cluster(cluster_index, dst)           main._on_cluster_send + planet click
 ##          remove_route(id, via)                      route.remove_panel (planet_panel.remove_requested) |
@@ -49,7 +49,7 @@ extends RefCounted
 ## GIGS     accept_gig(uid)                            gig.accept          gig_board accept button (main.gig_panel._on_accept)
 ## HUBS     make_hub(planet) hub_pool(hub, n) hub_world(hub, world, on) hub_need(hub, world, good, on) release_hub(hub)
 ##                                                     hub.designate / hub.pool / hub.world / hub.need / hub.release  (planet panel + hub panel)
-## BAZAAR   found_bazaar(planet)                       bazaar.found        planet_panel.found_bazaar_requested
+## BAZAAR   found_bazaar(system)                       bazaar.found        space_storage_view.found_bazaar_requested
 ##          pick_wing(idx)                             bazaar.wing         bazaar_panel wing card button
 ## EVENTS   answer_events(policy)                      event.*             event_notice.confirmed (a click on a choice or Continue)
 ## END      press_continue()                           end.continue        end_screen.continue_pressed
@@ -226,7 +226,7 @@ func workshop_lacks(id: String) -> Dictionary:
 
 func bazaar_status() -> Dictionary:
 	var b = main.bazaar
-	return {"founded": b.is_founded(), "capital": b.capital(), "stage": b.stage(), "total": b.stages_total(), "bill": b.bill_status(),
+	return {"founded": b.is_founded(), "site": b.site_system(), "stage": b.stage(), "total": b.stages_total(), "bill": b.bill_status(),
 		"quorum": b.quorum_status(), "reach_needed": b.reach_needed(), "reach_ok": b.reach_ok(), "wing_pending": b.wing_pending,
 		"opening_pending": b.opening_pending, "opened": b.opened, "ready": b.stage_ready()}
 
@@ -257,6 +257,8 @@ func dead_worlds() -> Array:
 
 func hub_candidates() -> Array:
 	var out: Array = []
+	if int(main.cash) < int(main.hubs.build_cost()) + 500:  # Make hub costs hub_build_cost: a bot must have the cash
+		return out
 	for i in main.map.planets.size():
 		if int(main.prosperity.tier(i)) >= int(main.balance.get("hub_tier", 3)) and not main.hubs.is_hub(i) and bool(main.hubs.can_designate(i)["ok"]):
 			out.append(i)
@@ -276,7 +278,16 @@ func link_candidates() -> Array:
 # ---- orders -------------------------------------------------------------------------------------------------------------
 
 ## Closes every open window (what each Close button does), so map clicks reach the map again.
+## A one-time tutorial window (main._tut_win_open) pauses the game until its button is pressed: press it.
+func close_tut_win() -> void:
+	if main.tut_win != null and is_instance_valid(main.tut_win):
+		main._tut_win_close(true)
+	elif main.tut_win != null:
+		main.tut_win = null
+
+
 func close_overlays() -> void:
+	close_tut_win()
 	for n in [main.skill_screen, main.bazaar_panel, main.hub_panel, main.gig_panel, main.flagship_panel, main.galaxy_view]:
 		if n != null and is_instance_valid(n) and n.visible:
 			if n.has_method("close_screen"):
@@ -384,9 +395,12 @@ func send(src: int, dst: int, c: String, via: String = "card") -> Dictionary:
 					main.planet_panel.send_requested.emit(c)  # Buy already on: plain Send (a second Buy click would switch it off)
 				else:
 					main.planet_panel.buy_send_requested.emit(c)
-			"mine":
+			"mine":  # the mine good is a resource tile on the dead world: its click is the Buy toggle (standing order), then pick the destination
 				select(src)
-				main.planet_panel.mine_requested.emit(c)
+				if bool(main.engine.local_on(src, c, "buy")):
+					main.planet_panel.send_requested.emit(c)
+				else:
+					main.planet_panel.buy_send_requested.emit(c)
 			_:
 				select(src)
 				main.planet_panel.send_requested.emit(c)
@@ -487,7 +501,7 @@ func hub_buy_ship(hub: int) -> Dictionary:
 		return _res("ship.buy_hub", false, "not a hub")
 	if hs.free_for_pool() > 0:
 		return _res("ship.buy_hub", false, "panel offers the button only with no free ship")
-	if hs.pool_of(hub) >= int(main.balance.get("hub_pool_max", 0)):
+	if hs.pool_of(hub) >= hs.pool_max(hub):
 		return _res("ship.buy_hub", false, "pool full")
 	var c0 := cash()
 	var r: Dictionary = main.buy_ship()
@@ -520,8 +534,21 @@ func build_workshop(id: String, sid: int = 1) -> Dictionary:
 	main.build_workshop(id, sid)
 	if bool(main.workshops.built.get(id, false)):
 		_spend("workshops", c0)
+		production_all_on()  # production starts off: the bots switch every recipe of what they built on
 		return _res(fid, true)
 	return _res(fid, false, _notice())
+
+
+## Switches production on for every open recipe of the built workshops and for the fabric (the Space Storage view's recipe icons).
+func production_all_on() -> void:
+	for id in main.workshops.IDS:
+		if not bool(main.workshops.built.get(id, false)):
+			continue
+		for g in main.workshops.open_recipes(id):
+			if not main.production_on(str(g)):
+				main.set_production(str(g), true)
+	if bool(main.fabric.built) and not bool(main.fabric.on):
+		main.set_production(str(main.fabric.OUTPUT), true)
 
 
 func build_fabric() -> Dictionary:
@@ -531,6 +558,7 @@ func build_fabric() -> Dictionary:
 	var c0 := cash()
 	main.build_fabric()
 	_spend("workshops", c0)
+	production_all_on()
 	return _res("workshop.fabric", bool(main.fabric.built))
 
 
@@ -804,6 +832,8 @@ func make_hub(planet: int) -> Dictionary:
 	var chk: Dictionary = main.hubs.can_designate(planet)
 	if not bool(chk["ok"]):
 		return _res("hub.designate", false, str(chk["reason"]))
+	if int(main.cash) < int(main.hubs.build_cost()):
+		return _res("hub.designate", false, "needs %d credits" % int(main.hubs.build_cost()))
 	select(planet)
 	main.planet_panel.make_hub_requested.emit(planet)
 	return _res("hub.designate", bool(main.hubs.is_hub(planet)), _notice())
@@ -835,11 +865,11 @@ func release_hub(hub: int) -> Dictionary:
 
 # ---- Star Bazaar --------------------------------------------------------------------------------------------------------
 
-func found_bazaar(planet: int) -> Dictionary:
-	if not bool(main.bazaar.can_found(planet)):
-		return _res("bazaar.found", false, "world is tier %d, capital tier is %d" % [int(main.prosperity.tier(planet)), int(main.bazaar.capital_tier())])
-	select(planet)
-	main.planet_panel.found_bazaar_requested.emit(planet)
+func found_bazaar(sys: int) -> Dictionary:
+	if not bool(main.bazaar.can_found(sys)):
+		return _res("bazaar.found", false, "system %d has no Space Storage or no world at tier %d" % [sys, int(main.bazaar.capital_tier())])
+	main.space_storage_view.found_bazaar_requested.emit(sys)
+	close_tut_win()  # "bazaar_founded" tutorial window pauses the game
 	return _res("bazaar.found", bool(main.bazaar.is_founded()), _notice())
 
 

@@ -117,7 +117,6 @@ func _lanes() -> void:
 		return
 	var made := 0
 	var fixed: int = int(main.engine.fixed_cost())
-	var cap: int = main.bazaar.capital()
 	# 1. margin lanes
 	for l in a.known_lanes(maxi(5, fixed)):
 		if made >= 2 or not _can_pay_lane():
@@ -167,8 +166,8 @@ func _cluster_lanes() -> int:
 func _dead_mine() -> void:
 	if not main.can_mine():
 		return
-	var cap: int = main.bazaar.capital() if main.bazaar.is_founded() else -1
-	if cap < 0:
+	var cap: int = _site_dst()
+	if cap == NO_SITE:
 		return
 	for d in a.dead_worlds():
 		var di := int(d)
@@ -186,7 +185,7 @@ func _dead_mine() -> void:
 
 
 func _mine_need(w: int, g: String) -> bool:
-	var cap: int = main.bazaar.capital()
+	var cap: int = _site_dst()
 	if w != cap and _cluster_lanes() >= 2 and not (main.bazaar.is_founded() and main.bazaar.complete()):
 		return false
 	for cl in a.cluster_list():
@@ -225,7 +224,7 @@ func _mine_need(w: int, g: String) -> bool:
 
 func _maintain(c: int) -> void:
 	var recs: Array = main.engine.routes.duplicate()
-	var cap: int = main.bazaar.capital()
+	var cap: int = _site_dst()
 	for r in recs:
 		var id := int(r["id"])
 		var src := int(r["a"])
@@ -246,7 +245,7 @@ func _maintain(c: int) -> void:
 				a.remove_route(id, "panel")
 				continue
 		# bill lanes into the capital are never dropped
-		var keep: bool = dst == cap and cap >= 0
+		var keep: bool = dst == cap and cap != NO_SITE
 		if not keep and int(main.route_net(id)) < 0 and int(r.get("fresh", 1.0)) <= 1.0 and c > 3:
 			_neg[id] = int(_neg.get(id, 0)) + 1
 			if int(_neg[id]) >= 5 and not _lane_feeds_need(dst, g):
@@ -354,7 +353,7 @@ func _hubs() -> void:
 			note("hub at " + a.world_name(int(h)))
 	for h in main.hubs.hub_planets():
 		var hp := int(h)
-		var want: int = int(main.balance.get("hub_pool_max", 4))
+		var want: int = main.hubs.pool_max(hp)
 		if main.hubs.pool_of(hp) < want:
 			# a ship for the pool: free ships first, else buy one when cash is plentiful
 			if a.free_ships() == 0 and main.cash > a.ship_price() * 2 + _reserve() and int(_hub_ship_tries.get(hp, 0)) < 8:
@@ -373,25 +372,38 @@ func _hubs() -> void:
 
 # ---- the Star Bazaar --------------------------------------------------------------------------------------------------------
 
+const NO_SITE := 1 << 20  # "no Star Bazaar yet" for a destination value (a real one is -system id, never this)
+
+
+## Destination of the Star Bazaar's Space Storage (-system id), NO_SITE before founding.
+func _site_dst() -> int:
+	return -int(main.bazaar.site_system()) if main.bazaar.is_founded() else NO_SITE
+
+
 func _bazaar() -> void:
 	var b = main.bazaar
 	if not b.is_founded():
 		var best := -1
 		var best_t := 0
-		for i in main.map.planets.size():
-			if b.can_found(i) and int(main.prosperity.tier(i)) > best_t:
-				best = i
-				best_t = int(main.prosperity.tier(i))
+		for sid in main.station_systems:  # the system whose Space Storage has the highest world tier
+			if not b.can_found(int(sid)):
+				continue
+			var top := 0
+			for w in b.founding_worlds(int(sid)):
+				top = maxi(top, int(main.prosperity.tier(int(w))))
+			if top > best_t:
+				best = int(sid)
+				best_t = top
 		if best >= 0 and bool(a.found_bazaar(best)["ok"]):
-			note("Bazaar founded at " + a.world_name(best))
+			note("Bazaar founded in system %d" % best)
 		return
 	if b.complete():
 		return
-	var cap: int = b.capital()
+	var cap: int = _site_dst()
 	if b.stage() != _last_stage:
 		_last_stage = b.stage()
 		note("stage %d done" % _last_stage)
-	# the bill: lanes into the capital with its sell order off, so goods stay in the planet storage
+	# the bill: lanes into the Star Bazaar's Space Storage, where the goods are held
 	var made := 0
 	for row in b.bill_status():
 		if bool(row["ok"]):
@@ -403,7 +415,6 @@ func _bazaar() -> void:
 				for r in main.engine.routes:
 					if int(r["b"]) == cap and str(r["c"]) == str(g):
 						var ra := int(r["a"])
-						a.set_order(cap, str(g), "sell", false)
 						if bool(main.engine.lane_full(ra, cap, str(g))):
 							if int(main.engine.lane_level(ra, cap, str(g))) < 2 and main.cash >= int(main.upgrade_cost()) + 150:
 								a.upgrade_route(int(r["id"]))
@@ -414,25 +425,23 @@ func _bazaar() -> void:
 			var s: Dictionary = a.best_source(str(g), cap)
 			if int(s["src"]) < 0:
 				if main.can_mine() and _mine_need(cap, str(g)):
-					a.set_order(cap, str(g), "sell", false)
 					made += 1
-					note("bill mine %s -> capital" % str(g))
+					note("bill mine %s -> Star Bazaar" % str(g))
 				continue
 			if not _can_pay_lane():
 				continue
 			if bool(a.send(int(s["src"]), cap, str(g), "buy")["ok"]):
-				a.set_order(cap, str(g), "sell", false)
 				made += 1
-				note("bill lane %s -> capital" % str(g))
+				note("bill lane %s -> Star Bazaar" % str(g))
 	# the quorum: worlds below the needed tier get their needs first (lanes above do that); the reach world is in system 2
 	if b.reach_needed() and not b.reach_ok():
-		_open_other_system(cap)
+		_open_other_system(int(b.site_system()))
 
 
-func _open_other_system(cap: int) -> void:
+func _open_other_system(site_sys: int) -> void:
 	# make sure the other system's permit is bought and a world there is established
 	for sid in main.Systems.ids():
-		if int(sid) == int(main.system_of(cap)) or main.open_systems.has(sid):
+		if int(sid) == site_sys or main.open_systems.has(sid):
 			continue
 		var st: Dictionary = a.permit_status(int(sid))
 		if (str(st["reason"]) == "credits" or str(st["reason"]) == "") and main.cash >= int(main.permit_cost(int(sid))):
@@ -481,10 +490,10 @@ func _diag() -> void:
 			bl.append("t%d %d/%d %s" % [int(row["tier"]), int(row["have"]), int(row["need"]), ",".join(row["goods"])])
 		parts.append("BAZ s%d bill %s quorum t%d %d/%d" % [int(main.bazaar.stage()), "; ".join(bl), int(q["tier"]), int(q["have"]), int(q["need"])])
 	if main.bazaar.is_founded():
-		var cp: int = main.bazaar.capital()
+		var cp: int = _site_dst()
 		var rs: Array = []
 		for r in main.engine.routes:
 			if int(r["b"]) == cp:
 				rs.append("%s %s st=%s" % [str(r["a"]), str(r["c"]), str(r["state"])])
-		note("capital %s routes in: %s | sell_on ore %s" % [a.world_name(cp), "; ".join(rs), str(main.engine.local_on(cp, "ore", "sell"))])
+		note("Star Bazaar system %d routes in: %s" % [int(main.bazaar.site_system()), "; ".join(rs)])
 	note("cash %d ships %d routes %d | %s" % [int(main.cash), int(main.ships), main.engine.routes.size(), "; ".join(parts)])

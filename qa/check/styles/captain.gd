@@ -189,7 +189,7 @@ func _flagship(c: int) -> void:
 		var k := str(o.get("kind", ""))
 		if k == "opening":
 			a.fs_queue({"op": "gig", "uid": str(o["uid"])})
-			note("Opening: flying to the capital")
+			note("Opening: flying to the Star Bazaar station")
 			return
 		var r: Dictionary = a.accept_gig(str(o["uid"]))
 		if bool(r["ok"]):

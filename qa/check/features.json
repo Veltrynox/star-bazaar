@@ -629,7 +629,7 @@
    "id": "bazaar.found",
    "title": "Found the Bazaar",
    "group": "bazaar",
-   "entry": "planet_panel.found_bazaar_requested",
+   "entry": "space_storage_view.found_bazaar_requested",
    "note": ""
   },
   {

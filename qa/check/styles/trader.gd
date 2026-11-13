@@ -247,15 +247,20 @@ func _bazaar() -> void:
 	if not b.is_founded():
 		var best := -1
 		var best_t := 0
-		for i in main.map.planets.size():
-			if b.can_found(i) and int(main.prosperity.tier(i)) > best_t:
-				best = i
-				best_t = int(main.prosperity.tier(i))
+		for sid in main.station_systems:  # the system whose Space Storage has the highest world tier
+			if not b.can_found(int(sid)):
+				continue
+			var top := 0
+			for w in b.founding_worlds(int(sid)):
+				top = maxi(top, int(main.prosperity.tier(int(w))))
+			if top > best_t:
+				best = int(sid)
+				best_t = top
 		if best >= 0:
 			if bool(a.found_bazaar(best)["ok"]):
-				note("Bazaar founded at " + a.world_name(best))
+				note("Bazaar founded in system %d" % best)
 		return
-	var cap: int = b.capital()
+	var cap: int = -int(b.site_system())  # destination value of the Star Bazaar's Space Storage
 	for row in b.bill_status():
 		if bool(row["ok"]):
 			continue
@@ -278,8 +283,7 @@ func _bazaar() -> void:
 			if int(s["src"]) < 0:
 				continue
 			if bool(a.send(int(s["src"]), cap, str(g), "buy")["ok"]):
-				a.set_order(cap, str(g), "sell", false)
-				note("bill lane %s -> capital" % str(g))
+				note("bill lane %s -> Star Bazaar" % str(g))
 				return
 
 
