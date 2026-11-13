@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Star Bazaar game wiki.">
+  <title>Star Bazaar Wiki</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --space: #080b17;
+      --panel: #11172a;
+      --panel-soft: #171f35;
+      --ink: #edf2ff;
+      --muted: #a6b0ca;
+      --accent: #f0b85b;
+      --accent-soft: rgba(240, 184, 91, 0.14);
+      --line: #2b3655;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(72, 91, 148, 0.22), transparent 35rem),
+        var(--space);
+      color: var(--ink);
+      font: 17px/1.7 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 11, 23, 0.88);
+      backdrop-filter: blur(12px);
+    }
+
+    .masthead,
+    main {
+      width: min(900px, calc(100% - 2rem));
+      margin-inline: auto;
+    }
+
+    .masthead { padding: 2.5rem 0 2rem; }
+
+    .eyebrow {
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 7vw, 4.5rem);
+      letter-spacing: -0.045em;
+    }
+
+    .tagline {
+      max-width: 44rem;
+      margin: 0.65rem 0 0;
+      color: var(--muted);
+    }
+
+    main { padding: 3rem 0 5rem; }
+
+    article {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(145deg, var(--panel), #0d1222);
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.3);
+    }
+
+    .article-heading {
+      padding: clamp(1.5rem, 5vw, 3rem);
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, var(--accent-soft), transparent 65%);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+    }
+
+    .summary {
+      max-width: 42rem;
+      margin: 0.8rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .article-body { padding: clamp(1.5rem, 5vw, 3rem); }
+
+    h3 {
+      margin: 2.25rem 0 0.7rem;
+      color: var(--accent);
+      font-size: 1.15rem;
+    }
+
+    h3:first-child { margin-top: 0; }
+
+    p { margin: 0.8rem 0; }
+
+    ol,
+    ul {
+      margin: 0.8rem 0;
+      padding-left: 1.4rem;
+    }
+
+    li { padding-left: 0.35rem; }
+    li + li { margin-top: 0.45rem; }
+    li::marker { color: var(--accent); font-weight: 700; }
+
+    .note {
+      margin-top: 2rem;
+      padding: 1.25rem 1.35rem;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      background: var(--accent-soft);
+    }
+
+    .note h3 { margin-top: 0; }
+
+    code {
+      padding: 0.12em 0.36em;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--panel-soft);
+      color: #ffe1a8;
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="masthead">
+      <p class="eyebrow">Field Manual</p>
+      <h1>Star Bazaar Wiki</h1>
+      <p class="tagline">Rules, systems, and practical guidance for building a thriving interstellar bazaar.</p>
+    </div>
+  </header>
+
+  <main>
+    <article id="hubs">
+      <div class="article-heading">
+        <p class="eyebrow">Logistics</p>
+        <h2>Hubs</h2>
+        <p class="summary">A hub is an automatic local logistics manager. It keeps nearby worlds supplied without requiring a manual route for every need.</p>
+      </div>
+
+      <div class="article-body">
+        <h3>How a hub works</h3>
+        <p>Each cycle, a hub:</p>
+        <ol>
+          <li>Looks at established worlds within its reach and in the same solar system.</li>
+          <li>Checks each unlocked need, such as Flowers.</li>
+          <li>Subtracts deliveries already planned through your manual routes.</li>
+          <li>Finds the cheapest eligible source within the hub's reach. Goods already in that planet's storage are preferred because they have no purchase price; otherwise, the hub buys at the planet's local price.</li>
+          <li>Assigns one ship from the hub pool.</li>
+          <li>Delivers up to the world's remaining demand, limited by that ship's capacity.</li>
+          <li>Charges the purchase price, travel cost, and hub fee.</li>
+        </ol>
+
+        <h3>Rules and limits</h3>
+        <ul>
+          <li>A hub becomes available at prosperity tier 3.</li>
+          <li>Only one hub is allowed per solar system.</li>
+          <li>Current reach is 45 map units.</li>
+          <li>Current maximum pool is four ships.</li>
+          <li>Ships placed in the pool cannot simultaneously be used by manual routes.</li>
+          <li>A hub never uses Space Storage.</li>
+          <li>You can exclude an entire world or an individual need from automation.</li>
+          <li>Hub deliveries are temporary internal routes, so they do not appear in the normal route list.</li>
+        </ul>
+
+        <h3>Dispatching, not warehousing</h3>
+        <p>The hub is not a warehouse or transfer station. Goods do not travel <code>source → hub → destination</code>. Instead, the hub dispatches a ship directly from the chosen source to the destination. The hub planet determines the center of its service area.</p>
+
+        <aside class="note">
+          <h3>Current capacity limitation</h3>
+          <p>One short need receives at most one hub ship per cycle. If Tillam needs 24 Flowers and a Dart carries 16, the hub delivers only 16—even when the pool has more idle ships. This is why a hub can show enough goods and ships while still leaving a need partially unfulfilled.</p>
+          <p>The expected improvement is to let multiple pooled ships serve the same need until it is filled or the pool is exhausted.</p>
+        </aside>
+      </div>
+    </article>
+
+    <footer>Star Bazaar Wiki · Work in progress</footer>
+  </main>
+</body>
+</html>

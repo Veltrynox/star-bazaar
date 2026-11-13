@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Flow Map</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --fg: #1d1d1f; --muted: #6b6b70; --card: #ffffff; --line: #d9d9de;
+    --in: #1f8a4c; --out: #c0392b; --mix: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141417; --fg: #ececf0; --muted: #9a9aa3; --card: #1d1d22; --line: #33333a;
+      --in: #4cc483; --out: #ef6b5b; --mix: #e3a64a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141417; --fg: #ececf0; --muted: #9a9aa3; --card: #1d1d22; --line: #33333a;
+    --in: #4cc483; --out: #ef6b5b; --mix: #e3a64a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; }
+  .legend .i::before { background: var(--in); }
+  .legend .o::before { background: var(--out); }
+  .legend .m::before { background: var(--mix); }
+  .legend .d::before { border-top: 2px dashed var(--muted); height: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; overflow-x: auto; }
+  .mermaid { min-width: 900px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 24px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  code { font-size: 12px; color: var(--muted); }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+  .tabs button { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted);
+    font: inherit; font-weight: 600; padding: 8px 14px; cursor: pointer; margin-bottom: -1px; }
+  .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--mix); }
+  .panel[hidden] { display: none; }
+  /* Progression tab */
+  .prog-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 16px; }
+  .btn { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  .btn.primary { background: var(--mix); border-color: var(--mix); color: #fff; }
+  .ceo-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .ceo-tabs .btn[aria-pressed="true"] { border-color: var(--mix); box-shadow: inset 0 0 0 1px var(--mix); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .card h3 { margin: 0 0 8px; font-size: 15px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: none; }
+  .row .lbl { min-width: 110px; font-size: 13px; color: var(--muted); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 3px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg); font-size: 12px; cursor: pointer; color: var(--fg); font-family: inherit; }
+  .chip:hover { border-color: var(--mix); }
+  .chip img, td img, .lbl img { background: #1d1d22; border-radius: 50%; padding: 2px; }
+  .chip img { width: 20px; height: 20px; }
+  .chip.changed { border-color: var(--mix); background: color-mix(in srgb, var(--mix) 15%, var(--bg)); }
+  .chip .x { color: var(--muted); padding: 0 2px; }
+  .chip .x:hover { color: var(--out); }
+  .chip input { width: 38px; font: inherit; font-size: 12px; background: transparent; border: 1px solid var(--line); border-radius: 4px; color: var(--fg); padding: 0 2px; }
+  .add { border-style: dashed; color: var(--muted); padding: 2px 8px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 4px; color: #fff; }
+  .b1 { background: var(--in); } .b2 { background: #2d6cdf; } .bc { background: var(--mix); } .bn { background: var(--out); }
+  .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+  .picker { position: fixed; z-index: 10; background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px; max-width: min(520px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+  .picker h4 { margin: 6px 0 4px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .picker .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  textarea.json { width: 100%; min-height: 180px; font: 12px/1.4 ui-monospace, Menlo, monospace; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  td img { width: 24px; height: 24px; vertical-align: middle; }
+  .prog-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="money">Money flow</button>
+    <button role="tab" aria-selected="false" data-tab="journey">Player journey</button>
+    <button role="tab" aria-selected="false" data-tab="prog">Progression</button>
+  </div>
+  <section class="panel" id="tab-money">
+  <h1>Money flow</h1>
+  <p class="sub">Everything that changes the player's credits (<code>main.cash</code>). Arrows point into Money for income and out of it for spending. Dashed lines are indirect effects that change the size of a flow, not cash itself.</p>
+  <div class="legend">
+    <span class="i">income</span><span class="o">expense</span><span class="m">either way</span><span class="d">indirect (modifies a flow)</span>
+  </div>
+  <div class="card"><pre class="mermaid" id="diagram">
+flowchart LR
+  MONEY(("💰 Money<br/>(cash)"))
+
+  subgraph CYCLE["Every cycle: route settle"]
+    direction TB
+    SALES["Route sales<br/>(cargo sold at destination)"]
+    BONUS["Route bonuses<br/>(lane level bonus, mixed-goods bonus)"]
+    LSELL["Local sell orders<br/>+ needs filled from storage"]
+    LBUY["Local buy orders<br/>(goods bought at a world)"]
+    FARE["Route fixed cost / fare<br/>(running ship upkeep)"]
+    IDLEUP["Idle lane upkeep<br/>(stalled / blocked / idle routes)"]
+    IDLESHIP["Idle ship upkeep<br/>(no route, hub pool)"]
+    HUBBUY["Hub deliveries: goods bought"]
+    HUBNET["Hub settlement net"]
+  end
+
+  subgraph EVENTS["Events (combined)"]
+    direction TB
+    EVCASH["Event cash effects<br/>(windfalls and losses)"]
+    DEBRIS["Debris clearing fee"]
+    ASTER["Asteroid payment"]
+    CHAINS["Story chain choices"]
+    GIGREW["Gig rewards"]
+    GIGFEE["Gig fees"]
+    TIMED["Timed events<br/>(prices, closures, raids)"]
+  end
+
+  subgraph BUY["Player purchases"]
+    direction TB
+    SHIP["Buy ship"]
+    UPG["Lane upgrade"]
+    PERMIT["System permit"]
+    FABRIC["Build fabric"]
+    WORK["Build workshop"]
+    CORE["Build Null Core"]
+    POST["Flagship: trading post / platform"]
+  end
+
+  subgraph OTHER["Other income"]
+    direction TB
+    TAX["Prosperity tax<br/>(world tiers)"]
+    SALV["Salvage sale of stock"]
+    RESCUE["Rescue stipend<br/>(stranded, after a losing cycle)"]
+    REPO["Repossession credit<br/>(newest ship taken, salvage share)"]
+    START["Starting credits"]
+  end
+
+  subgraph MODS["Modifiers"]
+    direction TB
+    SKILLS["Skills<br/>(upkeep %, upgrade cost %, ...)"]
+    WINGS["Bazaar wings<br/>(tax %)"]
+    MARKET["Market prices & saturation"]
+  end
+
+  SALES --> MONEY
+  BONUS --> MONEY
+  LSELL --> MONEY
+  HUBNET <--> MONEY
+  MONEY --> LBUY
+  MONEY --> FARE
+  MONEY --> IDLEUP
+  MONEY --> IDLESHIP
+  MONEY --> HUBBUY
+
+  EVCASH <--> MONEY
+  CHAINS <--> MONEY
+  GIGREW --> MONEY
+  MONEY --> GIGFEE
+  MONEY --> DEBRIS
+  MONEY --> ASTER
+
+  MONEY --> SHIP
+  MONEY --> UPG
+  MONEY --> PERMIT
+  MONEY --> FABRIC
+  MONEY --> WORK
+  MONEY --> CORE
+  MONEY --> POST
+
+  TAX --> MONEY
+  SALV --> MONEY
+  RESCUE --> MONEY
+  REPO --> MONEY
+  START --> MONEY
+
+  TIMED -.-> SALES
+  TIMED -.-> LBUY
+  MARKET -.-> SALES
+  MARKET -.-> LSELL
+  MARKET -.-> LBUY
+  SKILLS -.-> FARE
+  SKILLS -.-> UPG
+  WINGS -.-> TAX
+  UPG -.-> BONUS
+  SHIP -.-> IDLESHIP
+
+  classDef money fill:#f2c94c,stroke:#8a6d1f,color:#1d1d1f,font-weight:bold
+  class MONEY money
+</pre></div>
+
+  <table>
+    <thead><tr><th>Flow</th><th>Direction</th><th>Where in code</th></tr></thead>
+    <tbody>
+      <tr><td>Route settle (sales, bonuses, local buy/sell, fares, idle lane and idle ship upkeep)</td><td>±</td><td><code>route_engine.gd settle()</code> → <code>main.gd _settle_routes()</code></td></tr>
+      <tr><td>Hub deliveries (buy goods, then settle net)</td><td>±</td><td><code>hubs.plan()</code>, <code>hubs.end_settle()</code> in <code>_settle_routes()</code></td></tr>
+      <tr><td>Event cash, debris fee, asteroid payment</td><td>±</td><td><code>main.gd _apply_effect()</code></td></tr>
+      <tr><td>Story chain choices</td><td>±</td><td><code>main.gd _apply_chain_choice()</code></td></tr>
+      <tr><td>Gig rewards and fees</td><td>±</td><td><code>gigs.gd apply()</code></td></tr>
+      <tr><td>Ship, lane upgrade, permit, fabric, workshop, Null Core</td><td>−</td><td><code>main.gd</code> buy_* / build_* / upgrade_route</td></tr>
+      <tr><td>Flagship trading post / platform</td><td>−</td><td><code>pathfinder.gd</code></td></tr>
+      <tr><td>Prosperity tax</td><td>+</td><td><code>main.gd _pay_prosperity()</code></td></tr>
+      <tr><td>Salvage sale</td><td>+</td><td><code>main.gd salvage_stock()</code></td></tr>
+      <tr><td>Rescue stipend</td><td>+</td><td><code>main.gd _check_stranded()</code></td></tr>
+      <tr><td>Repossession credit</td><td>+</td><td><code>main.gd _repossess_newest()</code></td></tr>
+      <tr><td>Starting credits</td><td>+</td><td><code>data/balance.json starting_credits</code></td></tr>
+    </tbody>
+  </table>
+  </section>
+
+  <section class="panel" id="tab-journey" hidden>
+  <h1>Player journey</h1>
+  <p class="sub">What an average run looks like, start to finish. Each phase overlaps the next; the core cycle loop (centre) repeats the whole game. Dashed lines are things that interrupt or feed the main path.</p>
+  <div class="card"><pre class="mermaid" id="journey">
+flowchart TB
+  classDef phase fill:#2d6cdf,stroke:#1b4aa0,color:#fff,font-weight:bold
+  classDef win fill:#1f8a4c,stroke:#145c33,color:#fff,font-weight:bold
+  classDef lose fill:#c0392b,stroke:#7f2419,color:#fff,font-weight:bold
+  classDef side fill:#b7791f,stroke:#7a5014,color:#fff
+
+  subgraph P1["1. New company"]
+    direction LR
+    A1["Preface"] --> A2["Pick CEO<br/>(branch, ship type, perk)"] --> A3["Pick ship look"] --> A4["Start: game paused<br/>at Voltara, starter ship"]
+  end
+
+  subgraph P2["2. First income (tutorial)"]
+    direction LR
+    B1["Buy order on energy / food"] --> B2["Send to... a nearby world<br/>(first route)"] --> B3["Unpause, first cycle settles<br/>route income − upkeep"]
+  end
+
+  subgraph P3["3. Explore and expand"]
+    direction LR
+    C1["Fly the Flagship<br/>to reveal planets"] --> C2["Build trading posts<br/>/ mining platforms"] --> C3["Buy more ships,<br/>open more routes"] --> C4["Upgrade full lanes"]
+  end
+
+  subgraph LOOP["Core cycle loop (repeats all game)"]
+    direction LR
+    L1["Read income<br/>(money dropdown, forecast)"] --> L2["Pick next investment:<br/>route, ship, upgrade,<br/>workshop, permit, skill"] --> L3["Cycle ends: routes settle,<br/>needs filled, tax paid"] --> L1
+  end
+
+  subgraph P4["4. Grow the economy"]
+    direction LR
+    D1["Learn Foundations,<br/>then market tree skills"] --> D2["Space Storage,<br/>workshops craft goods"] --> D3["Feed world needs:<br/>worlds climb Prosperity tiers"] --> D4["Hub at a hub-tier world<br/>(auto-feeds needs)"]
+  end
+
+  subgraph P5["5. Second and third systems"]
+    direction LR
+    E1["Permit Charter skill"] --> E2["Buy permit in<br/>galaxy view"] --> E3["Flagship jumps in,<br/>new posts and routes"]
+  end
+
+  subgraph P6["6. Star Bazaar"]
+    direction LR
+    F1["A world reaches<br/>capital tier"] --> F2["Found the Bazaar<br/>(one capital, final)"] --> F3["Each stage: goods bill held at capital<br/>+ quorum of grown worlds"] --> F4["Pick a wing<br/>after each stage"]
+    F4 --> F3
+  end
+
+  subgraph P7["7. The Opening"]
+    direction LR
+    G1["Last stage posts<br/>the Opening gig"] --> G2["Flagship flies charter<br/>cargo to the capital"] --> G3["Arrival window"]
+  end
+
+  WIN(["WIN: CEO ending + recap<br/>then optional free play"]):::win
+  SOFT(["Term ends first:<br/>Unfinished soft ending"]):::side
+  LOSE(["Bankrupt"]):::lose
+
+  P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> G3
+  G3 --> WIN
+  P3 <-.-> LOOP
+  P4 <-.-> LOOP
+  P6 -.-> SOFT
+
+  EV["Events and house weather<br/>(price dips, shortages, congestion,<br/>closures, story chains)"]:::side
+  GIG["Gig board<br/>(Flagship signals, salvage: cash / goods)"]:::side
+  TROUBLE["Cash runs out:<br/>ship repossessed, rescue stipend"]:::side
+  EV -.-> LOOP
+  GIG -.-> LOOP
+  LOOP -.-> TROUBLE
+  TROUBLE -.->|recovers| LOOP
+  TROUBLE -.->|stipends spent, no income| LOSE
+</pre></div>
+  </section>
+
+  <section class="panel" id="tab-prog" hidden>
+  <h1>Progression by CEO</h1>
+  <p class="sub">Each CEO's workshops, what a world needs at Outpost, Village and Town, and what each Star Bazaar stage asks for. Click a resource to replace it, &times; to remove it, + to add one. Your edits are kept in this browser. Use <b>Copy decisions</b> and paste the JSON into Claude.</p>
+  <div class="prog-legend">
+    <span><span class="badge b1">S1</span> can be bought or mined in system 1</span>
+    <span><span class="badge b2">S2</span> only in system 2</span>
+    <span><span class="badge bc">craft</span> made in a workshop</span>
+    <span><span class="badge bn">clusters</span> asteroid clusters only</span>
+  </div>
+  <div class="ceo-tabs" id="ceoTabs"></div>
+  <div id="ceoBody"></div>
+  <div class="card" style="margin-top:16px">
+    <h3>Your decisions (JSON)</h3>
+    <div class="prog-head">
+      <button class="btn primary" id="copyJson">Copy decisions</button>
+      <button class="btn" id="resetCeo">Reset this CEO</button>
+      <button class="btn" id="resetAll">Reset all</button>
+      <span class="hint" id="copyNote"></span>
+    </div>
+    <textarea class="json" id="jsonOut" readonly></textarea>
+  </div>
+  <h2 style="font-size:18px;margin:28px 0 4px">All resources</h2>
+  <p class="sub">Every good in data/goods.json with where the player can get it. Data as of the page build (2026-11-13).</p>
+  <div class="card"><table id="goodsTable" style="margin-top:0"><thead><tr><th></th><th>Good</th><th>Market</th><th>Tier</th><th>Buy at</th><th>Mined at</th><th>Recipe</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  const css = getComputedStyle(document.documentElement);
+  const v = n => css.getPropertyValue(n).trim();
+  const dark = v('--bg') === '#141417';
+  mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', flowchart: { curve: 'basis' } });
+  const rendered = {};
+  function colourMoney() {
+    // Into Money = income, out of Money = expense, both ways = mixed.
+    document.querySelectorAll('#diagram svg path.flowchart-link').forEach(p => {
+      const id = p.id || '';
+      if (/^L[-_]MONEY[-_]/.test(id)) p.style.stroke = v('--out');
+      else if (/[-_]MONEY[-_]\d+$/.test(id)) p.style.stroke = v('--in');
+      if (p.getAttribute('marker-start')) p.style.stroke = v('--mix');
+      if (p.style.stroke) p.style.strokeWidth = '2px';
+    });
+  }
+  // Mermaid needs a visible container to measure text, so each diagram renders the first time its tab shows.
+  function show(tab) {
+    document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
+    document.querySelectorAll('.panel').forEach(p => p.hidden = p.id !== 'tab-' + tab);
+    try { localStorage.setItem('moneyFlowTab', tab); } catch (e) {}
+    if (rendered[tab] || tab === 'prog') return;
+    rendered[tab] = true;
+    const sel = tab === 'money' ? '#diagram' : '#journey';
+    mermaid.run({ querySelector: sel }).then(() => { if (tab === 'money') colourMoney(); });
+  }
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => show(b.dataset.tab)));
+  let first = 'money';
+  try { first = localStorage.getItem('moneyFlowTab') || 'money'; } catch (e) {}
+  show(first);
+</script>
+<script>
+// Progression tab. DATA is generated from data/goods.json, markets.json, planets.json, systems.json, ceos.json,
+// prosperity.json, balance.json and story_text.json (2026-11-13). Rules: a world at tier N needs some of the
+// branch goods of goods tier <= N plus energy (never ore, never what it sells); a Bazaar stage bill asks for
+// units of branch goods of the listed goods tiers, any mix.
+const DATA = {"goods": [{"id": "energy", "name": "Energy", "tier": 1, "market": "common", "recipe": null, "workshop": null, "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Tillam", "sys": 1}, {"planet": "Ashgate", "sys": 1}, {"planet": "Flintmoor", "sys": 1}, {"planet": "Brannock", "sys": 2}, {"planet": "Cindrel", "sys": 2}, {"planet": "Mossfell", "sys": 2}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "powder", "name": "Blast Powder", "tier": 1, "market": "mil", "recipe": null, "workshop": null, "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Flintmoor", "sys": 1}], "mined_at": [], "sold_to": [{"planet": "Mossfell", "sys": 2}]}, {"id": "blooms", "name": "Hothouse Blooms", "tier": 1, "market": "lux", "recipe": null, "workshop": null, "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Ashgate", "sys": 1}], "mined_at": [], "sold_to": [{"planet": "Mossfell", "sys": 2}]}, {"id": "food", "name": "Food", "tier": 1, "market": "bio", "recipe": null, "workshop": null, "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Tillam", "sys": 1}, {"planet": "Ashgate", "sys": 1}, {"planet": "Brannock", "sys": 2}, {"planet": "Cindrel", "sys": 2}, {"planet": "Mossfell", "sys": 2}, {"planet": "Quillon", "sys": 2}], "mined_at": [{"planet": "Cinderrest", "sys": 1, "branch": "bio"}], "sold_to": []}, {"id": "spyware", "name": "Spy Software", "tier": 2, "market": "mil", "recipe": null, "workshop": null, "buy_at": [{"planet": "Cindrel", "sys": 2}], "mined_at": [{"planet": "Greywake", "sys": 2, "branch": "mil"}], "sold_to": [{"planet": "Mossfell", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "silk", "name": "Starsilk", "tier": 2, "market": "lux", "recipe": null, "workshop": null, "buy_at": [{"planet": "Brannock", "sys": 2}], "mined_at": [{"planet": "Greywake", "sys": 2, "branch": "lux"}], "sold_to": [{"planet": "Quillon", "sys": 2}]}, {"id": "ore", "name": "Rock Ore", "tier": 1, "market": "min", "recipe": null, "workshop": null, "buy_at": [], "mined_at": [], "sold_to": [{"planet": "Voltara", "sys": 1}, {"planet": "Flintmoor", "sys": 1}, {"planet": "Cindrel", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "dross", "name": "Dross Salt", "tier": 2, "market": "min", "recipe": null, "workshop": null, "buy_at": [], "mined_at": [{"planet": "Cinderrest", "sys": 1, "branch": "min"}], "sold_to": [{"planet": "Voltara", "sys": 1}, {"planet": "Ashgate", "sys": 1}]}, {"id": "nullglass", "name": "Nullglass", "tier": 2, "market": "min", "recipe": null, "workshop": null, "buy_at": [], "mined_at": [{"planet": "Greywake", "sys": 2, "branch": "min"}], "sold_to": [{"planet": "Cindrel", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "plate", "name": "Lattice Plate", "tier": 3, "market": "min", "recipe": {"dross": 2, "nullglass": 1}, "workshop": "fabric", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "rivets", "name": "Rivets", "tier": 2, "market": "mil", "recipe": null, "workshop": null, "buy_at": [{"planet": "Voltara", "sys": 1}], "mined_at": [{"planet": "Cinderrest", "sys": 1, "branch": "mil"}], "sold_to": [{"planet": "Cindrel", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "rounds", "name": "Munitions", "tier": 3, "market": "mil", "recipe": {"energy": 2, "spyware": 1}, "workshop": "munitions", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Cindrel", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "arms", "name": "Weapons", "tier": 4, "market": "mil", "recipe": {"rounds": 4}, "workshop": "munitions", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "musk", "name": "Musk", "tier": 2, "market": "lux", "recipe": null, "workshop": null, "buy_at": [{"planet": "Tillam", "sys": 1}], "mined_at": [{"planet": "Cinderrest", "sys": 1, "branch": "lux"}], "sold_to": [{"planet": "Brannock", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "attar", "name": "Attar", "tier": 3, "market": "lux", "recipe": {"blooms": 2, "silk": 1}, "workshop": "atelier", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "gems", "name": "Cold Gems", "tier": 4, "market": "lux", "recipe": {"silk": 2, "musk": 1}, "workshop": "atelier", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Brannock", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "ingot", "name": "Metal Ingots", "tier": 2, "market": "min", "recipe": {"ore": 1, "nullglass": 1}, "workshop": "smelter", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Cindrel", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "alloy", "name": "Furnace Alloy", "tier": 4, "market": "min", "recipe": {"plate": 1, "ingot": 2}, "workshop": "smelter", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "spores", "name": "Jar Spores", "tier": 2, "market": "bio", "recipe": null, "workshop": null, "buy_at": [{"planet": "Mossfell", "sys": 2}], "mined_at": [{"planet": "Greywake", "sys": 2, "branch": "bio"}], "sold_to": [{"planet": "Cindrel", "sys": 2}, {"planet": "Quillon", "sys": 2}]}, {"id": "medicine", "name": "Medicine", "tier": 3, "market": "bio", "recipe": {"food": 2, "spores": 1}, "workshop": "culture_lab", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Quillon", "sys": 2}], "mined_at": [], "sold_to": []}, {"id": "seed", "name": "Seed Stock", "tier": 4, "market": "bio", "recipe": {"medicine": 2, "spores": 1}, "workshop": "culture_lab", "buy_at": [{"planet": "Voltara", "sys": 1}, {"planet": "Brannock", "sys": 2}], "mined_at": [], "sold_to": []}], "workshops": [{"id": "fabric", "market": "min", "name": "Fabric"}, {"id": "smelter", "market": "min", "name": "Smelter"}, {"id": "munitions", "market": "mil", "name": "Munitions Line"}, {"id": "atelier", "market": "lux", "name": "Atelier"}, {"id": "culture_lab", "market": "bio", "name": "Culture Lab"}], "ceos": [{"id": "ceo_man_01", "name": "Marek Voss", "branch": "min"}, {"id": "ceo_man_02", "name": "Idris Kane", "branch": "lux"}, {"id": "ceo_woman_01", "name": "Sela Oru", "branch": "mil"}, {"id": "ceo_woman_02", "name": "Tamsin Hale", "branch": "bio"}], "tiers": [{"tier": 1, "name": "Outpost", "needs": 2, "demand": 16}, {"tier": 2, "name": "Village", "needs": 3, "demand": 24}, {"tier": 3, "name": "Town", "needs": 4, "demand": 32}], "stages": [{"stage": 1, "bill": {"1": 60}, "quorum_tier": 1, "quorum_count": 1, "reach": false}, {"stage": 2, "bill": {"1": 50, "2": 40}, "quorum_tier": 1, "quorum_count": 2, "reach": false}, {"stage": 3, "bill": {"2": 50, "3": 30}, "quorum_tier": 2, "quorum_count": 1, "reach": true}, {"stage": 4, "bill": {"3": 40, "4": 20}, "quorum_tier": 2, "quorum_count": 2, "reach": true}], "capital_tier": 2, "overrides": {"bio": {"planet_1": ["food"], "planet_2": ["food"], "planet_3": ["food"], "s2_p1": ["food"], "s2_p2": ["food"], "s2_p3": ["food"], "s2_p4": ["food"], "s3_p1": ["food"], "s3_p2": ["food"], "s3_p3": ["food"]}, "lux": {"planet_1": ["blooms"], "planet_3": ["blooms"]}, "mil": {"planet_1": ["powder"], "planet_4": ["powder"]}, "min": {"planet_1": ["energy"]}}, "planet_names": {"planet_1": "Voltara", "planet_2": "Tillam", "planet_3": "Ashgate", "dead_1": "Cinderrest", "planet_4": "Flintmoor", "s2_p1": "Brannock", "s2_p2": "Cindrel", "s2_p3": "Mossfell", "s2_p4": "Quillon", "dead_2": "Greywake"}, "markets": {"mil": "mil", "lux": "lux", "min": "min", "bio": "bio"}}
+;
+(function () {
+  const MK = { mil: 'Military', lux: 'Luxury', min: 'Minerals', bio: 'Biotech', common: 'Common' };
+  const G = {}; DATA.goods.forEach(g => G[g.id] = g);
+  // Icons are embedded (art/icons, stroke tinted with the good colour of game/ui.gd) so the page works from any folder.
+  const ICONS = {"energy": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACdUlEQVR42u1aoU4DQRDtJzQo5BEk5TiKwpAKLKGaICpAYSoJQZwDR4JBkTqCqyBYajCoCj6g4QuOPzj6LntksrmW3S253Z29SV5qmrRvdt6bmb1rtZpoookmHIq19a3+HOkCtDkTB8HJHPkSTATaHE89V8SIG/lojqwk+HCd5O+Pu5XY2OzgO1NWSRCECvJX53Gef+xV4vU+oVUw4EL+riR1sN9ZSB44OtwuyWcsPIDqHqX99dJdSP7zucvLA2Tdo7yXnf7FSUwTEAWjewCVQciPg9I9cDvcoQnoBaN74PutW7a+ov0FpXvg6YZR69PRfYkk/j39WVC6rxh80mB0z2rwMdE9q8HHRPdsBh8T3bMZfEx1z2LwMdU9m8HHVPcVgw8k1PsDCQvdVww+qhiLu8S+17qvGHx0YH9OWEX3NAEwQB2cHse0ChIvdW8KyTDH3ureFGRUttcuV9W9KVBlhPzUigf8h+5NIJllZk379PTr0j0qjOg+t9b+UHK4pKhT9zA9/BYdlGy3PUxiI/wpGJIO0MJ0EyBtiPbHZGjPcHDRToA0IrtxQSISUFSBbgLwoFOVPC5HJN37eTVOEwU9q+pe2g+8vhsspkUQUj19MeryeCpUEgEpFfJ4T4CQn3n9RFh4hbIBwiMk30h8P/2hqgFKSw6PlyF0DFBacni8CqNqgE4sObYM0Jklx4YBOrPk2DBAp5YcGwbo3JJTpwE6ueTUZYBslhwTA2S15JgYIKslR9cAWS05ugbIbsnRMUCWS46CAaalAbJcchTvDLPLs3hIev2Ute4rugCSMBDEU/a6lxIQic9UPEyJWiFGMCXfRBNNeBc/HIE+u1WTa5QAAAAASUVORK5CYII=", "powder": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23808085%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4.5%2015.5L7%208l5-3.5%205.5%203%202%207-4.5%205h-8z%22/%3E%3Cpath%20d%3D%22M7%208l5%203.5%205.5-3.5M12%2011.5V20.5%22/%3E%3C/svg%3E%0A", "blooms": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23d959a6%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%208c4-3%2010%203%2014%200M5%2012c4-3%2010%203%2014%200M5%2016c4-3%2010%203%2014%200%22/%3E%3Cpath%20d%3D%22M5%205v14M19%205v14%22/%3E%3C/svg%3E%0A", "food": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACh0lEQVR42u2bvUoDQRDH7xGCVRohkEYQQkRBEIQrVFCEgBAQ01xjZZMXEK60S2FvaqtU1mdvcY+QR7hHOPe/7MqwrPnS251kd+APqW4zv+x87NwmSaJFi7bI9tqHU6FMqBWi43OhWgmfpyE5Lx1vd3s1gVDvPATT+Yf3u/rm5TocCHrba+efvkZSQUDQv77pfDAQVLaXzsFZE8DOQ0Cpo5k/VAhT6twaEJapFCqUJkK5UCrUCQnCb6qEZioEO1sH4eDydKm6ZyfrAJEwtgbCukKFGb4N6ovnq/p4dL4IzlyFSmvnIJh6/LyvB6+3Eoil+0SI5DsPgcLAGvu9I1si7XuHgJhuEgAVwsTYEZVPCM4BQNnHUK7pHYIvAFrID14h+AZggVAGBwAywiEPDgByAkmMlbM+gQsAXR2c7wJOACDSJ8yDBGAcxjIXANCJyd6dAwB0jCQXFC4AFJo4BwCWstgJDgAOUM7CQE1y5GK2oamvMKBzhKYB5HoxnOe57AIyT6iaBpBqAKjDweUBPFwvhEW5ADCaorTpXVBxKoUQwtFZV6gGlnIxJCAOAJCQCYCJs7dHKEFcdgEBUDQNgGUecAaANkRoQ7mEASmFpQsAmasJ8SZDEqf3CHAkDRVAzqkp8gGgpXsC5AKMqYICYO4CToNS15PikkNZ9Amgr0PBJwRvAGwQ8GVc5wSvAGwQkBhdVgfvAAiEkr7SRp+AZqnpjpEFAKM6VBQEdgTyAw5QTcBgBYD0Cblx4fpH6N0BBGGC8/xfZ4zsAFjODrNVL0kBzioXr6jI+4FxwtXUUVrDqP7pip2pNNkWU0BSFSoTcpGy3MDxsXpWWH/siBYtWrRo0aJFixZtM/sGK+LNN7xPVtQAAAAASUVORK5CYII=", "spyware": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2359bfd9%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2211%22%20height%3D%2211%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%224%22%20height%3D%224%22/%3E%3Cpath%20d%3D%22M9.5%203v3.5M14.5%203v3.5M9.5%2017.5V21M14.5%2017.5V21M3%209.5h3.5M3%2014.5h3.5M17.5%209.5H21M17.5%2014.5H21%22/%3E%3C/svg%3E%0A", "silk": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23b88cd9%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%208c4-3%2010%203%2014%200M5%2012c4-3%2010%203%2014%200M5%2016c4-3%2010%203%2014%200%22/%3E%3Cpath%20d%3D%22M5%205v14M19%205v14%22/%3E%3C/svg%3E%0A", "ore": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239e9485%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.500%2016l-.5-4.500L6.500%207l4.500-1.500%204.500%201%203.500%202.500%201.500%204.500-2.500%204-5.500%201-5.500-.5z%22/%3E%3Cpath%20d%3D%22M13%206.500l-1%204%202.500%202.500%22/%3E%3Ccircle%20cx%3D%228.500%22%20cy%3D%2211.500%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2215%22%20r%3D%221.200%22/%3E%3Ccircle%20cx%3D%2210.500%22%20cy%3D%2216%22%20r%3D%22.8%22/%3E%3C/svg%3E%0A", "dross": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23736b66%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%2018c0-4%203-5%203-8s3-4%205-2%204%201%204%205%202%205-2%205H7z%22/%3E%3Cpath%20d%3D%22M9%2014h.01M14%2013h.01M12%2017h.01%22/%3E%3C/svg%3E%0A", "nullglass": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238c99f2%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223.5%22/%3E%3Cpath%20d%3D%22M6.5%206.5l11%2011%22/%3E%3C/svg%3E%0A", "plate": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399adbf%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%2216%22%20height%3D%2212%22%20rx%3D%221.5%22/%3E%3Cpath%20d%3D%22M7%209h.01M17%209h.01M7%2015h.01M17%2015h.01M8%2012h8%22/%3E%3C/svg%3E%0A", "rivets": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23c78061%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%222.2%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%227%22%20r%3D%222.2%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2217%22%20r%3D%222.2%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%222.2%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222.2%22/%3E%3C/svg%3E%0A", "rounds": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%234cd9b8%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%228%22%20y%3D%225%22%20width%3D%228%22%20height%3D%2215%22%20rx%3D%221.5%22/%3E%3Cpath%20d%3D%22M10.5%203h3v2h-3zM12%209v6M9.8%2012h4.4%22/%3E%3C/svg%3E%0A", "arms": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%237a94b2%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203.5l7%202.5v5.5c0%204.5-3%207.5-7%209-4-1.5-7-4.5-7-9V6z%22/%3E%3Cpath%20d%3D%22M12%203.5v17%22/%3E%3C/svg%3E%0A", "musk": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cc6b9e%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%204h4v3h-4z%22/%3E%3Cpath%20d%3D%22M8%209h8l1%2010.5H7z%22/%3E%3Cpath%20d%3D%22M10%2013c1-1.2%203%201.2%204%200%22/%3E%3C/svg%3E%0A", "attar": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239e6b47%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M7%204h10c2%202.5%202%2013.500%200%2016H7c-2-2.500-2-13.500%200-16z%22/%3E%3Cpath%20d%3D%22M5.800%209h12.400M5.800%2015h12.400%22/%3E%3C/svg%3E%0A", "gems": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23e6618c%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M7%205h10l4%205-9%2010.500L3%2010z%22/%3E%3Cpath%20d%3D%22M3%2010h18M9.500%205L8%2010l4%2010.500L16%2010l-1.500-5%22/%3E%3C/svg%3E%0A", "ingot": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23c7bd9e%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M7%207h10l3.500%2010h-17z%22/%3E%3Cpath%20d%3D%22M9.500%2011h5%22/%3E%3C/svg%3E%0A", "alloy": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236badcc%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.500%2014h11l2.500%205H6z%22/%3E%3Cpath%20d%3D%22M8%2014l1.500-4.500h10L17%2014M9.500%209.500L11%205h8l.5%204.500%22/%3E%3C/svg%3E%0A", "spores": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239e73cc%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222.500%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%228%22%20r%3D%221.500%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%227%22%20r%3D%221.500%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217.500%22%20r%3D%222%22/%3E%3Ccircle%20cx%3D%227%22%20cy%3D%2217%22%20r%3D%221.200%22/%3E%3C/svg%3E%0A", "medicine": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2366cce6%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203.500c4%205%206.500%208%206.500%2011.500a6.500%206.500%200%200%201-13%200C5.500%2011.500%208%208.500%2012%203.500z%22/%3E%3Cpath%20d%3D%22M9%2015a3%203%200%200%200%203%203%22/%3E%3C/svg%3E%0A", "seed": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23c7b866%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203.500c4%203.500%205.500%207%205.500%2010a5.500%205.500%200%200%201-11%200c0-3%201.500-6.500%205.500-10z%22/%3E%3Cpath%20d%3D%22M12%208v13M12%2013l-2.500-2M12%2016l2.500-2%22/%3E%3C/svg%3E%0A"};
+  const icon = id => ICONS[id] || '';
+  function sysBadge(id, branch) {
+    const g = G[id]; if (!g) return '';
+    const s = new Set(g.buy_at.map(b => b.sys));
+    g.mined_at.filter(m => m.branch === branch).forEach(m => s.add(m.sys));
+    if (s.has(1)) return '<span class="badge b1">S1</span>';
+    if (s.has(2)) return '<span class="badge b2">S2</span>';
+    if (g.recipe) return '<span class="badge bc">craft</span>';
+    if (id === 'ore') return '<span class="badge bn">clusters</span>';
+    return '<span class="badge bn">none</span>';
+  }
+  const branchGoods = (b, maxT, minT) => DATA.goods.filter(g => g.market === b && g.tier <= maxT && g.tier >= (minT || 1)).map(g => g.id);
+
+  function defaults(ceo) {
+    const b = ceo.branch, d = { workshops: {}, tiers: {}, bazaar: {} };
+    DATA.workshops.filter(w => w.market === b).forEach(w => {
+      d.workshops[w.id] = {};
+      DATA.goods.filter(g => g.workshop === w.id).forEach(g => d.workshops[w.id][g.id] = Object.entries(g.recipe).map(([k, v]) => [k, v]));
+    });
+    d.start_need = (DATA.overrides[b] && DATA.overrides[b].planet_1) ? DATA.overrides[b].planet_1.slice() : [];
+    DATA.tiers.forEach(t => d.tiers[t.tier] = ['energy'].concat(branchGoods(b, t.tier).filter(x => x !== 'ore')));
+    DATA.stages.forEach(s => {
+      d.bazaar[s.stage] = {};
+      Object.entries(s.bill).forEach(([t, u]) => d.bazaar[s.stage][t] = { units: u, goods: branchGoods(b, +t, +t) });
+    });
+    return d;
+  }
+  const KEY = 'progDecisions_v1';
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+  const DEF = {}; DATA.ceos.forEach(c => { DEF[c.id] = defaults(c); if (!state[c.id]) state[c.id] = JSON.parse(JSON.stringify(DEF[c.id])); });
+  let cur = DATA.ceos.find(c => c.branch === 'mil') ? DATA.ceos.find(c => c.branch === 'mil').id : DATA.ceos[0].id;
+  try { cur = localStorage.getItem(KEY + '_ceo') || cur; } catch (e) {}
+  if (!state[cur]) cur = DATA.ceos[0].id;
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); localStorage.setItem(KEY + '_ceo', cur); } catch (e) {} };
+
+  // A path into state[cur]: ['workshops', ws, out, i, 0] / ['tiers', t, i] / ['bazaar', s, t, 'goods', i] / ['start_need', i]
+  const get = (o, p) => p.reduce((a, k) => a == null ? a : a[k], o);
+  function chip(id, path, opts) {
+    const ceo = DATA.ceos.find(c => c.id === cur), g = G[id];
+    const def = get(DEF[cur], path), changed = def !== id;
+    const qty = opts && opts.qty != null ? '<input type="number" min="1" value="' + opts.qty + '" data-qty="' + path.slice(0, -1).join('|') + '" title="Units">' : '';
+    return '<span class="chip' + (changed ? ' changed' : '') + '" data-path="' + path.join('|') + '" title="' + (g ? g.name + ' (' + id + ')' : id) + ' - click to replace">' +
+      '<img src="' + icon(id) + '" alt="">' + (g ? g.name : id) + ' ' + sysBadge(id, ceo.branch) + qty +
+      '<span class="x" data-del="' + path.join('|') + '" title="Remove">&times;</span></span>';
+  }
+  const addBtn = (path, kind) => '<button class="chip add" data-add="' + path.join('|') + '" data-kind="' + kind + '">+ add</button>';
+
+  function render() {
+    document.getElementById('ceoTabs').innerHTML = DATA.ceos.map(c =>
+      '<button class="btn" aria-pressed="' + (c.id === cur) + '" data-ceo="' + c.id + '">' + c.name + ' &middot; ' + MK[c.branch] + '</button>').join('');
+    const ceo = DATA.ceos.find(c => c.id === cur), st = state[cur];
+    let h = '<div class="grid">';
+    // Workshops
+    h += '<div class="card"><h3>Workshops (' + MK[ceo.branch] + ')</h3>';
+    Object.entries(st.workshops).forEach(([ws, outs]) => {
+      const w = DATA.workshops.find(x => x.id === ws);
+      Object.entries(outs).forEach(([out, ins]) => {
+        h += '<div class="row"><span class="lbl"><b>' + (w ? w.name : ws) + '</b><br><img src="' + icon(out) + '" style="width:18px;vertical-align:middle"> ' + (G[out] ? G[out].name : out) + ' =</span>';
+        ins.forEach((pair, i) => h += chip(pair[0], ['workshops', ws, out, i, 0], { qty: pair[1] }));
+        h += addBtn(['workshops', ws, out], 'recipe') + '</div>';
+      });
+    });
+    h += '<p class="hint">The goal: at least one input of the first recipe is S2 only, so a built workshop pulls the player into system 2.</p></div>';
+    // Prosperity
+    h += '<div class="card"><h3>World needs by stage</h3>';
+    h += '<div class="row"><span class="lbl">Voltara start need</span>';
+    st.start_need.forEach((id, i) => h += chip(id, ['start_need', i]));
+    h += addBtn(['start_need'], 'list') + '</div>';
+    DATA.tiers.forEach(t => {
+      h += '<div class="row"><span class="lbl"><b>' + t.name + '</b><br>' + t.needs + ' needs &times; ' + t.demand + ' u</span>';
+      st.tiers[t.tier].forEach((id, i) => h += chip(id, ['tiers', t.tier, i]));
+      h += addBtn(['tiers', t.tier], 'list') + '</div>';
+    });
+    h += '<p class="hint">Pool a world picks its needs from (minus goods it sells itself). A world becomes the Bazaar capital at ' + DATA.tiers[DATA.capital_tier - 1].name + '.</p></div>';
+    // Bazaar
+    h += '<div class="card"><h3>Star Bazaar stages</h3>';
+    DATA.stages.forEach(s => {
+      const q = DATA.tiers[s.quorum_tier - 1];
+      h += '<div class="row" style="display:block"><b>Stage ' + s.stage + '</b> <span class="hint">quorum: ' + s.quorum_count + ' other world(s) at ' + (q ? q.name : 'tier ' + s.quorum_tier) + (s.reach ? ', one in another system' : '') + '</span>';
+      Object.entries(st.bazaar[s.stage]).forEach(([t, bill]) => {
+        h += '<div class="row"><span class="lbl">tier ' + t + ' goods<br><input type="number" min="0" value="' + bill.units + '" data-units="' + s.stage + '|' + t + '" style="width:56px"> u</span>';
+        bill.goods.forEach((id, i) => h += chip(id, ['bazaar', s.stage, t, 'goods', i]));
+        h += addBtn(['bazaar', s.stage, t, 'goods'], 'list') + '</div>';
+      });
+      h += '</div>';
+    });
+    h += '<p class="hint">The bill is held in the capital\'s storage; any mix of the listed goods counts.</p></div></div>';
+    document.getElementById('ceoBody').innerHTML = h;
+    updateJson();
+  }
+
+  function diff() {
+    const out = {};
+    DATA.ceos.forEach(c => {
+      const a = state[c.id], d = DEF[c.id], ch = {};
+      Object.entries(a.workshops).forEach(([ws, outs]) => Object.entries(outs).forEach(([o, ins]) => {
+        if (JSON.stringify(ins) !== JSON.stringify(d.workshops[ws][o])) {
+          ch.recipes = ch.recipes || {};
+          ch.recipes[o] = { workshop: ws, was: Object.fromEntries(d.workshops[ws][o]), now: Object.fromEntries(ins) };
+        }
+      }));
+      if (JSON.stringify(a.start_need) !== JSON.stringify(d.start_need)) ch.voltara_start_need = { was: d.start_need, now: a.start_need };
+      DATA.tiers.forEach(t => { if (JSON.stringify(a.tiers[t.tier]) !== JSON.stringify(d.tiers[t.tier])) { ch.world_needs = ch.world_needs || {}; ch.world_needs[t.name] = { was: d.tiers[t.tier], now: a.tiers[t.tier] }; } });
+      DATA.stages.forEach(s => Object.keys(a.bazaar[s.stage]).forEach(t => {
+        if (JSON.stringify(a.bazaar[s.stage][t]) !== JSON.stringify(d.bazaar[s.stage][t])) {
+          ch.bazaar = ch.bazaar || {};
+          ch.bazaar['stage_' + s.stage + '_tier_' + t] = { was: d.bazaar[s.stage][t], now: a.bazaar[s.stage][t] };
+        }
+      }));
+      if (Object.keys(ch).length) out[c.id] = Object.assign({ name: c.name, branch: c.branch }, ch);
+    });
+    return out;
+  }
+  function updateJson() {
+    const d = diff();
+    document.getElementById('jsonOut').value = Object.keys(d).length
+      ? JSON.stringify({ kind: 'star-bazaar progression decisions', date: new Date().toISOString().slice(0, 10), changes: d }, null, 2)
+      : '// No changes yet. Edit a resource above.';
+  }
+
+  // Picker
+  let picker = null;
+  function closePicker() { if (picker) { picker.remove(); picker = null; } }
+  function openPicker(anchor, onPick) {
+    closePicker();
+    const ceo = DATA.ceos.find(c => c.id === cur);
+    picker = document.createElement('div'); picker.className = 'picker';
+    const order = [ceo.branch, 'common'].concat(['mil', 'lux', 'min', 'bio'].filter(m => m !== ceo.branch));
+    picker.innerHTML = order.map(m => {
+      const gs = DATA.goods.filter(g => g.market === m); if (!gs.length) return '';
+      return '<h4>' + MK[m] + (m === ceo.branch ? ' (this CEO)' : '') + '</h4><div class="chips">' + gs.map(g =>
+        '<button class="chip" data-pick="' + g.id + '"><img src="' + icon(g.id) + '" alt="">' + g.name + ' <span class="hint">t' + g.tier + '</span> ' + sysBadge(g.id, ceo.branch) + '</button>').join('') + '</div>';
+    }).join('');
+    document.body.appendChild(picker);
+    const r = anchor.getBoundingClientRect(), pw = picker.offsetWidth, ph = picker.offsetHeight;
+    picker.style.left = Math.max(16, Math.min(r.left, innerWidth - pw - 16)) + 'px';
+    picker.style.top = (r.bottom + ph + 8 < innerHeight ? r.bottom + 4 : Math.max(8, r.top - ph - 4)) + 'px';
+    picker.addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) { e.stopPropagation(); onPick(b.dataset.pick); closePicker(); } });
+  }
+  const P = s => s.split('|').map(x => /^\d+$/.test(x) ? +x : x);
+  const body = document.getElementById('tab-prog');
+  body.addEventListener('click', e => {
+    const st = state[cur];
+    const c = e.target.closest('[data-ceo]');
+    if (c) { cur = c.dataset.ceo; save(); render(); return; }
+    const del = e.target.closest('[data-del]');
+    if (del) { e.stopPropagation(); const p = P(del.dataset.del); const isRecipe = p[0] === 'workshops'; const arrP = isRecipe ? p.slice(0, 4) : p; const i = arrP.pop(); get(st, arrP).splice(i, 1); save(); render(); return; }
+    if (e.target.tagName === 'INPUT') return;
+    const add = e.target.closest('[data-add]');
+    if (add) { e.stopPropagation(); const p = P(add.dataset.add); openPicker(add, id => { get(st, p).push(add.dataset.kind === 'recipe' ? [id, 1] : id); save(); render(); }); return; }
+    const ch = e.target.closest('[data-path]');
+    if (ch) { e.stopPropagation(); const p = P(ch.dataset.path); openPicker(ch, id => { const k = p.pop(); get(st, p)[k] = id; save(); render(); }); return; }
+  });
+  body.addEventListener('change', e => {
+    const st = state[cur];
+    if (e.target.dataset.qty) { const p = P(e.target.dataset.qty); get(st, p)[1] = Math.max(1, +e.target.value || 1); }
+    else if (e.target.dataset.units) { const [s, t] = e.target.dataset.units.split('|'); st.bazaar[s][t].units = Math.max(0, +e.target.value || 0); }
+    else return;
+    save(); render();
+  });
+  document.addEventListener('click', e => { if (picker && !picker.contains(e.target)) closePicker(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
+  document.getElementById('copyJson').addEventListener('click', () => {
+    const ta = document.getElementById('jsonOut'), note = document.getElementById('copyNote');
+    const done = () => { note.textContent = 'Copied. Paste it into Claude.'; setTimeout(() => note.textContent = '', 2500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); document.execCommand('copy'); done(); });
+    else { ta.select(); document.execCommand('copy'); done(); }
+  });
+  document.getElementById('resetCeo').addEventListener('click', () => { state[cur] = JSON.parse(JSON.stringify(DEF[cur])); save(); render(); });
+  document.getElementById('resetAll').addEventListener('click', () => { if (confirm('Reset every CEO to the current game data?')) { DATA.ceos.forEach(c => state[c.id] = JSON.parse(JSON.stringify(DEF[c.id]))); save(); render(); } });
+
+  // Resource table
+  const where = arr => arr.length ? arr.map(x => x.planet + ' <span class="badge ' + (x.sys === 1 ? 'b1' : 'b2') + '">S' + x.sys + '</span>' + (x.branch ? ' <span class="hint">' + MK[x.branch] + '</span>' : '')).join('<br>') : '<span class="hint">-</span>';
+  document.querySelector('#goodsTable tbody').innerHTML = DATA.goods.map(g => '<tr><td><img src="' + icon(g.id) + '" alt=""></td><td><b>' + g.name + '</b><br><code>' + g.id + '</code></td><td>' + MK[g.market] + '</td><td>' + g.tier + '</td><td>' +
+    (g.id === 'ore' && !g.buy_at.length ? 'Asteroid clusters' : where(g.buy_at)) + '</td><td>' + where(g.mined_at) + '</td><td>' +
+    (g.recipe ? Object.entries(g.recipe).map(([k, v]) => v + ' &times; <img src="' + icon(k) + '" alt="" style="width:18px;height:18px"> ' + (G[k] ? G[k].name : k)).join('<br>') + '<br><span class="hint">' + ((DATA.workshops.find(w => w.id === g.workshop) || {}).name || g.workshop) + '</span>' : '<span class="hint">-</span>') + '</td></tr>').join('');
+  render();
+})();
+</script>
+</body>
+</html>
