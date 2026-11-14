@@ -156,6 +156,10 @@ var _lost_t := -1.0            # T375: game seconds into the signal-lost beat (-
 var _last_tp := Vector3.ZERO   # last drawn course end, for the flicker trail
 var _lost_conn = null          # the gigs node offer_expired is connected to
 var _gig_pos := {}             # offer uid -> ring position, for the fade on expiry
+var _posted_conn = null        # T378: the gigs node gig_posted is connected to
+var _appear_ring: MeshInstance3D = null  # T378: one pooled ring for the new-gig arrival beat
+var _appear_t0 := -1.0         # real seconds when the beat began (-1 none)
+var _appear_pos := Vector3.ZERO
 var _swing_amp := 0.0
 var _boost_k := 0.0            # 0..1 boost look (trail stretch), eased on game time
 var _clock := 0.0              # game seconds, drives the target marker pulse
@@ -640,6 +644,7 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
 	_update_gig_rings(f, sys)
+	_update_appear_ring()
 	_draw_lost(pos)
 	if typeof(tgt) == TYPE_DICTIONARY and tgt.has("pos") and state(f) != "building":
 		var tp: Vector3 = tgt["pos"]
@@ -852,6 +857,10 @@ func _jump_connect(f) -> void:
 		_lost_conn = g
 		if not g.is_connected("offer_expired", _on_offer_expired):
 			g.connect("offer_expired", _on_offer_expired)
+	if g != null and g != _posted_conn and g.has_signal("gig_posted"):  # T378
+		_posted_conn = g
+		if not g.is_connected("gig_posted", _on_gig_posted):
+			g.connect("gig_posted", _on_gig_posted)
 	if f.has_signal("jump_started") and not f.is_connected("jump_started", _on_jump_started):
 		f.connect("jump_started", _on_jump_started)
 	if f.has_signal("jump_ended") and not f.is_connected("jump_ended", _on_jump_ended):
@@ -867,6 +876,45 @@ func _on_flight_aborted(reason: String, _pos: Vector3) -> void:
 	_lost_t = 0.0
 	_fx_spawn(false, fit_radius() * _k("flight_juice_lost_size"), fit_radius() * 0.6, 0.45, 0.0, _k("flight_juice_lost_s") * 0.8, COL_LOST, 1)
 	_fx_spawn(false, fit_radius() * _k("flight_juice_lost_size") * 0.6, fit_radius() * 0.6, 0.3, 0.0, _k("flight_juice_lost_s"), COL_LOST, 1, Vector3.ZERO, 0.1)
+
+## T378: a new gig was posted. If it sits in the viewed system, a warm ring pulses twice out of its spot on the real clock
+## (so it also plays during the short pause the arrival holds). Nothing at motion 0.
+func _on_gig_posted(uid: String) -> void:
+	if Juice.motion <= 0.0 or flight == null or not is_instance_valid(flight) or not ("main" in flight) or flight.main == null:
+		return
+	for o in flight.main.gigs.offers:
+		if str(o["uid"]) != uid or int(o["target"]["sys"]) != _view_sys:
+			continue
+		if str(o["target"].get("kind", "point")) == "planet":
+			_appear_pos = flight._planet_pos(int(o["target"]["index"]))
+		else:
+			_appear_pos = flight.main.gigs.target_pos(o)
+		_appear_t0 = Time.get_ticks_msec() * 0.001
+		return
+
+## T378: drives the arrival ring; one pooled mesh, no allocation after the first beat.
+func _update_appear_ring() -> void:
+	if _appear_t0 < 0.0:
+		return
+	var dur := maxf(0.2, float(flight.main.balance.get("gig_appear_beat_s", 1.2)) * Juice.motion) if flight != null and is_instance_valid(flight) and "main" in flight and flight.main != null else 1.2
+	var u := (Time.get_ticks_msec() * 0.001 - _appear_t0) / dur
+	if u >= 1.0 or Juice.motion <= 0.0:
+		_appear_t0 = -1.0
+		if _appear_ring != null:
+			_appear_ring.visible = false
+		return
+	if _appear_ring == null:
+		_appear_ring = MeshInstance3D.new()
+		_appear_ring.mesh = _gig_ring_mesh(sel_radius(), GIG_RING_THICK * 1.5)
+		_appear_ring.material_override = _gig_ring_mat()
+		_appear_ring.top_level = true
+		add_child(_appear_ring)
+	var ph := fmod(u * 2.0, 1.0)  # two pulses across the beat
+	var e := 1.0 - pow(1.0 - ph, 3.0)
+	_appear_ring.global_position = _appear_pos + Vector3(0, LIFT, 0)
+	_appear_ring.scale = Vector3.ONE * lerpf(0.6, GIG_PULSE_SCALE, e)
+	(_appear_ring.material_override as StandardMaterial3D).albedo_color = Color(1.0, 0.82, 0.4, 0.95 * (1.0 - ph) * (1.0 - u * 0.5))
+	_appear_ring.visible = true
 
 ## T375: the gig's marker ring fades in place instead of popping when its offer runs out.
 func _on_offer_expired(uid: String, _kind: String, _was_target: bool) -> void:

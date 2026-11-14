@@ -756,43 +756,7 @@ func _apply_juice() -> void:
 
 ## ---- T278 lane ships ----
 
-func _traffic() -> Node:
-	var mp := get_parent()
-	return mp.traffic if mp != null and "traffic" in mp and mp.traffic != null else null
-
-## Keeps the layer's path group for this lane current: set only when status, count, tint or visibility changed
-## (or the layer dropped its groups), cleared when the lane is hidden, faded out or freed. Also drives the dot crossfade.
+## Lane ships are the dots only (owner 2026-11-13): no 3D or triangle ship is drawn on a lane any more, so the dots stay at every zoom.
 func _sync_ships() -> void:
-	var tl := _traffic()
-	if tl == null:
-		return
 	if _dot_mat != null:
-		_dot_mat.set_shader_parameter("far", 1.0 - float(tl.fade))
-	var on := is_visible_in_tree() and _fade_t < 0.0 and _ship_count > 0 and _ship_status != "" and _dot_count != 0
-	var sig := ""
-	if on:
-		sig = "%s|%d|%s" % [_ship_status, _ship_count, _ship_cargo.to_html()]
-	if sig == _ship_sig and (sig == "" or _ship_gen == int(tl.generation)):
-		return
-	_ship_sig = sig
-	_ship_gen = int(tl.generation)
-	var key := "lane%d" % route_id
-	if not on:
-		tl.clear_group(key)
-		return
-	var st := 0
-	if _ship_status == "blocked":
-		st = 2
-	elif _ship_status != "running":
-		st = 1
-	var n := mini(_ship_count, DOT_MAX) if st == 0 else 1  # a parked lane shows one ship, as the dots do
-	var mp := get_parent()  # T309: ships land on the planets' discs (the ends were offset by the line's radius, the discs are each planet's own)
-	var ra: float = mp.planet_radius(pair_a) if pair_a >= 0 and pair_b >= 0 and "positions" in mp and pair_a < mp.positions.size() and pair_b < mp.positions.size() else 0.0
-	var rb: float = mp.planet_radius(pair_b) if ra > 0.0 else 0.0
-	tl.set_path_group(key, _p0, _c, _p2, n, st, _ship_cargo, "corvette", 1.0, 1.0, ra, rb, radius)
-
-func _exit_tree() -> void:
-	var tl := _traffic()
-	if tl != null and _ship_sig != "":
-		tl.clear_group("lane%d" % route_id)
-	_ship_sig = ""
+		_dot_mat.set_shader_parameter("far", 1.0)

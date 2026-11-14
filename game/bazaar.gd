@@ -91,6 +91,34 @@ func founding_worlds(sys: int) -> Array:
 func can_found(sys: int) -> bool:
 	return game != null and not is_founded() and game.station_systems.has(sys) and not founding_worlds(sys).is_empty()
 
+## Credits founding costs (balance bazaar_found_cost); ore in the system's planet storages lowers it (main.ore_discount).
+func found_cost() -> int:
+	return _bal("bazaar_found_cost", 0)
+
+func found_discount(sys: int) -> Dictionary:
+	return game.ore_discount(sys, found_cost())
+
+## Hub prerequisite: a planet hub of the system that has worked hub_found_cycles cycles and moved hub_found_trades units.
+## {ok, age, moved, need_age, need_moved} of the best hub there (zeros when the system has none).
+func hub_ready(sys: int) -> Dictionary:
+	var need_age := _bal("hub_found_cycles", 0)
+	var need_moved := _bal("hub_found_trades", 0)
+	var out := {"ok": false, "age": 0, "moved": 0, "need_age": need_age, "need_moved": need_moved}
+	if game == null:
+		return out
+	for p in game.hubs.hub_planets():
+		if p < 0 or game.system_of(p) != sys:
+			continue
+		var h: Dictionary = game.hubs.hubs[p]
+		var age := int(h.get("age", 0))
+		var moved := int(h.get("moved", 0))
+		if age >= need_age and moved >= need_moved:
+			out["ok"] = true
+		if age + moved >= int(out["age"]) + int(out["moved"]):
+			out["age"] = age
+			out["moved"] = moved
+	return out
+
 func found(sys: int) -> bool:
 	if not can_found(sys):
 		return false
@@ -120,15 +148,23 @@ func bill_status() -> Array:
 	var n := current_stage()
 	if n == 0:
 		return out
+	var ore_need := _bal("bazaar_bill_s%d_ore" % n, 0)  # ore rule: one extra row for every branch (tier 0, kind "ore"); 0 = no row
+	var ore_merged := false
 	for t in range(1, 9):
 		var need := _bal("bazaar_bill_s%d_t%d" % [n, t], 0)
+		var goods := _branch_goods(t)
+		if ore_need > 0 and goods.has("ore") and not ore_merged:
+			need += ore_need  # Minerals: ore is also its tier-1 good, so the ore row is added to that row instead of counting the same stock twice
+			ore_merged = true
 		if need <= 0:
 			continue
-		var goods := _branch_goods(t)
 		var have := 0
 		for g in goods:
 			have += game.storage.amount(site_key(), g)
 		out.append({"tier": t, "need": need, "have": have, "goods": Availability.visible_goods(goods), "ok": have >= need})
+	if ore_need > 0 and not ore_merged:
+		var ore_have: int = game.storage.amount(site_key(), "ore")
+		out.append({"tier": 0, "kind": "ore", "need": ore_need, "have": ore_have, "goods": Availability.visible_goods(["ore"]), "ok": ore_have >= ore_need})
 	return out
 
 func bill_ok() -> bool:
@@ -285,7 +321,7 @@ func _bill_record(r: Dictionary) -> Dictionary:
 		"source": -1, "source_price": 0, "fed": false}
 	var best_cost := 1 << 30
 	for g in r["goods"]:  # visible goods only: a hidden good is never named
-		var src := _source_of(str(g))
+		var src := _source_of(str(g)) if str(g) != "ore" else {"planet": -1, "price": 0}  # ore is mined, never bought
 		var cost: int = int(src["price"]) if int(src["planet"]) >= 0 and int(src["price"]) > 0 else 1 << 29  # not sold anywhere reachable: last choice
 		var fed := is_fed(str(g))
 		if fed:
@@ -353,6 +389,8 @@ func step_line(rec: Dictionary) -> String:
 			var v := {"stage": stage_name, "amount": int(rec["amount"]), "good": good}
 			if bool(rec["fed"]):
 				return StoryText.get_or("BAZ_STEP_BILL_FED", "{stage}: {amount} {good} still to arrive at the Star Bazaar. Your route is on; wait for the cycles.", v)
+			if str(rec["good"]) == "ore":
+				return StoryText.get_or("BAZ_STEP_BILL_ORE", "{stage} needs {amount} {good} held in the Star Bazaar's storage. Mine it and send it to the Star Bazaar.", v)
 			if int(rec["source"]) >= 0:
 				v["source"] = game.planet_name(int(rec["source"]))
 				v["price"] = int(rec["source_price"])
@@ -383,21 +421,27 @@ func remind_line(cycle: int) -> String:
 ## reclaimed (planet indexes), decisive (Chains.decisive_moments())}. Counts are for the screen; epilogue text never shows them.
 func recap() -> Dictionary:
 	var per := {}
+	var names := {}  # tier -> [world names], for the end story
 	var reclaimed := []
+	var reclaimed_names := []
 	if game != null:
 		for i in game.map.planets.size():
 			var t: int = game.prosperity.tier(i)
 			if t >= 1:
 				per[t] = int(per.get(t, 0)) + 1
+				if not names.has(t):
+					names[t] = []
+				names[t].append(game.planet_name(i))
 			if game.prosperity.is_reclaimed(i):
 				reclaimed.append(i)
+				reclaimed_names.append(game.planet_name(i))
 	return {"site": _site, "stages": _stage, "stages_total": stages_total(), "wings": wings.duplicate(), "worlds_per_tier": per,
-		"reclaimed": reclaimed, "decisive": Chains.decisive_moments()}
+		"worlds_names": names, "reclaimed": reclaimed, "reclaimed_names": reclaimed_names, "decisive": Chains.decisive_moments()}
 
 func _consume_bill() -> void:
 	for r in bill_status():
 		var left := int(r["need"])
-		for g in _branch_goods(int(r["tier"])):
+		for g in (["ore"] if str(r.get("kind", "")) == "ore" else _branch_goods(int(r["tier"]))):
 			if left <= 0:
 				break
 			left -= game.storage.remove(site_key(), g, left)

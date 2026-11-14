@@ -54,6 +54,86 @@ func note(text: String) -> void:
 
 # ---- shared helpers -----------------------------------------------------------------------------------------------------
 
+## Founding rule: a planet hub of the site system must have worked and moved units (hub_ready), and found_discount cash must be in hand.
+## Cash to keep back (0 = none) once a hub is nearly ready (so ships are not bought below the founding bill).
+func found_hold() -> int:
+	if main.bazaar.is_founded():
+		return 0
+	var hold := 0
+	for h in main.hubs.hub_planets():
+		if int(h) < 0:
+			continue
+		var sid: int = int(main.system_of(int(h)))
+		var hr: Dictionary = main.bazaar.hub_ready(sid)
+		if int(hr["age"]) >= int(hr["need_age"]) - 2 and int(hr["moved"]) * 2 >= int(hr["need_moved"]):
+			hold = maxi(hold, int(main.bazaar.found_discount(sid)["cash"]))
+	return hold
+
+
+## True while a planet hub still has to move units for the founding rule: the hub then feeds its ticked worlds' needs itself,
+## so the bot leaves those needs to it (a manual lane would count as "covered" and the hub would carry nothing).
+func hub_owns_need(w: int) -> bool:
+	if main.bazaar.is_founded():
+		return false
+	for h in main.hubs.hub_planets():
+		if int(h) < 0:
+			continue
+		var hr: Dictionary = main.bazaar.hub_ready(int(main.system_of(int(h))))
+		if bool(hr["ok"]):
+			continue
+		if main.hubs.worlds_in_reach(int(h)).has(w) and not bool(main.hubs.is_world_off(int(h), w)):
+			return true
+	return false
+
+
+## Drop the manual need lanes into worlds a hub owns (see hub_owns_need), so the hub has needs to carry.
+func hub_clear_lanes() -> void:
+	for r in main.engine.routes.duplicate():
+		var w := int(r["b"])
+		if w < 0 or a.Clusters.is_node(int(r["a"])) or not hub_owns_need(w):
+			continue
+		for n in main.prosperity.needs(w):
+			if str(n["good"]) == str(r["c"]) and not bool(n["locked"]):
+				a.remove_route(int(r["id"]), "panel")
+				note("lane %s into %s left to the hub" % [str(r["c"]), a.world_name(w)])
+				break
+
+
+## Ore rule: a founded Bazaar's bill has an ore row (tier 0, kind "ore"; Minerals: merged into tier 1). Ore comes only from clusters
+## (FND_PROSPECT), so learn it as soon as a bill row asks for ore that is not met (the row shows no goods while ore is hidden).
+func bill_ore_unmet() -> bool:
+	if not main.bazaar.is_founded() or main.bazaar.complete():
+		return false
+	for row in main.bazaar.bill_status():
+		if bool(row["ok"]):
+			continue
+		if str(row.get("kind", "")) == "ore" or (row["goods"] as Array).has("ore") or (str(main.run_branch()) == "min" and int(row["tier"]) == 1):
+			return true
+	return false
+
+
+func ensure_prospect() -> void:
+	if main.can_mine() or not bill_ore_unmet():
+		return
+	learn_in_order(["FND_PROSPECT"], 1)
+
+
+## One cluster lane carrying ore straight into the site's Space Storage (cap = -site system); true when one is made.
+func mine_ore_into(cap: int) -> bool:
+	if not main.can_mine() or cap >= 0:
+		return false
+	for r in main.engine.routes:
+		if int(r["b"]) == cap and str(r["c"]) == "ore" and a.Clusters.is_node(int(r["a"])) and str(r["state"]) != "stalled":
+			return false  # a live ore lane already feeds the bill
+	for cl in a.cluster_list():
+		if str(cl.get("good", "")) != "ore" or not main.open_systems.has(int(cl["system"])):
+			continue
+		var r2: Dictionary = a.send_cluster(int(cl["index"]), cap)
+		if bool(r2["ok"]):
+			note("ore lane cluster %d -> Star Bazaar" % int(cl["index"]))
+			return true
+	return false
+
 ## Learn the first affordable skill of `order` (ids not in the run's tree or already known are skipped). Returns ids learned.
 func learn_in_order(order: Array, max_n: int = 3) -> Array:
 	var got: Array = []

@@ -21,6 +21,7 @@ const BRANCH_SUFFIX := {"mil": "MIL", "lux": "LUX", "min": "MIN", "bio": "BIO"}
 
 signal scooped                 # T300: the Flagship scooped salvage pods (juice)
 signal changed                 # the board changed (offer opened, done, expired)
+signal gig_posted(uid: String)  # T378: a NEW offer was appended (signal, salvage, opening); not on load, not on expiry (juice beat)
 signal offer_expired(uid: String, kind: String, was_target: bool)  # T374: an offer ran out of time (not the left-system case); was_target = the Flagship was flying to it and stopped
 signal arrival(uid: String)    # the Flagship reached a signal marker: main opens the window
 
@@ -114,10 +115,11 @@ func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int,
 	offers.append({"uid": uid, "id": uid, "kind": "salvage", "target": {"kind": "point", "sys": sys, "pos": [pos.x, 0.0, pos.z]},
 		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count), "lane": lane})
 	changed.emit()
+	gig_posted.emit(uid)
 
 ## T298: the Opening offer at the Star Bazaar station of system sys (one at a time). Not limited by the board size.
 ## The target has kind "station" (index = system id) and the station's map position, which the Flagship ring and ETA read.
-func post_opening(sys: int) -> void:
+func post_opening(sys: int, announce: bool = true) -> void:
 	if has_opening():
 		return
 	_uid += 1
@@ -128,6 +130,8 @@ func post_opening(sys: int) -> void:
 	offers.append({"uid": uid, "id": "opening", "kind": "opening", "target": {"kind": "station", "sys": sys, "index": sys, "pos": [sp.x, 0.0, sp.z]}, "due": _now() + _bal("gig_opening_life", 100000.0),
 		"accepted": false, "req": {}, "rewards": []})
 	changed.emit()
+	if announce:
+		gig_posted.emit(uid)
 
 func has_opening() -> bool:
 	for o in offers:
@@ -142,7 +146,7 @@ func ensure_opening() -> void:
 	var o := opening_offer()
 	if not o.is_empty() and str(o["target"].get("kind", "planet")) == "planet":
 		offers.erase(o)
-	post_opening(main.bazaar.site_system())
+	post_opening(main.bazaar.site_system(), false)  # T378: a load is no new arrival
 
 ## The Flagship reached a Space Storage station (a "storage" flight ended): at the Star Bazaar with an open Opening, the Bazaar opens and the run is won.
 func on_arrived_storage(sys: int) -> void:
@@ -360,6 +364,7 @@ func _open_signal(g: Dictionary, cycle: int, rng: RandomNumberGenerator) -> void
 	signals_seen += 1
 	last_signal_cycle = cycle
 	changed.emit()
+	gig_posted.emit(str(g["id"]))
 
 # ---- the player's side -----------------------------------------------------------------------------------------------
 
@@ -379,9 +384,10 @@ func accept(uid: String) -> String:
 		r = main.flight.request_fly({"kind": "planet", "index": int(t["index"])})
 	else:
 		var p: Array = t["pos"]
-		r = main.flight.request_fly({"kind": "point", "pos": Vector3(float(p[0]), 0.0, float(p[2]))})
+		r = main.flight.request_fly({"kind": "point", "sys": int(t.get("sys", main.flight.system_id())), "pos": Vector3(float(p[0]), 0.0, float(p[2]))})
 	if r == "":
 		o["accepted"] = true
+		main.decisions.add("gig_accepted", main.cycle, str(o["id"]))
 	return r
 
 func target_pos(o: Dictionary) -> Vector3:

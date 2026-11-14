@@ -123,8 +123,8 @@ func eta(o: Dictionary) -> float:
 	var t: Dictionary = o["target"]
 	if str(t["kind"]) == "planet":
 		return f.eta_cycles(str(main.map.planets[int(t["index"])].get("id", "")))
-	if int(t["sys"]) != f.system_id():
-		return -1.0
+	if int(t["sys"]) != f.system_id() and not main.open_systems.has(int(t["sys"])):
+		return -1.0  # only a system without a permit is out of reach; another open system is a jump away
 	return f._flight_cycles(f.ship_position(), main.gigs.target_pos(o), int(t["sys"]))
 
 func _add_row(o: Dictionary) -> void:

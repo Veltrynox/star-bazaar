@@ -146,3 +146,15 @@ Need pricing (T257): prices follow need. A need opens a buyer at a world that ha
 Growth on the map (T264): each world with a post draws a thin ring of notches (progress in its tier; amber-red while it is restless) and its need icons under the name: met bright, a short amber pulse when a need becomes met, unmet dim, locked as "?". Closed, barren and not-yet-established worlds show nothing. The Star Bazaar station swaps its model and gets a stage flash and ring at the station. Drawn in screen space, ignores clicks.
 
 Planet tier look (T265): a grown world looks grown. Night-side city lights (a few points at tier 1, denser per tier) and a warm halo ring show on the planet, driven by its Prosperity tier. A tier change eases in over about a second (scaled by the motion setting). Planet size and dead worlds are unchanged.
+
+Owner changes 2026-11-13.
+- Skills: a skill is learned by holding the left mouse button on its node (a ring fills round it); there is no Learn button. Each learned skill posts a notice that the investor board is pleased.
+- A Storage Link between two Space Storages stays once built: it has no Remove button.
+- Hubs: the hub panel shows an alert while worlds are ticked and the pool has no ship.
+- Asteroid ore can be routed by every branch (the cluster route check no longer applies the branch rule).
+- Map: lane ships are drawn as dots only; asteroid packs are longer and almost still, they only travel their orbit.
+- Gigs: a gig in another open system can be accepted; the Flagship jumps there. A new gig plays a short beat on its icon and on the map and holds the game paused for a moment.
+- Decision log: the run records the player's decisions (routes, orders, ships, skills, permits, posts, workshops, hubs, links, event and gig choices, wings, the founding), saved with the run.
+- End screen: the ending is one scene told from the run. Each ending has an opening and a closing; between them the CEO's own beats say what the run did (the Bazaar, the wings, worlds grown per tier by name, posts, systems, fleet, routes, skills, workshops, signals, hungry worlds, rescues, repossessions, the decisive moments, how the worlds now answer). A beat with nothing to say is left out. Plain numbers sit in one small line at the end. Each CEO has their own preface on the start screen.
+- Event and gig texts were rewritten (same choices and effects).
+

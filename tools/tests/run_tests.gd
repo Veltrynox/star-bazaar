@@ -143,6 +143,7 @@ func _run() -> void:
 	_test_engine_plume()
 	await _test_hub_same_system()
 	await _test_bazaar_station()
+	await _test_sale_rules()
 	_test_hub_explain_ids()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -2357,6 +2358,7 @@ func _test_main() -> void:
 	for n in [1, 2]:
 		for t in range(1, 5):
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
+		m.balance["bazaar_bill_s%d_ore" % n] = 0  # the extra ore row is tested on its own below
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	var site := 1
 	check(not bz.can_found(site), "bazaar: a system without its Space Storage station cannot be the site")
@@ -3445,7 +3447,7 @@ func _test_rescue_waiting() -> void:
 	m.tips_seen.erase("TIP_UPGRADE")
 	check(not m.tip_due(tdef), "T353: the upgrade tip is not due before a full lane is shown")
 	m.planet_panel.show_planet(0, 21)
-	check(m.tip_due(tdef), "T353: opening the full lane's card makes the upgrade tip due")
+	check(not m.tip_due(tdef), "T353: opening the full lane's card no longer raises the upgrade tip (no Upgrade button; the lane event gives the bonus)")
 	m.tip_sig = {}
 	m._connect(0, 1, c)
 	check(m.tip_due(tdef), "T353: a refused add-ship click on the full lane makes it due")
@@ -3457,11 +3459,11 @@ func _test_rescue_waiting() -> void:
 	check(m.tip_next() != "TIP_UPGRADE", "T353: the upgrade tip does not come back once seen")
 	m.planet_panel.show_planet(0, 21)
 	var ub: Button = _find_named(m.planet_panel, "UpgradeRouteButton") as Button
-	check(ub != null and not ub.disabled and _find_named(m.planet_panel, "UpgradeRouteTaken") == null, "T147: full lane shows an enabled Upgrade route button")
+	check(ub == null and _find_named(m.planet_panel, "UpgradeRouteTaken") == null, "T147: a full lane at level 1 shows no Upgrade route button (the lane event replaced it)")
 	m.cash = cost - 1
 	m.planet_panel.show_planet(0, 21)
 	ub = _find_named(m.planet_panel, "UpgradeRouteButton") as Button
-	check(ub != null and ub.disabled and ub.tooltip_text != "", "T147: button disabled with a reason when cash is short")
+	check(ub == null and not m.can_upgrade_route(21)["ok"] and str(m.can_upgrade_route(21)["reason"]) != "", "T147: no button; the refusal carries a reason")
 	m.cash = 5000
 	var short0: Dictionary = e.new_record(2, 3, c)
 	short0["id"] = 41
@@ -3470,15 +3472,12 @@ func _test_rescue_waiting() -> void:
 	check(_find_named(m.planet_panel, "UpgradeRouteButton") == null and _find_named(m.planet_panel, "UpgradeLine") == null, "T147: a lane that is not full shows no upgrade button")
 	e.routes.erase(short0)
 	m.planet_panel.show_planet(0, 21)
-	(_find_named(m.planet_panel, "UpgradeRouteButton") as Button).pressed.emit()
-	check(e.lane_level(0, 1, c) == 2 and m.cash == 5000 - cost, "T147: pressing the button upgrades the lane")
-	m.cash = 5000 + cost  # restore for the checks below
-	e.set_lane_level(0, 1, c, 1)
-	m.cash = 5000
-	var up: Dictionary = m.upgrade_route(21)
+	check(not m.upgrade_route(21)["ok"] and e.lane_level(0, 1, c) == 1 and m.cash == 5000, "T147: upgrade_route is refused, the lane is not upgraded by a click")
+	e.set_lane_level(0, 1, c, 2)  # the lane event sets level 2 on Accept (main._check_lane_bonus)
+	var up: Dictionary = {"ok": true}
 	m.planet_panel.show_planet(0, 21)
 	check(_find_named(m.planet_panel, "UpgradeRouteButton") == null and _find_named(m.planet_panel, "UpgradeRouteTaken") != null, "T147: upgraded lane shows it as taken, no button")
-	check(up["ok"] and m.cash == 5000 - cost and e.lane_level(0, 1, c) == 2, "T145: upgrade charges upgrade_cost once and sets level 2", str(up))
+	check(up["ok"] and m.cash == 5000 and e.lane_level(0, 1, c) == 2, "T145: the lane event sets level 2 and charges nothing", str(up))
 	var m2: int = e.route_margin(0, 1, c, 2)
 	if m1 > 0:
 		check(m2 > m1 and m2 == roundi(float(m1) * (1.0 + float(m.balance["upgrade_margin_bonus"]))), "T145: margin rises by upgrade_margin_bonus", "%d -> %d" % [m1, m2])
@@ -9933,11 +9932,15 @@ func _test_bazaar_station() -> void:
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	m.balance["bazaar_bill_s1_t1"] = 5
+	m.balance["bazaar_bill_s1_ore"] = 0  # the ore row has its own test
+	m.balance["bazaar_found_cost"] = 0  # founding cost and the hub prerequisite have their own tests
+	m.balance["hub_found_cycles"] = 0
+	m.balance["hub_found_trades"] = 0
 	check(not bz.can_found(1), "bazaar site: no Space Storage station, no founding")
 	m.station_systems.append(1)
 	# a planet hub in the system moves into the Bazaar hub at founding
 	m.balance["hub_tier"] = 1
-	m.balance["hub_pool_max"] = 4
+	m.balance["hub_pool_max"] = 3
 	m.cash = 100000
 	var hub_world := -1
 	for w in bz.founding_worlds(1):
@@ -9975,6 +9978,82 @@ func _test_bazaar_station() -> void:
 	check(m.storage.amount(key, "ore") == 10 and m.workshops.status_text("smelter") == StoryText.get_or("LBL_WORKSHOP_OFF", "Production off"), "workshop: with production off the stock is untouched")
 	await _free_main(m)
 
+## 2026-11-13 rules: hub pool caps, lane fatigue, unrest cut, ore price by tier, ore build credit, the Bazaar's extra ore bill row.
+func _test_sale_rules() -> void:
+	var m: Control = await _new_main(false, false)
+	m._dismiss_preface()
+	var e = m.engine
+	# pool caps: planet hub vs Star Bazaar hub
+	check(m.hubs.pool_max(0) == int(m.balance["hub_pool_max"]) and m.hubs.pool_max(-1) == int(m.balance["hub_pool_max_bazaar"]) and m.hubs.pool_max(-1) > m.hubs.pool_max(0), "pool_max: planet hub hub_pool_max, Star Bazaar hub hub_pool_max_bazaar")
+	# lane fatigue: step per cycle of non-need sales, cap, recover, gone at 0
+	m.balance["lane_fatigue_step_pct"] = 4
+	m.balance["lane_fatigue_recover_pct"] = 8
+	m.balance["lane_fatigue_max_pct"] = 6
+	e.fatigue = {}
+	e._fat_sold = {"0|energy": true}
+	e.fatigue_end_cycle()
+	check(e.fatigue_pct(0, "energy") == 4.0, "fatigue: a cycle of non-need sales adds lane_fatigue_step_pct")
+	e._fat_sold = {"0|energy": true}
+	e.fatigue_end_cycle()
+	check(e.fatigue_pct(0, "energy") == 6.0, "fatigue: capped at lane_fatigue_max_pct")
+	e.fatigue_end_cycle()
+	check(e.fatigue_pct(0, "energy") == 0.0 and e.fatigue.is_empty(), "fatigue: a cycle without sales recovers lane_fatigue_recover_pct, erased at 0")
+	var base_p: int = e.sold_price(0, "energy")
+	e.fatigue = {"0|energy": 10.0}
+	var fat_p: int = e.sold_price(0, "energy")
+	check(base_p <= 0 or fat_p == maxi(1, roundi(float(base_p) * 0.9)) or e.prosperity.is_need(0, "energy"), "fatigue: a fatigued non-need good sells that percent lower", "%d -> %d" % [base_p, fat_p])
+	e.fatigue = {}
+	# unrest: each restless world with a trade post cuts the system's sale prices, capped
+	var sys: int = m.system_of(0)
+	var pid: String = e.prosperity._pid(0)
+	m.balance["unrest_price_pct"] = 2
+	m.balance["unrest_price_cap_pct"] = 20
+	check(e.unrest_cut_pct(sys) == 0.0, "unrest: no restless world, no cut")
+	e.post_fn = func(_i): return true
+	e.prosperity._restless[pid] = true
+	check(e.unrest_cut_pct(sys) == 2.0, "unrest: one restless world with a post cuts unrest_price_pct")
+	m.balance["unrest_price_cap_pct"] = 1
+	check(e.unrest_cut_pct(sys) == 1.0, "unrest: the cut stops at unrest_price_cap_pct")
+	e.post_fn = func(_i): return false
+	check(e.unrest_cut_pct(sys) == 0.0, "unrest: a restless world without a trade post does not count")
+	e.prosperity._restless.erase(pid)
+	# ore pays more at tier 2 and 3 worlds
+	var lp: int = e.local_price(0, "ore", "sell")
+	if lp > 0:
+		e.prosperity._tier[pid] = 2
+		check(e.sold_price(0, "ore") == maxi(1, roundi(float(lp) * float(m.balance["ore_price_t2"]))), "ore price: tier 2 world pays x ore_price_t2")
+		e.prosperity._tier[pid] = 3
+		check(e.sold_price(0, "ore") == maxi(1, roundi(float(lp) * float(m.balance["ore_price_t3"]))), "ore price: tier 3 world pays x ore_price_t3")
+		e.prosperity._tier.erase(pid)
+	# ore build credit: ore in the system's planet storages pays part of a price, up to ore_build_max_pct
+	m.balance["ore_build_credit"] = 15
+	m.balance["ore_build_max_pct"] = 30
+	var od: Dictionary = m.ore_discount(sys, 1000)
+	check(int(od["cash"]) == 1000 and int(od["ore"]) == 0, "ore_discount: no ore, the full price")
+	var pkey: String = m.storage.planet_key(0)
+	m.storage.add(pkey, "ore", 4)
+	od = m.ore_discount(sys, 1000)
+	var have: int = m.storage.amount(pkey, "ore")
+	check(int(od["ore"]) == mini(have, 20) and int(od["cash"]) == 1000 - mini(have, 20) * 15, "ore_discount: each ore unit pays ore_build_credit", str(od))
+	m.storage.add(pkey, "ore", 500)
+	od = m.ore_discount(sys, 1000)
+	check(int(od["ore"]) <= 20 and int(od["cash"]) >= 700, "ore_discount: capped at ore_build_max_pct of the price", str(od))
+	# the Bazaar's extra ore bill row
+	var bz: Bazaar = m.bazaar
+	m.balance["bazaar_capital_tier"] = 1
+	for t in range(1, 9):
+		m.balance["bazaar_bill_s1_t%d" % t] = 0
+	m.balance["bazaar_quorum_count_s1"] = 0
+	m.balance["bazaar_bill_s1_ore"] = 20
+	m.station_systems.append(1)
+	check(bz.found(1), "bill ore row: founded")
+	var rows: Array = bz.bill_status()
+	var ore_row_ok: bool = (str(rows[0].get("kind", "")) == "ore" and int(rows[0]["tier"]) == 0) if not bz._branch_goods(1).has("ore") else (int(rows[0]["tier"]) == 1 and rows[0]["goods"].has("ore"))  # Minerals: ore is its tier-1 good, the need merges into that row
+	check(rows.size() == 1 and ore_row_ok and int(rows[0]["need"]) == 20 and not bool(rows[0]["ok"]), "bill ore row: one row carries bazaar_bill_s1_ore (own tier-0 ore row, or merged into Minerals' tier-1 row)", str(rows))
+	m.storage.add(Storage.system_key(1), "ore", 20)
+	check(bz.bill_ok(), "bill ore row: ore held in the Space Storage meets it")
+	await _free_main(m)
+
 ## T361: Bazaar.next_step, the fed flag, the reminder cadence and an older (v23) save.
 func _test_bazaar_guidance() -> void:
 	var m: Control = await _new_main(false, false)
@@ -9987,6 +10066,7 @@ func _test_bazaar_guidance() -> void:
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	m.balance["bazaar_bill_s1_t1"] = 50
+	m.balance["bazaar_bill_s1_ore"] = 0  # the ore row has its own test
 	var site := 1
 	m.station_systems.append(site)
 	check(str(bz.next_step()["kind"]) == "found" and int(bz.next_step()["site"]) == site, "guidance: before founding the step is found, naming the system")
@@ -10021,6 +10101,7 @@ func _test_bazaar_guidance_ui() -> void:
 			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
 		m.balance["bazaar_quorum_count_s%d" % n] = 0
 	m.balance["bazaar_bill_s1_t1"] = 50
+	m.balance["bazaar_bill_s1_ore"] = 0  # the ore row has its own test
 	var site := 1
 	m.station_systems.append(site)
 	bz.found(site)

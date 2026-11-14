@@ -120,6 +120,15 @@ func _bazaar_block(is_bz: bool) -> void:
 			fb.text = StoryText.get_or("BAZ_FOUND_BTN", "Found the Bazaar here")
 			fb.tooltip_text = StoryText.get_or("BAZ_FOUND_TIP", "Raise the Star Bazaar in this Space Storage. Once per run, final.")
 			fb.pressed.connect(_ask_found_bazaar)
+			var hr: Dictionary = bz.hub_ready(system_id)
+			var fd: Dictionary = bz.found_discount(system_id)
+			fb.text = "%s (%s)" % [fb.text, main.build_price_text(fd)]
+			if not bool(hr["ok"]):
+				fb.disabled = true
+				fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NEED_HUB", "Needs a hub in this system that has worked {cycles} cycles ({age} now) and moved {units} units ({moved} now).", {"cycles": hr["need_age"], "age": hr["age"], "units": hr["need_moved"], "moved": hr["moved"]})
+			elif main.cash < int(fd["cash"]):
+				fb.disabled = true
+				fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NEED_CASH", "Not enough credits. Ore in this system's planet storages lowers the price.")
 			box.add_child(fb)
 		return
 	box.add_child(HSeparator.new())
@@ -244,7 +253,8 @@ func _fabric_rows() -> void:
 	if not f.built:
 		var b := Button.new()
 		b.name = "FabricBuild"
-		b.text = StoryText.get_or("SS_FABRIC_BUILD", "Build fabric ({cost} cr)", {"cost": f.build_cost()})
+		var od: Dictionary = main.fabric_discount()
+		b.text = main.with_ore_part(StoryText.get_or("SS_FABRIC_BUILD", "Build fabric ({cost} cr)", {"cost": int(od["cash"])}), od)
 		b.disabled = not main.can_build_fabric()["ok"]
 		b.pressed.connect(func(): main.build_fabric(); refresh())
 		box.add_child(b)
@@ -281,7 +291,8 @@ func _fabric_rows() -> void:
 	if f.core_made < f.core_max():
 		var cb := Button.new()
 		cb.name = "CoreBuild"
-		cb.text = StoryText.get_or("SS_NULL_CORE_BUILD", "Build Null Core ({cost} cr)", {"cost": f.core_cost()})
+		var od: Dictionary = main.core_discount()
+		cb.text = main.with_ore_part(StoryText.get_or("SS_NULL_CORE_BUILD", "Build Null Core ({cost} cr)", {"cost": int(od["cash"])}), od)
 		cb.disabled = not main.can_build_core()["ok"]
 		cb.pressed.connect(func(): main.build_null_core(); refresh())
 		box.add_child(cb)
@@ -351,7 +362,8 @@ func _workshop_rows() -> void:
 		else:
 			var b := Button.new()
 			b.name = "WorkshopBuild_" + str(id)
-			b.text = StoryText.get_or("BTN_WORKSHOP_BUILD", "Build {workshop} ({cost} cr)", {"workshop": nm, "cost": ws.build_cost(id)})
+			var od: Dictionary = main.workshop_discount(str(id), system_id)
+			b.text = main.with_ore_part(StoryText.get_or("BTN_WORKSHOP_BUILD", "Build {workshop} ({cost} cr)", {"workshop": nm, "cost": int(od["cash"])}), od)
 			b.disabled = not main.can_build_workshop(str(id), system_id)["ok"]
 			b.pressed.connect(func(): main.build_workshop(str(id), system_id); refresh())
 			box.add_child(b)
@@ -513,11 +525,7 @@ func _link_rows(id: int) -> void:
 		ab.tooltip_text = StoryText.get_or("SS_LINK_NOT_REFUSED_ORDERS", "This link has all the orders it can hold.")
 	ab.pressed.connect(_open_order.bind(id, "", int(info["a"]), 10))
 	acts.add_child(ab)
-	var rb := Button.new()
-	rb.name = "LinkRemove_%d" % id
-	rb.text = StoryText.get_or("SS_LINK_UI_BTN_REMOVE_LINK", "Remove link")
-	rb.pressed.connect(func(): sl.remove_link(id))
-	acts.add_child(rb)
+	# Owner 2026-11-13: no Remove link button; a Storage Link between systems stays once built.
 
 func _open_build() -> void:
 	var ps := _partners()

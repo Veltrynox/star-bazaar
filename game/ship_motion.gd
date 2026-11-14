@@ -25,7 +25,8 @@ static func forward(yaw: float) -> Vector2:
 	return Vector2(-sin(yaw), -cos(yaw))
 
 ## s = {pos: Vector2, yaw: float, speed: float}; returns the same dictionary updated plus "arrived": bool.
-static func step(s: Dictionary, target: Vector2, vmax: float, accel: float, brake: float, turn: float, h: float) -> Dictionary:
+## `steer` (Flagship): no turn in place; the ship flies along its heading at once and the speed is capped so its turning circle reaches the target.
+static func step(s: Dictionary, target: Vector2, vmax: float, accel: float, brake: float, turn: float, h: float, steer: bool = false) -> Dictionary:
 	var pos: Vector2 = s["pos"]
 	var yaw: float = s["yaw"]
 	var speed: float = s["speed"]
@@ -37,7 +38,13 @@ static func step(s: Dictionary, target: Vector2, vmax: float, accel: float, brak
 	var dturn := clampf(err, -turn * h, turn * h)
 	yaw = wrapf(yaw + dturn, -PI, PI)
 	err -= dturn
-	var vd := vmax if absf(err) <= ALIGN else 0.0
+	var vd := vmax
+	if steer:  # Flagship: fly at once and steer while moving; the speed is capped so the turning circle (speed / turn) always reaches the target, so it never orbits it
+		var sn := sin(minf(absf(err), PI * 0.5))
+		if sn > 0.001:
+			vd = minf(vd, turn * dist / (2.0 * sn))
+	elif absf(err) > ALIGN:
+		vd = 0.0
 	vd = minf(vd, sqrt(2.0 * maxf(brake, 0.0001) * dist))
 	if speed < vd:
 		speed = minf(vd, speed + accel * h)

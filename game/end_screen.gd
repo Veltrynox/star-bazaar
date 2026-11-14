@@ -3,6 +3,7 @@ extends ColorRect
 ## No close button; the game below stays stopped (main.game_over is true while this is shown).
 
 const StoryText := preload("res://game/story_text.gd")
+const EndStory := preload("res://game/end_story.gd")
 
 signal new_game_pressed
 signal continue_pressed
@@ -66,34 +67,6 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
 	return out.slice(0, 4)
 
-## T299: the recap block above the ending text: the Star Bazaar system, stages, wings, worlds grown, reclaimed worlds, the three decisive moments.
-## Data from Bazaar.recap() (stats.recap). Texts by id with plain fallbacks (END_RECAP_*; the story task writes them). Empty recap: nothing drawn.
-## Moments are named by their story id (event or chain step); a moment with no text is skipped.
-func _recap_block(box: Control, rc: Dictionary) -> void:
-	if rc.is_empty():
-		return
-	var lines := []
-	var site := int(rc.get("site", -1))
-	if site >= 0:
-		lines.append(StoryText.get_or("END_RECAP_SITE", "Star Bazaar: {system}", {"system": str(rc.get("site_name", "#%d" % site))}))
-	lines.append(StoryText.get_or("END_RECAP_STAGES", "Stages raised: {n} of {m}", {"n": int(rc.get("stages", 0)), "m": int(rc.get("stages_total", 0))}))
-	for w in rc.get("wings", []):
-		lines.append(StoryText.get_or("END_RECAP_WING", "Wing: {wing}", {"wing": StoryText.get_or("BAZ_%s_NAME" % w, str(w))}))
-	var per: Dictionary = rc.get("worlds_per_tier", {})
-	var tiers := per.keys()
-	tiers.sort()
-	tiers.reverse()
-	for t in tiers:
-		lines.append(StoryText.get_or("END_RECAP_WORLDS", "{n} worlds at {tier}", {"n": int(per[t]), "tier": StoryText.get_or("PROS_TIER_%d" % int(t), "Tier %d" % int(t))}))
-	lines.append(StoryText.get_or("END_RECAP_RECLAIMED", "Reclaimed worlds: {n}", {"n": (rc.get("reclaimed", []) as Array).size()}))
-	for m in rc.get("decisive", []):
-		var id := str(m.get("id", ""))
-		var txt := StoryText.get_or("END_MOMENT_" + id, StoryText.get_or(id + "_TITLE", ""))
-		if txt != "":
-			lines.append(StoryText.get_or("END_RECAP_MOMENT", "Cycle {cycle}: {moment}", {"cycle": int(m.get("cycle", 0)), "moment": txt}))
-	for l in lines:
-		_label(box, l)
-
 ## Name of the workshop of a market ("Smelter"), lower case in running text. Fills {workshop} in epilogue texts (T229).
 static func _workshop_name(market: String) -> String:
 	for id in Workshops.IDS:
@@ -101,10 +74,11 @@ static func _workshop_name(market: String) -> String:
 			return StoryText.get_or("WS_" + id.to_upper() + "_NAME", id).to_lower()
 	return "workshop"
 
-## Ending screen. side: "WIN", "LOSS" or "SOFT". stat is one plain line (win market and share, leading rival, best market).
+## Ending screen. side: "WIN", "LOSS" or "SOFT". Order: title, the ending text, its epilogue, the chronicle (EndStory), one small line of plain numbers.
+## `stat` is kept for callers; the chronicle now says what it said (Bazaar stages).
 ## TODO story: ending texts for the Four Markets ids are not written yet; a plain stub line stands in (marked TODO story).
 ## The readout under the text: the market (stats.market, else the first), the player's share and the three bots.
-func show_ending(ending_id: String, side: String, stats: Dictionary, stat: String = "") -> void:
+func show_ending(ending_id: String, side: String, stats: Dictionary, _stat: String = "") -> void:
 	var box := _box()
 	var fl: Dictionary = stats.get("flavour", {})
 	if not StoryText.has_text(ending_id) and EndingPicker.key_of(ending_id, str(fl.get("market", ""))) != "":  # CEO ending text not written yet: the market fallback stands in
@@ -116,14 +90,24 @@ func show_ending(ending_id: String, side: String, stats: Dictionary, stat: Strin
 	var body_id := ending_id
 	if not StoryText.has_text(body_id) and body_id.ends_with("_BAD"):  # no Bad text written yet: the Good text of the market stands in
 		body_id = body_id.trim_suffix("_BAD") + "_GOOD"
-	_recap_block(box, stats.get("recap", {}))
-	_label(box, StoryText.get_or(body_id, "TODO story: ending text for %s." % ending_id))
-	for line in epilogue_lines(stats.get("flavour", {})):
-		_label(box, line)
-	if stat != "":
-		_label(box, stat)
-	for pair in [["END_STAT_CYCLES", "cycle"], ["END_STAT_CASH", "cash"]]:
-		_label(box, "%s: %s" % [StoryText.get_text(pair[0]), str(stats.get(pair[1], 0))])
+	var kit: bool = EndStory.has_kit(str(stats.get("ending_id", ending_id)))
+	if kit:
+		# Scene kit (story/endings.md ENDB_* and <ID>_OPEN / _CLOSE): the whole ending is one scene told from the run's own numbers.
+		for para in EndStory.paragraphs(side, stats):
+			_label(box, str(para))
+	else:
+		_label(box, StoryText.get_or(body_id, "TODO story: ending text for %s." % ending_id))
+		var epi := epilogue_lines(stats.get("flavour", {}))
+		if not epi.is_empty():
+			_label(box, " ".join(epi))  # one closing paragraph, not a line each
+		var story: Array = EndStory.paragraphs(side, stats)
+		if not story.is_empty():
+			var company := str(stats.get("company", ""))
+			_label(box, StoryText.get_or("END_STORY_HEAD", "What {company} leaves behind", {"company": company}) if company != "" else StoryText.get_or("END_STORY_HEAD_PLAIN", "What you leave behind"), 20, true)
+			for para in story:
+				_label(box, str(para))
+	var foot := _label(box, StoryText.get_or("END_STORY_FOOT", "Cycles taken: {cycles}. Final credits: {cash}.", {"cycles": int(stats.get("cycle", 0)), "cash": int(stats.get("cash", 0))}))
+	foot.theme_type_variation = "LabelMuted"  # the plain numbers, small, at the very end
 	_label(box, StoryText.get_text("END_RUN_OVER"))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)

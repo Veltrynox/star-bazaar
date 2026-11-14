@@ -62,6 +62,7 @@ class NodeFx extends Control:
 	var selected := false
 	var hover := 0.0
 	var pulse := 0.0   # 0..1, set by the screen's single loop
+	var hold := 0.0    # 0..1, long-press learn progress
 	var spin := 0.0    # 0..TAU, the same loop: a bright dash travels round a learnable ring
 	var warm := Color.WHITE
 	var soft := Color.WHITE
@@ -103,6 +104,10 @@ class NodeFx extends Control:
 			_:
 				if hover > 0.0:
 					draw_polyline(pts, Color(1, 1, 1, 0.25 * hover), 1.0, true)
+		if hold > 0.0:
+			var hp := Juice.sub_polyline(pts, 0.0, hold)
+			if hp.size() > 1:
+				draw_polyline(hp, Color(warm.r, warm.g, warm.b, 0.95), 4.0, true)
 		if selected:
 			draw_polyline(Juice.rr_points(r.grow(2.0), RING_RADIUS + RING_GAP + 2.0), Color(warm.r, warm.g, warm.b, 0.95), 2.0, true)
 
@@ -549,6 +554,9 @@ func _node_cell(id: String) -> Control:
 	btn.add_theme_constant_override("icon_max_width", ICON_PX)
 	btn.pressed.connect(select.bind(id))
 	var fx := NodeFx.new()
+	btn.button_down.connect(_hold_start.bind(id))
+	btn.button_up.connect(_hold_cancel)
+	btn.mouse_exited.connect(_hold_cancel)
 	fx.warm = Ui.col("star_warm")
 	fx.soft = COL_AVAILABLE
 	btn.add_child(fx)
@@ -947,7 +955,7 @@ func _build_detail() -> void:
 	var id := selected
 	var learned: Array = main.learned_skills
 	var tech := SkillTree.is_tech(id)
-	_label("%s  (%s)" % [SkillTree.skill_name(id), StoryText.get_text("SK_KIND_TECH" if tech else "SK_KIND_SKILL")], 20)
+	_label(SkillTree.skill_name(id), 20)
 	_label(StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id)))  # line 1: what it does
 	var story := _label(SkillTree.flavour(id))  # line 2: the story line, quieter than line 1
 	story.set_meta("dim", true)
@@ -971,32 +979,49 @@ func _build_detail() -> void:
 		_label(StoryText.get_text("SK_NOT_ENOUGH"))
 	if tech:
 		return  # a tech is finished by crafting, nothing to click
-	learn_button = Button.new()
-	learn_button.theme_type_variation = "ButtonPrimary"
-	match st:
-		"learned":
-			learn_button.text = StoryText.get_text("SK_BTN_LEARNED")
-		"locked":
-			learn_button.text = StoryText.get_text("SK_BTN_LOCKED")
-		_:
-			learn_button.text = learn_text(SkillTree.cost(main.balance, id))
-	learn_button.disabled = st != "learnable" or earn_lock != "" or main.tut_lock_active()
-	if earn_lock != "":
-		learn_button.tooltip_text = earn_lock
-	elif st == "points":
-		learn_button.tooltip_text = StoryText.get_text("SK_NOT_ENOUGH")
-	elif st == "locked" and not names.is_empty():
-		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
-	_hover_lift(learn_button)
-	learn_button.pressed.connect(confirm_learn)  # one step: the Learn button learns at once
-	learn_button.set_meta("compact", true)  # owner 2026-11-12: a smaller Learn button, its frame glow no longer runs over the text above
-	var learn_pad := MarginContainer.new()
-	learn_pad.add_theme_constant_override("margin_top", 10)
-	learn_pad.add_theme_constant_override("margin_bottom", 6)
-	learn_pad.add_theme_constant_override("margin_left", 6)
-	learn_pad.add_theme_constant_override("margin_right", 6)
-	learn_pad.add_child(learn_button)
-	detail_box.add_child(learn_pad)
+	if _can_hold_learn(id):
+		var hint := _label(StoryText.get_text("SK_HOLD_LEARN", {"amount": SkillTree.cost(main.balance, id)}))
+		hint.set_meta("dim", true)
+		hint.modulate = Color(1, 1, 1, 0.7)
+
+const HOLD_SECONDS := 0.6
+var _hold_tw: Tween = null
+var _hold_id := ""
+
+func _can_hold_learn(id: String) -> bool:
+	if SkillTree.is_tech(id) or main.tut_lock_active():
+		return false
+	return node_state(main.learned_skills, main.skill_points, main.balance, id) == "learnable" and main.skill_lock_reason(id) == ""
+
+## Long LMB press on a learnable node learns it; a ring fills round the node while held.
+func _hold_start(id: String) -> void:
+	_hold_cancel()
+	if not _can_hold_learn(id):
+		return
+	_hold_id = id
+	_hold_tw = create_tween()
+	_hold_tw.tween_method(_hold_set, 0.0, 1.0, HOLD_SECONDS)
+	_hold_tw.tween_callback(_hold_done)
+
+func _hold_set(v: float) -> void:
+	var fx = node_fx.get(_hold_id)
+	if fx != null and is_instance_valid(fx):
+		fx.hold = v
+		fx.queue_redraw()
+
+func _hold_cancel() -> void:
+	if _hold_tw != null and _hold_tw.is_valid():
+		_hold_tw.kill()
+	_hold_tw = null
+	_hold_set(0.0)
+	_hold_id = ""
+
+func _hold_done() -> void:
+	var id := _hold_id
+	_hold_cancel()
+	if id != "" and _can_hold_learn(id):
+		selected = id
+		main.learn_skill(id)
 
 ## Learn button text with the cost in points: "Learn  ·  1 point" (singular for 1). Keys SK_LEARN_COST_ONE / SK_LEARN_COST.
 static func learn_text(amount: int) -> String:

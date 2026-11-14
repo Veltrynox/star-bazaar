@@ -273,6 +273,13 @@ func _growth_section() -> void:
 		rl.name = "RestlessLine"
 		rl.theme_type_variation = "LabelAccent"
 		wrap.add_child(rl)
+	var un_sys: int = main.system_of(planet_index)
+	var un_cut: float = main.engine.unrest_cut_pct(un_sys)
+	if un_cut > 0.0:  # sale-price rule 2
+		var ul := _label(StoryText.get_or("PL_UNREST_LINE", "Unrest in {system}: {n} restless worlds, sales pay {pct}% less.", {"system": main.Systems.name_of(un_sys), "n": main.engine.unrest_count(un_sys), "pct": roundi(un_cut)}))
+		ul.name = "UnrestLine"
+		ul.theme_type_variation = "LabelSmall"
+		wrap.add_child(ul)
 	_hub_controls(wrap)
 	box.add_child(wrap)
 
@@ -292,8 +299,9 @@ func _hub_controls(wrap: VBoxContainer) -> void:
 	if bool(can["ok"]):
 		var mb := Button.new()
 		mb.name = "MakeHubButton"
-		var cost: int = hs.build_cost()
-		mb.text = StoryText.get_or("ST_HUB_MAKE_COST", "Make hub ({cost} cr)", {"cost": cost})
+		var od: Dictionary = main.hub_discount(planet_index)
+		var cost: int = int(od["cash"])
+		mb.text = main.with_ore_part(StoryText.get_or("ST_HUB_MAKE_COST", "Make hub ({cost} cr)", {"cost": cost}), od)
 		mb.tooltip_text = StoryText.get_or("ST_HUB_MAKE_TIP", "A hub keeps the needs of worlds in its reach fed, with ships from its own pool.")
 		if main.cash < cost:
 			mb.disabled = true
@@ -572,15 +580,18 @@ func _closed_section(p: Dictionary, f) -> void:
 	elif busy:
 		eb.disabled = true
 		eb.tooltip_text = StoryText.get_or("NOT_POST_BUSY", "The Pathfinder is already building. One build at a time.")
+	var c := PathfinderView.cost(f, pid)
+	if not eb.disabled and not c.is_empty() and not bool(c.get("free", false)) and main.cash < int(c.get("cash", 0)):
+		eb.disabled = true  # why: not enough credits (the press would only post a notice)
+		eb.tooltip_text = StoryText.get_text("NOT_PLATFORM_NO_CASH" if dead else "NOT_POST_NO_CASH")
 	eb.pressed.connect(func(): main.map.establish_requested.emit(pid))
 	box.add_child(eb)
-	var c := PathfinderView.cost(f, pid)
 	if not c.is_empty():
 		var cl: Label
 		if bool(c.get("free", false)):
 			cl = _label(StoryText.get_or("LBL_POST_COST_FREE", "First post is free. Build time: {cycles} cycles.", {"cycles": "%.1f" % float(c.get("cycles", 0.0))}))
 		else:
-			cl = _label(StoryText.get_or("LBL_POST_COST", "Cost: {cash} cr. Build time: {cycles} cycles.", {"cash": int(c.get("cash", 0)), "cycles": "%.1f" % float(c.get("cycles", 0.0))}))
+			cl = _label(main.with_ore_part(StoryText.get_or("LBL_POST_COST", "Cost: {cash} cr. Build time: {cycles} cycles.", {"cash": int(c.get("cash", 0)), "cycles": "%.1f" % float(c.get("cycles", 0.0))}), c))
 		cl.name = "EstablishCost"
 		cl.theme_type_variation = "LabelSmall"
 		box.add_child(cl)
@@ -614,6 +625,13 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			ev.text = StoryText.get_or("LBL_PRICE_EVENT", "{arrow} Event, {cycles} cycles left", {"arrow": arrow, "cycles": int(a["left"])})
 			ev.theme_type_variation = "LabelAccent"
 			info.add_child(ev)
+	var fat_pct: float = main.engine.fatigue_pct(planet_index, str(c))
+	if fat_pct > 0.0:  # sale-price rule 1: this lane is well stocked
+		var fl := Label.new()
+		fl.name = "FatigueLine_" + str(c)
+		fl.text = StoryText.get_or("PL_FATIGUE_LINE", "{planet} is well stocked with {good}: sales pay {pct}% less.", {"planet": main.planet_name(planet_index), "good": Ui.good_name(str(c)).to_lower(), "pct": roundi(fat_pct)})
+		fl.theme_type_variation = "LabelSmall"
+		info.add_child(fl)
 	if Skills.reveal_cycles(main.system_of(planet_index) == 1) > 0:  # LUX_1 Price Whisper: best partner and the prices the next cycle starts with
 		var bpl: String = main.best_partner_line(planet_index, c)
 		if bpl != "":
@@ -1197,8 +1215,7 @@ func _connections() -> void:
 		# Owner 2026-11-13: no "To / From" words; the good's icon and an arrow show the direction: icon -> world, world -> icon.
 		var l := Label.new()
 		l.text = ("\u2192 %s" % other) if out else ("%s \u2192" % other)
-		l.clip_text = true
-		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE  # no clip_text: a clipped label shrinks to 0 width next to the expanding filler
 		var fill := Control.new()
 		fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1264,8 +1281,8 @@ func _connections() -> void:
 				box.add_child(_move_line(int(v["id"]), mv))
 			if int(v["id"]) == selected_route:
 				selected_ok = true
-		if main.engine.lane_full(int(first["a"]), int(first["b"]), str(first["c"])):
-			box.add_child(_upgrade_line(first))
+		if main.engine.lane_level(int(first["a"]), int(first["b"]), str(first["c"])) >= 2:
+			box.add_child(_upgrade_line(first))  # only the "Route upgraded" note; the bonus itself comes from the lane event
 		if selected_route == first_id or _lane_has(ships, selected_route):
 			_route_detail(first)
 	if not selected_ok:
@@ -1306,39 +1323,19 @@ func _pays_line(dest: int, c: String) -> Control:
 	row.add_child(b)
 	return row
 
-## T147: shown only on a full lane (the caller checks engine.lane_full). Enable and tooltip come from
-## main.can_upgrade_route; once the lane is level 2 it reads as taken.
-func _upgrade_line(first: Dictionary) -> Control:
-	var cost: int = main.upgrade_cost()
+## T147: the "Route upgraded" note under a lane that already took its bonus. The bonus itself comes from the lane event (main._check_lane_bonus).
+func _upgrade_line(_first: Dictionary) -> Control:
 	var bonus_pct := roundi(float(main.balance.get("upgrade_margin_bonus", 0.0)) * 100.0)
 	var row := HBoxContainer.new()
 	row.name = "UpgradeLine"
-	row.add_theme_constant_override("separation", 8)
 	var l := Label.new()
+	l.name = "UpgradeRouteTaken"
 	l.theme_type_variation = "LabelSmall"
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size = Vector2(150, 0)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if main.engine.lane_level(int(first["a"]), int(first["b"]), str(first["c"])) >= 2:
-		l.name = "UpgradeRouteTaken"
-		l.text = StoryText.get_or("LBL_ROUTE_UPGRADED", "Route upgraded: +{pct}% margin.", {"pct": bonus_pct})
-		row.add_child(l)
-		return row
-	l.text = StoryText.get_or("LBL_ROUTE_UPGRADE_INFO", "Full lane. Upgrade: {cost} credits for +{pct}% margin.", {"cost": cost, "pct": bonus_pct})
+	l.text = StoryText.get_or("LBL_ROUTE_UPGRADED", "Route upgraded: +{pct}% margin.", {"pct": bonus_pct})
 	row.add_child(l)
-	tip_seen.emit("upgrade")  # T353: the Upgrade route button is drawn on a lane not yet level 2
-	var rid: int = int(first["id"])
-	var chk: Dictionary = main.can_upgrade_route(rid)
-	var b := Button.new()
-	b.name = "UpgradeRouteButton"
-	b.text = StoryText.get_or("BTN_UPGRADE_ROUTE", "Upgrade route")
-	b.disabled = not chk["ok"]
-	b.tooltip_text = StoryText.get_or("LBL_ROUTE_UPGRADE_TIP", "Raise this lane's margin for {cost} credits.", {"cost": cost}) if chk["ok"] else str(chk["reason"])
-	b.pressed.connect(func():
-		var r: Dictionary = main.upgrade_route(rid)
-		if not r["ok"]:
-			main.post_notice(str(r["reason"])))
-	row.add_child(b)
 	return row
 
 ## P2: under a ship stranded by a closed planet. The player may press Move ship; nothing moves by itself.

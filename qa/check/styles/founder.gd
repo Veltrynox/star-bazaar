@@ -48,6 +48,7 @@ func each_cycle(c: int) -> void:
 	_permit()
 	_workshops()
 	_hubs()
+	hub_clear_lanes()
 	_bazaar()
 	_opening()
 	_gigs(c)
@@ -56,7 +57,7 @@ func each_cycle(c: int) -> void:
 
 
 func _reserve() -> int:
-	return maxi(250, routes_cost() * 2)
+	return maxi(maxi(250, routes_cost() * 2), found_hold())
 
 
 func _can_pay_lane() -> bool:
@@ -134,7 +135,7 @@ func _lanes() -> void:
 	# 2. needs: capital last (its needs come from storage), thin margins fine once cash allows
 	for w in worlds:
 		for n in a.unmet_needs(w):
-			if made >= 3 or not _can_pay_lane():
+			if made >= 3 or not _can_pay_lane() or hub_owns_need(w):
 				break
 			var g := str(n["good"])
 			if _lane_into(w, g):
@@ -386,7 +387,7 @@ func _bazaar() -> void:
 		var best := -1
 		var best_t := 0
 		for sid in main.station_systems:  # the system whose Space Storage has the highest world tier
-			if not b.can_found(int(sid)):
+			if not b.can_found(int(sid)) or not bool(b.hub_ready(int(sid))["ok"]):
 				continue
 			var top := 0
 			for w in b.founding_worlds(int(sid)):
@@ -405,6 +406,9 @@ func _bazaar() -> void:
 		note("stage %d done" % _last_stage)
 	# the bill: lanes into the Star Bazaar's Space Storage, where the goods are held
 	var made := 0
+	ensure_prospect()
+	if bill_ore_unmet() and mine_ore_into(cap):
+		made += 1
 	for row in b.bill_status():
 		if bool(row["ok"]):
 			continue
@@ -489,6 +493,11 @@ func _diag() -> void:
 		for row in main.bazaar.bill_status():
 			bl.append("t%d %d/%d %s" % [int(row["tier"]), int(row["have"]), int(row["need"]), ",".join(row["goods"])])
 		parts.append("BAZ s%d bill %s quorum t%d %d/%d" % [int(main.bazaar.stage()), "; ".join(bl), int(q["tier"]), int(q["have"]), int(q["need"])])
+	for hh in main.hubs.hub_planets():
+		if int(hh) >= 0:
+			var hrd: Dictionary = main.bazaar.hub_ready(int(main.system_of(int(hh))))
+			var hd: Dictionary = main.hubs.hubs[int(hh)]
+			note("hub %s sys %d age %d/%d moved %d/%d pool %d ticked %d can_found %s cash %d need %d" % [a.world_name(int(hh)), int(main.system_of(int(hh))), int(hrd["age"]), int(hrd["need_age"]), int(hrd["moved"]), int(hrd["need_moved"]), int(main.hubs.pool_of(int(hh))), (hd.get("on", []) as Array).size(), str(main.bazaar.can_found(int(main.system_of(int(hh))))), int(main.cash), int(main.bazaar.found_discount(int(main.system_of(int(hh))))["cash"])])
 	if main.bazaar.is_founded():
 		var cp: int = _site_dst()
 		var rs: Array = []

@@ -151,7 +151,7 @@ func build_cost() -> int:
 func designate(planet: int) -> Dictionary:
 	var r := can_designate(planet)
 	if bool(r["ok"]):
-		hubs[planet] = {"pool": 0, "on": [], "skip_needs": []}  # no world is served until the player ticks it (owner 2026-11-13)
+		hubs[planet] = {"pool": 0, "on": [], "skip_needs": [], "age": 0, "moved": 0}  # no world is served until the player ticks it (owner 2026-11-13)
 	return r
 
 ## The Star Bazaar takes over the hub of its system (free). A planet hub standing in that system moves in: its pool ships, its ticked worlds
@@ -434,7 +434,7 @@ func _plan_site(h: int, ships: int) -> int:
 			var short := int(r["need"]) - have
 			if short <= 0:
 				continue
-			var pick := _bill_good(h, r["goods"])
+			var pick := _bill_good(h, r["goods"]) if r["goods"] != ["ore"] else "ore"  # ore row (own row, or Minerals' tier-1 row): held ore only, never bought
 			if pick == "":
 				continue
 			var done := false
@@ -450,7 +450,7 @@ func _plan_site(h: int, ships: int) -> int:
 		var code := STATUS_HUB
 		var qty := 0
 		var rec := _make_record(h, h, g, want)
-		var src := _best_source(h, h, g, mini(want, engine.route_cap(rec)))
+		var src := _best_source(h, h, g, mini(want, engine.route_cap(rec))) if g != "ore" else _ore_source(h)  # ore: held stock only, never bought
 		if src.is_empty():
 			code = STATUS_NO_SOURCE
 		elif ships <= 0:
@@ -458,6 +458,8 @@ func _plan_site(h: int, ships: int) -> int:
 		else:
 			rec = _make_record(h, h, g, want, int(src["planet"]))
 			qty = mini(want, mini(engine.route_cap(rec), storage.space(key, g)))
+			if g == "ore":
+				qty = mini(qty, int(src["stock"]))
 			if qty <= 0:
 				code = STATUS_NO_SOURCE
 			else:
@@ -483,6 +485,17 @@ func _plan_site(h: int, ships: int) -> int:
 			if int(q[kind]) > 0:
 				site_lines.append({"kind": kind, "good": g, "qty": int(q[kind]), "status": code})
 	return ships
+
+## Ore rule: the world of the Star Bazaar hub's system holding the most ore in its own planet storage: {planet, price 0, cost 0, free, stock} or {}.
+func _ore_source(hub: int) -> Dictionary:
+	var best := {}
+	for p in worlds_in_reach(hub):
+		if not engine.planet_open(p) or engine.dead_lock_reason(p) != "":
+			continue
+		var stock := _stock_at(p, "ore")
+		if stock > 0 and (best.is_empty() or stock > int(best["stock"])):
+			best = {"planet": p, "price": 0, "cost": 0, "free": true, "stock": stock}
+	return best
 
 ## Cheapest visible good of a bill row sold by a world of the hub's system (as Bazaar._bill_record picks), "" when none is sold.
 func _bill_good(h: int, goods: Array) -> String:
@@ -612,6 +625,9 @@ func end_settle() -> int:
 		if unmoved > 0:  # bought but not carried: take it back out of the source and return the price
 			var back: int = storage.remove(str(rec["src"]), g, unmoved)
 			refund += back * int(rec.get("unit_price", 0))
+	for h in hubs:  # Star Bazaar founding asks a planet hub to have worked some cycles and moved some units
+		hubs[h]["age"] = int(hubs[h].get("age", 0)) + 1
+		hubs[h]["moved"] = int(hubs[h].get("moved", 0)) + int(delivered_last.get(int(h), 0))
 	records = []
 	return refund - fee_last
 
@@ -622,7 +638,7 @@ func to_array() -> Array:
 		var on: Array = []
 		for w in hubs[h]["on"]:
 			on.append(_pid(int(w)))
-		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "on": on, "skip_needs": hubs[h]["skip_needs"].duplicate()})
+		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "on": on, "skip_needs": hubs[h]["skip_needs"].duplicate(), "age": int(hubs[h].get("age", 0)), "moved": int(hubs[h].get("moved", 0))})
 	return out
 
 func from_array(saved) -> void:
@@ -644,7 +660,7 @@ func from_array(saved) -> void:
 			h = by_id[str(e["planet"])]
 		else:
 			continue
-		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, pool_max(h)), "on": [], "skip_needs": []}
+		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, pool_max(h)), "on": [], "skip_needs": [], "age": int(e.get("age", 0)), "moved": int(e.get("moved", 0))}
 		for pid in e.get("on", []):  # an older save (key "skip") loads with no world ticked, like a new hub
 			if by_id.has(str(pid)):
 				hubs[h]["on"].append(by_id[str(pid)])

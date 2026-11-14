@@ -18,6 +18,7 @@ signal run_ended(side: String, ending_id: String)
 const BALANCE_PATH := "res://data/balance.json"
 const SaveGame := preload("res://game/save_game.gd")
 const Trade := preload("res://game/trade.gd")
+const DecisionLog := preload("res://game/decision_log.gd")
 const RouteEngine := preload("res://game/route_engine.gd")
 const Storage := preload("res://game/storage.gd")
 const StoryText := preload("res://game/story_text.gd")
@@ -60,6 +61,7 @@ var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
 var rescues_paid: int = 0  # Four Markets: stranded stipends paid this run (capped by rescue_max), saved
 var repossessions: int = 0  # ships repossessed this run, saved
+var decisions: DecisionLog = DecisionLog.new()  # every player decision of the run (counts + a capped timeline), saved under "decisions", shown on the end screen
 var run_notes: Dictionary = {}  # CEO endings: the six counters (EndingPicker.STORED_KEYS), saved under "run_notes"; read with note_value()
 var notes_known: bool = true    # false for a save made before run_notes existed: the picker then goes straight to the GOOD / BAD fallback
 var repossessed_cycle: int = -1  # cycle of the last repossession (no stipend in that cycle)
@@ -102,8 +104,10 @@ var event_notice: ColorRect  # T12 event window (opened from an icon), null when
 var event_icons: HBoxContainer  # strip of event icons (game/event_icons.gd)
 var _event_pause_held := false  # the open event window holds the pause
 var _event_prev_paused := false  # pause state to restore when it closes
+var _gig_hold_left := 0.0  # T378: real seconds the new-gig pause hold still has to run (0 = none)
 var _event_hint_planet := -1
-var event_feed_label: Label  # T12 this run's events on the board
+var event_feed_label: Label  # T12 this run's events on the board (heading only)
+var event_feed_body: Label  # the event lines, grayed
 
 var skill_screen: PanelContainer  # T71, hidden until opened
 var space_storage_view: PanelContainer  # station click, hidden until opened
@@ -301,6 +305,7 @@ func _ready() -> void:
 	map.flight = flight
 	flight.arrived.connect(_on_flight_arrived)
 	flight.build_done.connect(_on_flight_build_done)
+	flight.build_done.connect(func(pid: String): decisions.add("post_built", cycle, pid))
 	flight.build_cancelled.connect(_on_flight_build_cancelled)
 	flight.establish_failed.connect(_on_flight_establish_failed)  # T200
 	flight.exploration_done.connect(_on_exploration_done)  # T206
@@ -360,6 +365,8 @@ func _ready() -> void:
 	trade.events = events
 	storage.setup(balance, map.planets.size(), commodities)
 	storage_link.setup(balance, storage, self)
+	storage_link.link_built.connect(func(_id: int): decisions.add("link_built", cycle))
+	bazaar.wing_chosen.connect(func(wid: String): decisions.add("wing_chosen", cycle, wid))
 	if not storage_link.link_notice.is_connected(_on_link_notice):
 		storage_link.link_notice.connect(_on_link_notice)
 	engine.setup(balance, trade, commodities, storage)
@@ -412,6 +419,7 @@ func _ready() -> void:
 	engine.owned_ships_fn = func() -> int: return ships  # ships on no route pay ship_idle_upkeep
 	engine.dead_worlds = dead  # T295
 	engine.trade_gate = Callable(self, "system_trade_open")
+	engine.post_fn = func(i: int) -> bool: return flight != null and flight.post_built(str(map.planets[i].get("id", "")))  # sale-price rule 2
 	engine.upkeep_out = func(k: String, g: String, have: int) -> int: return storage_link.upkeep_drain(k, g, have)
 	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
 	engine.suns_fn = func() -> Array: return map.sun_list()  # route offset: the suns are obstacles
@@ -561,13 +569,13 @@ func ship_price() -> int:
 func collect_state() -> Dictionary:
 	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "ship_look": ship_look.duplicate(), "run": {"branch": branch, "boost": boost.to_dict()}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
-		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
+		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "decisions": decisions.to_dict(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off, "tut_win_seen": tut_win_seen.keys(),
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "raids": raids.to_dict(), "free_play": free_play}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "lane_fatigue": engine.fatigue_to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "raids": raids.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -618,6 +626,7 @@ func apply_state(s: Dictionary) -> void:
 	Chains.now = cycle
 	rescues_paid = int(s.get("rescues_paid", 0))
 	repossessions = int(s.get("repossessions", 0))
+	decisions.from_dict(s.get("decisions"))
 	run_notes = {}
 	notes_known = typeof(s.get("run_notes")) == TYPE_DICTIONARY
 	if notes_known:
@@ -658,6 +667,7 @@ func apply_state(s: Dictionary) -> void:
 	_ensure_posts()  # old saves with FND_STORAGE: stations for every open system, no notice
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
+	engine.fatigue_from_dict(s.get("lane_fatigue"))  # old saves: no fatigue
 	bazaar.from_dict(s.get("bazaar"))  # T259; old saves: nothing founded
 	_sync_bazaar_station(false)  # a founded Bazaar's station shows its model at once, no animation
 	workshops.from_dict(s.get("workshops"))  # before the orders: a good that shows once its workshop stands (ingot) opens its sell price
@@ -984,6 +994,7 @@ func buy_permit(sid: int) -> Dictionary:
 	var spent := permit_points_spent(sid)
 	cash -= permit_total_cost(sid)
 	skill_points -= spent
+	decisions.add("permit_bought", cycle, str(sid))
 	_open_system(sid)
 	post_notice(StoryText.get_text(str(Systems.get_system(sid).get("permit_notice_id", "NOT_PERMIT_S2"))))
 	if skill_screen != null:
@@ -1036,6 +1047,7 @@ func learn_skill(id: String) -> Dictionary:
 	if not v["ok"]:
 		return v
 	skill_points -= SkillTree.cost(balance, id)
+	decisions.add("skill_learned", cycle, id)
 	Skills.add_learned(id)
 	_sync_skill_effects()
 	_sync_closed()
@@ -1632,6 +1644,7 @@ func pending_station_hint() -> String:
 	return " " + StoryText.get_or("LBL_PENDING_OR_STATION", "Or click the Space Storage station.")
 
 func _pending_changed() -> void:
+	map.send_pending = not pending.is_empty()
 	map.set_pending(int(pending["planet"]) if not pending.is_empty() else -1)
 	if pending_label != null:
 		pending_label.visible = not pending.is_empty()
@@ -1747,6 +1760,7 @@ func _buy_ship_now(kind: String = "") -> Dictionary:
 		return r
 	cash -= ship_price()
 	ships += 1
+	decisions.add("ship_bought", cycle)
 	_track_ships()
 	_after_change()
 	return r
@@ -1803,27 +1817,14 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	if not system_trade_open(src) or (dst >= 0 and not system_trade_open(dst)) or (dst < 0 and not space_post_open(-dst)):
 		return {"ok": false, "reason": trade_locked_reason()}
 	if engine.lane_full(src, dst, c):  # T145: a full lane takes an upgrade, not one more ship
-		return {"ok": false, "reason": StoryText.get_or("RSN_LANE_FULL", "This lane is full. Upgrade the route instead of adding a ship.")}
+		return {"ok": false, "reason": StoryText.get_or("RSN_LANE_FULL", "This lane is full. Another ship would only queue.")}
 	if free_ships() <= 0:
 		return {"ok": false, "reason": StoryText.get_text("NOT_SHIP_FREE")}
 	return {"ok": true, "reason": ""}
 
 ## T145: Upgrade route (level 2) on a full lane. Ships and upgrades draw on the same cash.
-func can_upgrade_route(id: int) -> Dictionary:
-	if game_over:
-		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
-	var i: int = engine.find_by_id(id)
-	if i < 0:
-		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
-	var r: Dictionary = engine.routes[i]
-	if int(r.get("level", 1)) >= 2:
-		return {"ok": false, "reason": StoryText.get_or("RSN_ALREADY_UPGRADED", "Already upgraded.")}
-	if not engine.lane_full(int(r["a"]), int(r["b"]), str(r["c"])):
-		return {"ok": false, "reason": StoryText.get_or("RSN_UPGRADE_NEEDS_FULL", "Only a full lane can be upgraded.")}
-	var cost := upgrade_cost()
-	if cash < cost:
-		return {"ok": false, "reason": StoryText.get_or("RSN_NO_CASH_UPGRADE", "Not enough cash to upgrade the route ({cost} cr).", {"cost": cost})}
-	return {"ok": true, "reason": ""}
+func can_upgrade_route(_id: int) -> Dictionary:
+	return {"ok": false, "reason": StoryText.get_or("RSN_UPGRADE_BY_EVENT", "A full lane earns its bonus from an event, not a button.")}
 
 ## Cost of a lane upgrade: upgrade_cost x the upgrade_cost_pct skills (FND_DOCKS).
 func upgrade_cost() -> int:
@@ -1831,16 +1832,41 @@ func upgrade_cost() -> int:
 
 ## Upgrades the whole lane of route `id` to level 2 and charges upgrade_cost once. {ok, reason}.
 func upgrade_route(id: int) -> Dictionary:
-	if not tut_gate("other"):
-		return {"ok": false, "reason": tut_lock_text()}
-	var r := can_upgrade_route(id)
-	if not r["ok"]:
-		return r
-	var rec: Dictionary = engine.routes[engine.find_by_id(id)]
-	cash -= upgrade_cost()
-	engine.set_lane_level(int(rec["a"]), int(rec["b"]), str(rec["c"]), 2)
-	_after_change()
-	return r
+	return can_upgrade_route(id)
+
+## A full lane (two ships on one route, same good) that is still level 1 gets its margin bonus from a popup event. One button, Accept; the
+## bonus applies on accept (the popup pauses the run, so it cannot be skipped; a save made while it is up offers it again on load).
+## Text variants A, B, C rotate by the number of lanes already upgraded.
+func _check_lane_bonus() -> void:
+	if game_over or event_notice != null or events.pending_id != "":
+		return
+	var lane := {}
+	var done := {}
+	for r in engine.routes:
+		var k := "%d|%d|%s" % [int(r["a"]), int(r["b"]), str(r["c"])]
+		if int(r.get("level", 1)) >= 2:
+			done[k] = true
+		elif lane.is_empty() and engine.lane_full(int(r["a"]), int(r["b"]), str(r["c"])):
+			lane = r
+	if lane.is_empty():
+		return
+	var v: String = ["A", "B", "C"][done.size() % 3]
+	var args := {"good": Ui.good_name(str(lane["c"])).to_lower(), "from": planet_name(int(lane["a"])), "to": planet_name(int(lane["b"])), "pct": roundi(float(balance.get("upgrade_margin_bonus", 0.0)) * 100.0)}
+	if not _event_pause_held:
+		_event_prev_paused = paused
+		_event_pause_held = true
+	paused = true
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(StoryText.get_or("LANE_BONUS_%s_TITLE" % v, "A lane worth naming", args), StoryText.get_or("LANE_BONUS_%s_BODY" % v, "", args), StoryText.get_or("LANE_BONUS_%s_EFF" % v, "", args), [], StoryText.get_or("LANE_BONUS_BTN", "Accept"))
+	var a: int = int(lane["a"])
+	var b: int = int(lane["b"])
+	var c: String = str(lane["c"])
+	event_notice.confirmed.connect(func(_c: int):
+		engine.set_lane_level(a, b, c, 2)
+		_dismiss_event_notice()
+		_release_event_pause()
+		_after_change())
 
 ## T373: true for a route source that is a Space Storage (src = -system id; a cluster node is <= -1000).
 static func is_station_src(src: int) -> bool:
@@ -1959,6 +1985,7 @@ func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictiona
 		return {"ok": false, "reason": trade_locked_reason()}
 	var r: Dictionary = engine.set_local(planet, c, role, on)
 	if r["ok"]:
+		decisions.add((role + "_on") if on else "order_off", cycle, "%s %s" % [c, role])
 		if on:
 			_award_planet(planet)
 			_note_system(planet)
@@ -2004,6 +2031,7 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	engine.next_id += 1
 	rec["fresh"] = clampf(1.0 - cycle_elapsed / _cycle_seconds(), 0.0, 1.0)
 	engine.routes.append(rec)
+	decisions.add("route_made", cycle, "%s>%s %s" % [str(rec["src"]), str(rec["dst"]), c])
 	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts (a station is no planet)
 		if dst >= 0 and not is_station_src(src):
 			_award_planet(dst)
@@ -2024,6 +2052,7 @@ func remove_connection(id: int) -> Dictionary:
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
+	decisions.add("route_removed", cycle, "%s>%s %s" % [str(engine.routes[i]["src"]), str(engine.routes[i]["dst"]), str(engine.routes[i]["c"])])
 	engine.routes.remove_at(i)
 	_after_change()
 	return {"ok": true, "reason": ""}
@@ -2361,6 +2390,65 @@ func fabric_inputs_unrouted() -> Array:
 			out.append(c)
 	return out
 
+## Ore rule: ore held in the PLANET storages of `system` (never its Space Storage) pays part of a build `price`: each unit is worth
+## ore_build_credit credits, at most ore_build_max_pct percent of the price. Returns {cash (price left to pay), ore (units used), from
+## ([[planet storage key, units]], planet index order)}. The shown price and the charged price both come from here; ore_pay() takes the ore.
+func ore_discount(system: int, price: int) -> Dictionary:
+	var out := {"cash": maxi(0, price), "ore": 0, "from": []}
+	var credit := int(balance.get("ore_build_credit", 0))
+	var cap := int(floor(float(maxi(0, price)) * clampf(float(balance.get("ore_build_max_pct", 0)), 0.0, 100.0) / 100.0))
+	if credit <= 0 or cap < credit or system < 0:
+		return out
+	var want := cap / credit
+	var from := []
+	for i in map.planets.size():
+		if want <= 0:
+			break
+		if system_of(i) != system:
+			continue
+		var key: String = storage.planet_key(i)
+		var n := mini(want, storage.amount(key, "ore"))
+		if n > 0:
+			from.append([key, n])
+			want -= n
+	var used := 0
+	for f in from:
+		used += int(f[1])
+	out["ore"] = used
+	out["cash"] = price - used * credit
+	out["from"] = from
+	return out
+
+## Takes the ore of an ore_discount() result out of the planet storages.
+func ore_pay(d: Dictionary) -> void:
+	for f in d.get("from", []):
+		storage.remove(str(f[0]), "ore", int(f[1]))
+
+## A price line text for a discount: "{cost} cr and {ore} ore" (ST_BUILD_ORE_PART) when ore is used, else "{cost} cr".
+func build_price_text(d: Dictionary) -> String:
+	if int(d["ore"]) <= 0:
+		return "%d cr" % int(d["cash"])
+	return StoryText.get_or("ST_BUILD_ORE_PART", "{cost} cr and {ore} ore", {"cost": int(d["cash"]), "ore": int(d["ore"])})
+
+## Swaps the "<cash> cr" of a button text (made with the discounted cash) for the price text with the ore part; text without it is kept.
+func with_ore_part(text: String, d: Dictionary) -> String:
+	if int(d["ore"]) <= 0:
+		return text
+	var plain := "%d cr" % int(d["cash"])
+	return text.replace(plain, build_price_text(d)) if text.contains(plain) else text + " + %d ore" % int(d["ore"])
+
+func fabric_discount() -> Dictionary:
+	return ore_discount(Fabric.SYSTEM, fabric.build_cost())
+
+func workshop_discount(id: String, sid: int) -> Dictionary:
+	return ore_discount(sid, workshops.build_cost(id))
+
+func core_discount() -> Dictionary:
+	return ore_discount(Fabric.SYSTEM, fabric.core_cost())
+
+func hub_discount(planet: int) -> Dictionary:
+	return ore_discount(system_of(planet), hubs.build_cost())
+
 ## Fabric: can it be built now? {ok, reason}: "skill" (MIN_1 not learned), "post" (no trading post in system 1), "built", "inputs" (a input has no route here), "credits".
 func can_build_fabric() -> Dictionary:
 	if fabric.built:
@@ -2371,7 +2459,7 @@ func can_build_fabric() -> Dictionary:
 		return {"ok": false, "reason": "post"}
 	if not fabric_inputs_unrouted().is_empty():
 		return {"ok": false, "reason": "inputs"}
-	if cash < fabric.build_cost():
+	if cash < int(fabric_discount()["cash"]):
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
 
@@ -2380,7 +2468,10 @@ func build_fabric() -> Dictionary:
 	var v := can_build_fabric()
 	if not v["ok"]:
 		return v
-	cash -= fabric.build_cost()
+	var od := fabric_discount()
+	cash -= int(od["cash"])
+	ore_pay(od)
+	decisions.add("fabric_built", cycle)
 	fabric.built = true
 	fabric.state = "idle"
 	post_notice(StoryText.get_or("NOT_FABRIC_BUILT", "Fabric built at the trading post."))
@@ -2411,7 +2502,7 @@ func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictio
 		return {"ok": false, "reason": "post"}
 	if not Availability.workshop(id):  # data/availability.json rule (any system with a Space Storage; no system condition)
 		return {"ok": false, "reason": "closed"}
-	if cash < workshops.build_cost(id):
+	if cash < int(workshop_discount(id, sid)["cash"]):
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
 
@@ -2421,7 +2512,10 @@ func build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary
 	var v := can_build_workshop(id, sid)
 	if not v["ok"]:
 		return v
-	cash -= workshops.build_cost(id)
+	var od := workshop_discount(id, sid)
+	cash -= int(od["cash"])
+	ore_pay(od)
+	decisions.add("workshop_built", cycle, id)
 	workshops.built[id] = true
 	workshops.system[id] = sid
 	workshops.state[id] = "idle"
@@ -2442,7 +2536,7 @@ func can_build_core() -> Dictionary:
 	for c in ["plate", "nullglass"]:
 		if storage.amount(key, c) < fabric.core_in(c):
 			return {"ok": false, "reason": "stock"}
-	if cash < fabric.core_cost():
+	if cash < int(core_discount()["cash"]):
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
 
@@ -2454,7 +2548,9 @@ func build_null_core() -> Dictionary:
 	var key: String = storage.system_key(Fabric.SYSTEM)
 	for c in ["plate", "nullglass"]:
 		storage.remove(key, c, fabric.core_in(c))
-	cash -= fabric.core_cost()
+	var od := core_discount()
+	cash -= int(od["cash"])
+	ore_pay(od)
 	fabric.core_made += 1
 	var title := StoryText.get_or("NULL_CORE_BUILD_TITLE", "The core is built")
 	var body := StoryText.get_or("NULL_CORE_BUILD", "The Null Core is built.")
@@ -2653,6 +2749,7 @@ func _process(delta: float) -> void:
 	_tip_tick(delta)
 	if event_icons != null:
 		event_icons.tick(delta)  # real time, also while paused
+	_gig_hold_tick(delta)
 	_update_station_markers()
 	_update_sell_offer_box()
 	if paused or game_over:
@@ -2693,7 +2790,15 @@ func _on_link_notice(text_id: String, vars: Dictionary) -> void:
 
 ## The Space Storage view's confirmed 'Found the Star Bazaar here' (system id).
 func _on_found_bazaar(sys: int) -> void:
+	if not bazaar.can_found(sys) or not bool(bazaar.hub_ready(sys)["ok"]):
+		return
+	var fd: Dictionary = bazaar.found_discount(sys)
+	if cash < int(fd["cash"]):
+		return
 	if bazaar.found(sys):
+		decisions.add("bazaar_founded", cycle, str(sys))
+		cash -= int(fd["cash"])
+		ore_pay(fd)
 		hubs.take_over_system(sys)  # the Star Bazaar is the hub of its system from now on (free)
 		_sync_bazaar_station(true)
 		sync_hub_rings()
@@ -2714,7 +2819,8 @@ func _on_make_hub(planet: int) -> void:
 	if not bool(chk["ok"]):
 		post_notice(str(chk["reason"]))
 		return
-	var cost: int = hubs.build_cost()
+	var od := hub_discount(planet)
+	var cost: int = int(od["cash"])
 	if cash < cost:
 		post_notice(StoryText.get_or("ST_HUB_NO_CASH", "Making a hub costs {cost} credits.", {"cost": cost}))
 		return
@@ -2722,7 +2828,9 @@ func _on_make_hub(planet: int) -> void:
 	if not bool(r["ok"]):
 		post_notice(str(r["reason"]))
 		return
+	decisions.add("hub_made", cycle, str(planet))
 	cash -= cost  # one-off, nothing comes back on release
+	ore_pay(od)
 	post_notice(StoryText.get_or("ST_HUB_FIRST_NOTICE", "{planet} is now a hub.", {"planet": planet_name(planet)}))
 	_on_hubs_changed()
 	open_hub_panel(planet)
@@ -2894,6 +3002,7 @@ func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
 	clusters.regrow()  # 2026-11-12: empty clusters come back slowly, a stalled cluster lane resumes by itself
+	engine.fatigue_end_cycle()  # sale-price rule 1: before the tiers move, so a tier-up clears the world's fatigue
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	note("restless_cycles", prosperity.restless_count())  # CEO endings: world-cycles spent Restless
 	_note_space_cycle()
@@ -2968,6 +3077,8 @@ func _end_cycle() -> void:
 		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) and not Chains.is_suppressed(forecast_id) else events.random_id([], cycle)
 		forecast_id = ""
 		fire_event(fid)
+	else:
+		_check_lane_bonus()
 	_tut_cycle()
 	save_now()
 
@@ -3131,6 +3242,14 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 		bazaar_panel.close_screen()
 		bazaar_panel.close_wing_choice()
 	stats["stages_done"] = bazaar.stage()
+	stats["decisions"] = decisions.summary()  # the end screen tells them as a story (game/end_story.gd)
+	stats["notes"] = {"peak_ships": note_value("peak_ships"), "repossessions": repossessions, "gigs_done": note_value("gigs_done"), "gigs_expired": note_value("gigs_expired"), "restless_cycles": note_value("restless_cycles")}
+	stats["company"] = company_name
+	stats["ceo"] = StoryText.get_or(str(Ceos.card(ceo_id).get("name_id", "")), "") if ceo_id != "" and Ceos.has(ceo_id) else ""
+	stats["ending_id"] = ending_id
+	stats["systems"] = open_systems.size()
+	stats["rescues"] = rescues_paid
+	stats["ship"] = Ships.display_name(Ships.fleet)
 	stats["recap"] = bazaar.recap()  # T298: site system, stages, wings, worlds per tier, reclaimed worlds, decisive moments
 	if bazaar.is_founded():
 		stats["recap"]["site_name"] = Systems.name_of(bazaar.site_system())  # T299
@@ -3379,6 +3498,8 @@ func _on_gig_arrival(uid: String) -> void:
 	_refresh()
 
 func _on_gig_confirmed(choice: int, uid: String) -> void:
+	if choice >= 0:
+		decisions.add("gig_choice", cycle, uid)
 	var res: Dictionary = gigs.choose(uid, choice)
 	_dismiss_event_notice()
 	if res.is_empty():
@@ -3413,6 +3534,42 @@ func _focus_event_planet(planet: int) -> void:
 	map._update_camera()
 	_event_hint_planet = planet
 	map.set_event_hint(planet)
+
+## T378: a new gig was posted: the rail icon pops with a warm flash and rings, and the game holds still for gig_appear_pause_s
+## of real time so the arrival is seen. No hold when already paused, over, or an event popup, window or the preface is up.
+func _on_gig_posted(_uid: String) -> void:
+	if gig_button != null and is_instance_valid(gig_button) and gig_button.is_inside_tree() and Juice.motion > 0.0:
+		var warm := Ui.col("star_warm")
+		Juice.pop(gig_button, 1.35)
+		Juice.flash(gig_button, warm.lightened(0.3), float(balance.get("gig_appear_beat_s", 1.2)))
+		var at := gig_button.global_position + gig_button.size * 0.5 - global_position
+		Juice.ping_burst(self, at, warm)
+	var hold := float(balance.get("gig_appear_pause_s", 2.0))
+	if hold <= 0.0 or Juice.motion <= 0.0 or paused or game_over or _event_pause_held or event_notice != null or preface != null or map_overlays_blocked():
+		return
+	_event_prev_paused = paused
+	_event_pause_held = true
+	paused = true
+	_gig_hold_left = hold
+
+## Real-time end of the gig hold. It lets go at once if the player unpauses, or if an event popup or a window took the pause over.
+func _gig_hold_tick(delta: float) -> void:
+	if _gig_hold_left <= 0.0:
+		return
+	_gig_hold_left -= delta
+	var taken := event_notice != null or dock_sheet != null or map_overlays_blocked() or not paused
+	if not taken and _gig_hold_left > 0.0:
+		return
+	_gig_hold_left = 0.0
+	if not _event_pause_held:
+		return
+	if event_notice != null:
+		return  # the event window owns the hold now and restores it
+	if dock_sheet != null:
+		_dock_was_paused = _event_prev_paused  # the sheet saw our hold as the player's pause
+	_event_pause_held = false
+	if paused:
+		paused = _event_prev_paused
 
 ## The event window closed for good: the halo goes and the pause state from before the click comes back.
 func _release_event_pause() -> void:
@@ -3596,6 +3753,8 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 		_release_event_pause()
 		_refresh()
 		return
+	if choice >= 0:
+		decisions.add("event_choice", cycle, id)
 	if events.is_chain_step(id):
 		_apply_chain_choice(choice, id)
 		return
@@ -3624,17 +3783,19 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 	save_now()
 
 func _refresh_event_feed() -> void:
-	if event_feed_label == null:
+	if event_feed_label == null or event_feed_body == null:
 		return
-	var lines: Array = [StoryText.get_text("LBL_EVENT_FEED")]
+	var lines: Array = []
 	var shown := 0
 	for i in range(events.feed.size() - 1, -1, -1):
 		if shown >= 6:
 			break
 		lines.append(StoryText.get_or("EVFEED_LINE", "Cycle {cycle}: {title}", {"cycle": int(events.feed[i]["cycle"]), "title": events.title_of(str(events.feed[i]["id"]), {"planet": planet_name(int(events.feed[i].get("planet", -1)))})}))
 		shown += 1
-	event_feed_label.text = "\n".join(lines)
+	event_feed_label.text = StoryText.get_text("LBL_EVENT_FEED")
+	event_feed_body.text = "\n".join(lines)
 	event_feed_label.visible = not events.feed.is_empty()
+	event_feed_body.visible = event_feed_label.visible
 
 ## Debug only (no-op in release): fire any event by id right now.
 func debug_fire_event(id: String) -> void:
@@ -4068,6 +4229,7 @@ func _build_rail() -> void:
 	gig_badge.visible = false
 	gig_button.add_child(gig_badge)
 	gigs.changed.connect(_refresh_gig_badge)
+	gigs.gig_posted.connect(_on_gig_posted)  # T378
 	_refresh_gig_badge()
 
 func game_menu_toggle() -> void:
@@ -5855,6 +6017,11 @@ func _build_board() -> void:
 	event_feed_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	event_feed_label.visible = false
 	box.add_child(event_feed_label)
+	event_feed_body = Label.new()
+	event_feed_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	event_feed_body.add_theme_color_override("font_color", Ui.col("ink_muted"))
+	event_feed_body.visible = false
+	box.add_child(event_feed_body)
 
 func _build_preface() -> void:
 	# Map must not react (camera/picking) while the preface is open.

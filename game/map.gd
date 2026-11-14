@@ -81,6 +81,7 @@ var pitch_deg: float = START_PITCH_DEG
 var pending_hint: MeshInstance3D  # T57 halo on the planet with a pending connection
 var _hint_i := -1
 var _pending_i := -1
+var send_pending := false  # set by main while a "Send to..." waits for a destination: the station then wins the click over a ship or planet behind it
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
 var _routes_seen := false   # T219: the first set_routes (load) draws no lane in
 var _max_route_id := -1     # T219: ids above it are new routes
@@ -127,7 +128,7 @@ var game_seconds_fn := Callable()  # T314: main sets it: game seconds (stops whi
 var clusters_fn := Callable()      # T314: main sets it: returns main.clusters_in_system(0) with the current pack positions
 var _cluster_refresh := 0.0
 const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
-const STATION_PICK_PX := 40.0
+const STATION_PICK_PX := 52.0
 const STATION_MARKER_LIFT := 0.45
 var stations := {}  # system id -> game/station.gd node
 var asteroid_packs: Node3D  # T157: game/galaxy/asteroid_packs.gd, one MultiMesh per cluster
@@ -1423,7 +1424,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	# T04: left click picks a planet with a camera ray / sphere test.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var on := PathfinderView.active(flight)
-		if on and pick_ship(event.position):  # T200: click the ship to select it (T245: the ship wins, the planet behind it is not picked)
+		if send_pending:  # a destination is being picked: the station is a destination, so it wins over the ship, rivals and planets near it
+			var psid := pick_station(event.position)
+			if psid >= 0:
+				station_clicked.emit(psid)
+				return
+		if on and not send_pending and pick_ship(event.position):  # T200: click the ship to select it (T245: the ship wins, the planet behind it is not picked)
 			ship_selected = true
 			return
 		var rb: int = int(rivals.pick_bot(event.position)) if rivals != null else 0  # T199: a rival ship under the cursor shows its card

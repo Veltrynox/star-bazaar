@@ -307,6 +307,17 @@ func extra_posts() -> int:
 			n += 1
 	return n
 
+## Ore rule: lowers c["cash"] by the ore held in the planet storages of planet i's system; adds "ore" (units) and "from" (see main.ore_discount).
+func _with_ore(c: Dictionary, i: int) -> Dictionary:
+	c["ore"] = 0
+	if i < 0 or int(c["cash"]) <= 0 or not main.has_method("ore_discount"):
+		return c
+	var d: Dictionary = main.ore_discount(main.system_of(i), int(c["cash"]))
+	c["cash"] = int(d["cash"])
+	c["ore"] = int(d["ore"])
+	c["from"] = d["from"]
+	return c
+
 ## {"cash": int, "cycles": float, "free": bool} of a post (living world) or platform (dead world) at that planet.
 func cost(pid: String) -> Dictionary:
 	var base := float(main.balance.get("ship_price", 900)) * _bal("post_cost_ship_fraction", 0.4)
@@ -314,11 +325,11 @@ func cost(pid: String) -> Dictionary:
 	if i >= 0 and main.system_of(i) > 1:
 		base *= _bal("post_cost_system2_mult", 1.5)
 	if _is_dead(pid):
-		return {"cash": int(round(base * _bal("platform_cost_post_mult", 2.0))), "cycles": _bal("platform_build_cycles", 3.0), "free": false}
+		return _with_ore({"cash": int(round(base * _bal("platform_cost_post_mult", 2.0))), "cycles": _bal("platform_build_cycles", 3.0), "free": false}, i)
 	var first := extra_posts() == 0
 	var is_free := first and _bal("post_first_free", 1.0) >= 0.5
 	var cycles := _bal("post_first_build_cycles", 1.0) if first else _bal("post_build_cycles", 2.0)
-	return {"cash": 0 if is_free else int(round(base)), "cycles": cycles, "free": is_free}
+	return _with_ore({"cash": 0 if is_free else int(round(base)), "cycles": cycles, "free": is_free}, i)
 
 ## T200: the actions the ship may do at a planet, for the right-click menu: "establish_post" (living world), "establish_platform"
 ## (dead world, mining skill learned). Empty when the world already stands, the system has no permit or discovery is off.
@@ -387,6 +398,7 @@ func request_fly(t: Dictionary) -> String:
 		_:
 			kind = "point"
 			to = t.get("pos", _pos)
+			to_sys = int(t.get("sys", _sys))  # a gig marker in another system: the Flagship jumps there first (needs that system's permit)
 	to = Vector3(to.x, 0.0, to.z)
 	if to_sys != _sys and not main.open_systems.has(to_sys):
 		return "no_gate"
@@ -472,6 +484,8 @@ func request_establish(pid: String) -> String:
 	if int(main.cash) < int(c["cash"]):
 		return "no_cash_platform" if dead else "no_cash_post"
 	main.cash -= int(c["cash"])
+	if int(c.get("ore", 0)) > 0:
+		main.ore_pay({"from": c["from"]})
 	_build = pid
 	_build_total = maxf(EPS, float(c["cycles"]))
 	_build_left = _build_total
@@ -708,7 +722,7 @@ func _fly(cycles: float) -> float:
 	while left > 0.0 and n < 20000:
 		n += 1
 		var h := minf(left, SUBSTEP)
-		var s := Motion.step({"pos": Vector2(_pos.x, _pos.z), "yaw": _yaw, "speed": _speed}, target, v, accel, brake, turn, h)
+		var s := Motion.step({"pos": Vector2(_pos.x, _pos.z), "yaw": _yaw, "speed": _speed}, target, v, accel, brake, turn, h, true)
 		_yaw = s["yaw"]
 		_speed = s["speed"]
 		var p: Vector2 = s["pos"]

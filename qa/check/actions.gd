@@ -868,6 +868,12 @@ func release_hub(hub: int) -> Dictionary:
 func found_bazaar(sys: int) -> Dictionary:
 	if not bool(main.bazaar.can_found(sys)):
 		return _res("bazaar.found", false, "system %d has no Space Storage or no world at tier %d" % [sys, int(main.bazaar.capital_tier())])
+	var hr: Dictionary = main.bazaar.hub_ready(sys)
+	if not bool(hr["ok"]):
+		return _res("bazaar.found", false, "needs a planet hub that worked %d cycles and moved %d units (has %d / %d)" % [int(hr["need_age"]), int(hr["need_moved"]), int(hr["age"]), int(hr["moved"])])
+	var fcash := int(main.bazaar.found_discount(sys)["cash"])
+	if cash() < fcash:
+		return _res("bazaar.found", false, "needs %d credits to found (has %d)" % [fcash, cash()])
 	main.space_storage_view.found_bazaar_requested.emit(sys)
 	close_tut_win()  # "bazaar_founded" tutorial window pauses the game
 	return _res("bazaar.found", bool(main.bazaar.is_founded()), _notice())

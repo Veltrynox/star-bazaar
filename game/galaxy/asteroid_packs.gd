@@ -49,7 +49,7 @@ var packs := {}  # cluster id -> {mm: MultiMeshInstance3D, system: int, max: int
 var _mesh: Mesh
 var _mat: ShaderMaterial  # template; each pack gets a duplicate (own tangent / size uniforms)
 const PACK_SHADER := preload("res://game/galaxy/asteroid_pack.gdshader")
-const DRIFT_MAX := 0.3     # biggest drift amplitude, share of the pack radius
+const DRIFT_MAX := 0.05    # biggest drift amplitude, share of the pack radius
 const HOME_SHARE := 0.9   # rocks sit inside this share of the ellipsoid so even the outer ones have room to drift
 var view_system := 1
 var sun_positions := {}  # system id -> world position of its sun (map.gd fills it); the orbit centre. Missing = world origin

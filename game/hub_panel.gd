@@ -142,6 +142,18 @@ func refresh() -> void:
 	fl.text = StoryText.get_or("ST_HUB_POOL_FREE", "Free ships: {n}", {"n": hs.free_for_pool()})
 	fl.theme_type_variation = "LabelMuted"
 	_body.add_child(fl)
+	var ticked := 0  # worlds the hub is switched on for (the hub world itself always counts)
+	for w in hs.worlds_in_reach(hub):
+		if not hs.is_world_off(hub, w):
+			ticked += 1
+	if ticked > 0 and hs.pool_of(hub) <= 0:  # worlds are ticked but no ship can serve them
+		var al := Label.new()
+		al.name = "HubNoShipAlert"
+		al.theme_type_variation = "LabelBad"
+		al.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		al.custom_minimum_size.x = 100.0
+		al.text = StoryText.get_or("ST_HUB_NO_SHIP_ALERT", "No ship in the pool. The ticked worlds get nothing. Add a ship with +.")
+		_body.add_child(al)
 	# served worlds and their gaps
 	_head("ST_HUB_SERVED", "Worlds in reach")
 	var any := false

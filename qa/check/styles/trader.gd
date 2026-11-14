@@ -35,12 +35,13 @@ func each_cycle(c: int) -> void:
 	_workshops()
 	_bazaar()
 	_hubs()
+	hub_clear_lanes()
 	_gigs(c)
 	_storage_links()
 
 
 func _reserve() -> int:
-	return maxi(300, routes_cost() * 2)
+	return maxi(maxi(300, routes_cost() * 2), found_hold())
 
 
 func _skills() -> void:
@@ -110,7 +111,7 @@ func _lanes() -> void:
 	# 2. unmet needs grow the worlds: fed when the unit does not lose money, or when cash is plentiful
 	for w in worlds:
 		for n in a.unmet_needs(w):
-			if made >= 2 or not _can_pay_lane():
+			if made >= 2 or not _can_pay_lane() or hub_owns_need(w):
 				break
 			var g := str(n["good"])
 			if _lane_into(w, g):
@@ -248,7 +249,7 @@ func _bazaar() -> void:
 		var best := -1
 		var best_t := 0
 		for sid in main.station_systems:  # the system whose Space Storage has the highest world tier
-			if not b.can_found(int(sid)):
+			if not b.can_found(int(sid)) or not bool(b.hub_ready(int(sid))["ok"]):
 				continue
 			var top := 0
 			for w in b.founding_worlds(int(sid)):
@@ -261,6 +262,9 @@ func _bazaar() -> void:
 				note("Bazaar founded in system %d" % best)
 		return
 	var cap: int = -int(b.site_system())  # destination value of the Star Bazaar's Space Storage
+	ensure_prospect()
+	if bill_ore_unmet() and _can_pay_lane():
+		mine_ore_into(cap)
 	for row in b.bill_status():
 		if bool(row["ok"]):
 			continue
@@ -302,8 +306,13 @@ func _hubs() -> void:
 			a.hub_pool(h, 1)
 			note("hub at " + a.world_name(h))
 	for h in main.hubs.hub_planets():
-		if main.hubs.pool_of(int(h)) == 0 and a.free_ships() > 0:
-			a.hub_pool(int(h), 1)
+		var hp := int(h)
+		if main.hubs.pool_of(hp) < main.hubs.pool_max(hp) and a.free_ships() > 0:
+			a.hub_pool(hp, mini(main.hubs.pool_max(hp), main.hubs.pool_of(hp) + 1))
+		# a hub serves only the worlds that are ticked (they start off): tick every open world
+		for w in a.open_worlds():
+			if int(w) != hp and bool(main.hubs.is_world_off(hp, int(w))):
+				a.hub_world(hp, int(w), true)
 
 
 # ---- gigs and the Flagship's idle time -----------------------------------------------------------------------------------

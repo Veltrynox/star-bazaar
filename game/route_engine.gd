@@ -281,10 +281,66 @@ var prosperity = null:  # T256: Prosperity (game/prosperity.gd), set by main; nu
 	set(v):
 		prosperity = v
 		trade.prosperity = v  # T257: need price and hunger live in Trade.price
+		if v != null and not v.tier_up.is_connected(_on_fatigue_tier_up):
+			v.tier_up.connect(_on_fatigue_tier_up)  # sale-price rule 1: a world that gains a tier forgets its lane fatigue
+
+var post_fn: Callable = Callable()  # (planet index) -> bool, the player has a trade post there (set by main); rule 2
+var fatigue: Dictionary = {}        # "<planet>|<good>" -> pct 0..lane_fatigue_max_pct (saved by main as "lane_fatigue")
+var _fat_sold: Dictionary = {}      # "<planet>|<good>" -> true: non-need units sold for cash there this cycle (not saved)
+
+## Sale-price rule 1: end of cycle, before prosperity.end_cycle (a tier-up there then clears the world).
+func fatigue_end_cycle() -> void:
+	var step := maxf(0.0, float(balance.get("lane_fatigue_step_pct", 0)))
+	var rec := maxf(0.0, float(balance.get("lane_fatigue_recover_pct", 0)))
+	var mx := maxf(0.0, float(balance.get("lane_fatigue_max_pct", 0)))
+	for k in _fat_sold:
+		fatigue[k] = minf(mx, float(fatigue.get(k, 0.0)) + step)
+	for k in fatigue.keys():
+		if not _fat_sold.has(k):
+			fatigue[k] = maxf(0.0, float(fatigue[k]) - rec)
+		if float(fatigue[k]) <= 0.0:
+			fatigue.erase(k)
+	_fat_sold = {}
+
+func _on_fatigue_tier_up(planet: int, _tier: int) -> void:
+	for k in fatigue.keys():
+		if str(k).begins_with(str(planet) + "|"):
+			fatigue.erase(k)
+
+func fatigue_pct(planet: int, c: String) -> float:
+	return float(fatigue.get("%d|%s" % [planet, c], 0.0))
+
+func fatigue_to_dict() -> Dictionary:
+	return fatigue.duplicate()
+
+func fatigue_from_dict(d) -> void:
+	fatigue = {}
+	_fat_sold = {}
+	if typeof(d) == TYPE_DICTIONARY:
+		for k in d:
+			if float(d[k]) > 0.0:
+				fatigue[str(k)] = float(d[k])
+
+## Sale-price rule 2: percent cut of every cash sale price in a system (restless worlds with a post, per-world pct, capped).
+func unrest_count(system_id: int) -> int:
+	if prosperity == null or not post_fn.is_valid():
+		return 0
+	var n := 0
+	for i in trade.planets.size():
+		if int(trade.planets[i].get("system", 1)) == system_id and prosperity.restless(i) and bool(post_fn.call(i)):
+			n += 1
+	return n
+
+func unrest_cut_pct(system_id: int) -> float:
+	var cap := maxf(0.0, float(balance.get("unrest_price_cap_pct", 0)))
+	return minf(cap, float(unrest_count(system_id)) * maxf(0.0, float(balance.get("unrest_price_pct", 0))))
 
 func _note_sale(c: String, n: int, planet: int = -1) -> void:
 	if n > 0:
 		if planet >= 0 and prosperity != null:
+			var fat_units: int = int(prosperity.surplus_units(planet, c, n)) if prosperity.is_need(planet, c) else n  # rule 1: need-filling units are exempt
+			if fat_units > 0:
+				_fat_sold["%d|%s" % [planet, c]] = true
 			prosperity.add_fill(planet, c, n)  # T256: sales at a world fill its needs
 		sales_units[c] = int(sales_units.get(c, 0)) + n
 		if planet >= 0 and trade.events != null and trade.events.price_up_at(planet, c):  # LUX_5 counts these extra
@@ -470,7 +526,15 @@ func sale_value(planet: int, c: String, n: int, extra: int = 0) -> int:
 	var over := 0 if prosperity == null else int(prosperity.surplus_units(planet, c, n, extra))
 	if over <= 0:
 		return n * p
-	return (n - over) * p + roundi(float(over) * float(p) * float(prosperity.surplus_factor()))
+	var pf := _fatigued(planet, c, p) if (prosperity != null and prosperity.is_need(planet, c)) else p  # p already carries fatigue for a non-need good
+	return (n - over) * p + roundi(float(over) * float(pf) * float(prosperity.surplus_factor()))
+
+## Rule 1 on a price: the fatigue cut of this world and good (never below 1 for a positive price).
+func _fatigued(planet: int, c: String, p: int) -> int:
+	var f := fatigue_pct(planet, c)
+	if p <= 0 or f <= 0.0:
+		return p
+	return maxi(1, roundi(float(p) * (1.0 - f / 100.0)))
 
 ## T257: 'hungry' | 'surplus' | '' for the UI.
 func price_reason(planet: int, c: String) -> String:
@@ -480,10 +544,23 @@ func price_reason(planet: int, c: String) -> String:
 ## uses base values, Markets.add_sale); no skill = the plain price.
 func sold_price(planet: int, c: String) -> int:
 	var p := local_price(planet, c, "sell")
+	if p <= 0:
+		return p
 	var f := Skills.sale_price_mult(Markets.market_of(c)) * Chains.price_mult(Markets.market_of(c))
-	if p > 0 and f != 1.0:
-		return roundi(float(p) * f)
-	return p
+	if c == "ore":  # rule 3: grown worlds pay more for ore (ore is never a need)
+		var t: int = 1 if prosperity == null else int(prosperity.tier(planet))
+		if t >= 3:
+			f *= float(balance.get("ore_price_t3", 1.0))
+		elif t == 2:
+			f *= float(balance.get("ore_price_t2", 1.0))
+	var cut := unrest_cut_pct(int(trade.planets[planet].get("system", 1))) if (planet >= 0 and planet < trade.planets.size()) else 0.0  # rule 2
+	if cut > 0.0:
+		f *= 1.0 - cut / 100.0
+	if f != 1.0:
+		p = maxi(1, roundi(float(p) * f))
+	if prosperity != null and prosperity.is_need(planet, c):
+		return p  # rule 1: a need's units are not fatigued here; sale_value fatigues only its surplus units
+	return _fatigued(planet, c, p)  # rule 1
 
 ## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with the sell-price skills, minus buy price here).
 func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
@@ -592,7 +669,7 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 		return {"ok": false, "reason": StoryText.get_or("RT_ERR_NO_CLUSTER", "No such cluster.")}
 	if new_route and not Skills.unlocked("cluster_routes"):  # a saved route loads before the skills do and stays
 		return {"ok": false, "reason": StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")}
-	if c != clusters.good_of(i) or not _can_trade(c):
+	if c != clusters.good_of(i) or not commodities.has(c):  # no branch rule here: asteroid ore is open to every run (the branch hides no goods)
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_ONLY_ORE", "This cluster gives ore only.")}
 	if new_route and clusters.left(i) <= 0:
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_EMPTY", "This cluster is empty.")}
