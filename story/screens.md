@@ -24,35 +24,47 @@ A small company in a shared, indifferent sky.
 
 ## Preface (one block, shown before the game starts)
 SCR_PREFACE | 1200 | Preface screen, the text when the CEO has none of their own; {company} is the player's company name
-Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+The crew brings a kettle into the control post. You clear a place beside the radio. The name {company} is still wet on the charter.
 
-You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+On the map, home is a dock with its lamps on. Past it are worlds you have yet to see. Some have goods to send. Some are waiting for what they cannot make.
 
-Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar.
+The Star Bazaar is only a name on the charter. You could build a place where those crews meet. Goods will have to move. Worlds will have to grow. Someone will have to keep the ships flying while the halls go up.
+
+You pull the chair in. A cup lands beside your hand. The crew leans over the map with you.
 SCR_PREFACE_MAN_01 | 1200 | Preface screen, CEO Marek Voss; {company} is the company name
-Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+Marek lays a worn bolt on the desk at {company}. He kept other people's ships flying with parts like this. Whenever he asked to buy spares in bulk, someone passed the form back.
 
-You know the price of every bolt, and you have never trusted luck. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+The orders are his to sign now. Your Tramp costs less to keep running. Marek checks its upkeep before he looks at the hold. The yard hands who backed him will know where to come if the work dries up.
 
-Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. You will count every bolt of it.
+Old contacts still call before bad news reaches the board. Their warning gives you time to act. It will not put goods in storage or feed a waiting world.
+
+The Star Bazaar begins with loads of Minerals, carried where people need them. Marek wants to stand on its floor and know what holds it up. He wants the hands who built it to stand there too.
+
+Read the home world's orders. Find what it has and where it is wanted. Set a route running. The bolt can stay on the desk. There is work for the ship.
 SCR_PREFACE_MAN_02 | 1200 | Preface screen, CEO Idris Kane; {company} is the company name
-Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+As a broker, Idris Kane bought lunch for people who took his buyers. He remembered what they ate. The famous smile stayed on while he read the bill.
 
-You read a price board the way others read faces, and a smile has never cost you a sale. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+Now {company} has a Dart and a light hold to fill. Idris sells hard and spends freely. A crew's pay is harder to smooth over than a price. They have put their work things aboard.
 
-Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Keep smiling.
+For Idris, the Star Bazaar means a table buyers come back to. Blooms beside the plates. His name over the hall. He has talked about it at enough lunches. People have begun asking when they can see it.
+
+The home market's price tips are on your board as trade starts. They will not stay there long. Idris pulls his chair close. Read the prices, set your orders, and find who needs the cargo.
 SCR_PREFACE_WOMAN_01 | 1200 | Preface screen, CEO Sela Oru; {company} is the company name
-Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+Sela Oru checks the straps in the hold. On the rim, she learned what shifts when a ship turns hard. She came home from lanes other crews would not take. Her crews brought the powder home with her.
 
-You have flown the worst lanes of the rim and still come home. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+There is a plan beside the route board, with spare plans beneath. {company} is on the top sheet. These are your credits, your ships, and the crews who will wait for orders. An idle Bulkhead still costs upkeep. Sela taps the blank space where its first route belongs.
 
-Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Deliver it on time.
+She can make that first lane carry more cargo. The Flagship has a few bursts of speed to spend. Once spent, they will not come back. Sela keeps her hand clear of the Boost switch.
+
+The Star Bazaar could give the far posts a place to meet. Crews could read the same terms and ask for the next load. First, a ship must earn enough to keep flying. Sela pulls up the home world's board. Find what it needs. Put the hold to work.
 SCR_PREFACE_WOMAN_02 | 1200 | Preface screen, CEO Tamsin Hale; {company} is the company name
-Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+The clerk has written {company} on a fresh card. Tamsin Hale sets it beside her old clerk cards. She grew up in the Bazaar's docking rings. She knows who keeps spare forms, and who stays late.
 
-You grew up in the docking rings and know every clerk by name. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+She trades Biotech from a Skerrit, a hull she knows. Her contract orders ask for more cargo. Fill them and they pay more. If she cannot deliver, she must face the clerks across the same desks.
 
-Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Let every dock remember your name.
+She wants to raise a Star Bazaar those clerks can work in. A place with stock behind the promises. She runs her thumb over the new card's edge. There is room on the back for more names.
+
+Your company has a ship waiting. Read the food and energy orders. Send the Flagship to find the next dock, then set a lane. Tamsin has left her pen beside the card.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
 Sign here, and here
 
@@ -106,6 +118,7 @@ ST_NO_CASH_BUY | 80 | Buy order row, an order that could not buy one unit | Not 
 
 ## Skill screen extras
 SK_BTN_CLOSE | 24 | Skill screen, close button | Close
+SK_HOLD_LEARN | 40 | Skill screen, detail panel hint on a learnable skill | Hold to learn  ·  {amount}
 SK_NONE_SELECTED | 110 | Skill screen, detail panel before a click | Click a skill to see what it does.
 SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned
 SK_BTN_LOCKED | 24 | Learn button, disabled on a locked skill | Locked
@@ -160,7 +173,7 @@ NOT_SKILL_REASON_PLANET | 60 | Fills {reason} | first visit to {planet}
 NOT_SKILL_REASON_ROUTE | 60 | Fills {reason} | first route from {planet_a} to {planet_b}
 NOT_SKILL_REASON_SYSTEM | 60 | Fills {reason} | first route in a new system
 NOT_SKILL_LEARNED | 110 | Notice, skill learned
-Learned: {skill}.
+Learned: {skill}. The investor board is happy: we can build it into our economy now.
 NOT_SKILL_NO_POINTS | 110 | Skill screen, not enough points
 Not enough skill points.
 NOT_SKILL_NO_SYSTEMS | 110 | Skill screen, permit skill, no systems open
@@ -177,6 +190,16 @@ NOT_ROUTE_MADE | 110 | Notice, route made | Route made: {planet_a} to {planet_b}
 NOT_ROUTE_REMOVED | 110 | Notice, route removed | Route removed: {planet_a} to {planet_b}.
 LBL_LANE_SHIP | 24 | Connections list, a ship's place on a shared route; the game adds "k of N" | Ship
 NOT_LANE_SHIP_ADDED | 110 | Notice, a ship added to an existing route | Ship added to the route.
+LANE_BONUS_A_TITLE | 32 | Lane bonus event popup (main.gd), variant A title | The Bureau counts your lane
+LANE_BONUS_A_BODY | 280 | Lane bonus event popup (main.gd), variant A body | A clerk from the Bureau counts the {good} ships on the {from} to {to} lane. The form has a box for exactly this many. The Plan marks the lane as settled and adds a quiet line in your favour. Nobody asks you to sign twice.
+LANE_BONUS_A_EFF | 90 | Lane bonus event popup (main.gd), variant A effect line | This lane keeps a permanent margin bonus of {pct}%.
+LANE_BONUS_B_TITLE | 32 | Lane bonus event popup (main.gd), variant B title | The dockhands stop asking
+LANE_BONUS_B_BODY | 280 | Lane bonus event popup (main.gd), variant B body | The dockhands at {from} no longer look up when the {good} ships leave. They know the load, the hour and the gate at {to}. Nobody wrote it down. It goes faster when nobody has to ask, and the Bureau has no form for that.
+LANE_BONUS_B_EFF | 90 | Lane bonus event popup (main.gd), variant B effect line | Trips on this lane earn a permanent {pct}% better margin.
+LANE_BONUS_C_TITLE | 32 | Lane bonus event popup (main.gd), variant C title | A quota nobody set
+LANE_BONUS_C_BODY | 280 | Lane bonus event popup (main.gd), variant C body | A form comes from the Bureau. The {from} to {to} lane has met a {good} quota that no one set. The Plan is pleased and cannot say why. It asks you to keep doing whatever you are doing, and to please not explain it.
+LANE_BONUS_C_EFF | 90 | Lane bonus event popup (main.gd), variant C effect line | This lane gains a permanent margin bonus of {pct}%.
+LANE_BONUS_BTN | 24 | Lane bonus event popup (main.gd), Accept button | Accept
 NOT_RESUMED | 110 | Notice, game unpaused | Running.
 NOT_PAUSED | 110 | Notice | Paused. Nothing earns while paused.
 NOT_TUT_LOCKED | 110 | Notice, player clicks something the tutorial has muted | Not yet. Follow the tutorial step, or skip the tutorial.
@@ -2318,6 +2341,8 @@ ST_HUB_MANUAL | 24 | hub_panel.gd:163
 Kept manual
 ST_HUB_NONE_IN_REACH | 50 | hub_panel.gd:131
 No worlds in reach yet.
+ST_HUB_NO_SHIP_ALERT | 90 | hub_panel.gd, red alert under the pool row when worlds are ticked and the pool has no ship
+No ship in the pool. The ticked worlds get nothing. Add a ship with +.
 ST_HUB_NO_WORLD | 30 | hubs.gd
 No such world.
 ST_HUB_OPEN | 24 | planet_panel.gd:223
@@ -2336,6 +2361,14 @@ ST_HUB_SITE_PROD | 50 | hub_panel.gd Star Bazaar hub, a delivery for production;
 {good} x{qty} for production
 ST_HUB_SITE_BILL | 50 | hub_panel.gd Star Bazaar hub, a delivery for the stage bill; {good} {qty}
 {good} x{qty} for the stage bill
+ST_BUILD_ORE_PART | 40 | build buttons and cost lines when ore pays part of the price; {cost} {ore}
+{cost} cr and {ore} ore
+BAZ_STEP_BILL_ORE | 140 | Bazaar guidance, the ore row of a stage bill; {stage} {amount} {good}
+{stage} needs {amount} {good} held in the Star Bazaar's storage. Mine it and send it to the Star Bazaar.
+PL_FATIGUE_LINE | 90 | planet_panel.gd under a good's tile, lane fatigue; {planet} {good} {pct}
+{planet} is well stocked with {good}: sales pay {pct}% less.
+PL_UNREST_LINE | 90 | planet_panel.gd needs block, unrest cut; {system} {n} {pct}
+Unrest in {system}: {n} restless worlds, sales pay {pct}% less.
 ST_HUB_PLUS_CAP | 60 | hub_panel.gd PoolPlus tooltip
 A hub pool holds up to {max} ships.
 ST_HUB_PLUS_MOVE | 60 | hub_panel.gd PoolPlus tooltip
@@ -2407,6 +2440,10 @@ LBL_BAZAAR_STATION_NAME | 32 | main.gd planet_name, Space Storage view title, hu
 Star Bazaar
 BAZ_FOUND_TIP | 90 | Space Storage view, Found button tooltip
 Raise the Star Bazaar in this Space Storage. Once per run, final.
+BAZ_FOUND_NEED_HUB | 120 | Space Storage view, Found button tooltip while the hub is not ready
+Needs a hub in this system that has worked {cycles} cycles ({age} now) and moved {units} units ({moved} now).
+BAZ_FOUND_NEED_CASH | 90 | Space Storage view, Found button tooltip while credits are short
+Not enough credits. Ore in this system's planet storages lowers the price.
 BAZ_BTN_PANEL | 24 | Space Storage view, opens the Bazaar panel
 Star Bazaar panel
 BAZ_BTN_STORAGE | 24 | Bazaar panel, opens the Space Storage view

@@ -78,182 +78,182 @@ Chain flavour lines: MIL A: the quartermaster's war that never ends, ledgers and
 Neutrality checks run on all 28 steps (script, not the game): no digit, no banned verdict word (good, bad, right, wrong, fair, safe, risky, bold, kind, open, closed, quiet, polite, late, long, short, small, big, plain, clean and the rest of 4.2 rule 1), no "but", "however" or "at least" in any text; button lengths within 5 characters, effect lines and results within 25 percent of each other. Each step's pair shares one grammar and one length class. The old Minerals chain events EV29 to EV37 stay in this file until the chain is wired; their choice texts name stances (Keep mining, Share the lane) and must be retired with the Open and Hard framing, not reused.
 
 EV01 | Voltara's reactors run wild | [price down: Voltara, energy] | P
-Night-shift engineer Pavo Quill ran Voltara's reactors past the safe-hours rule. Nothing blew up, so the day shift read the rule as a typo. Energy at Voltara costs less and pays less. The cores hum a note nobody tuned, and nobody wants to ask who is listening.
+Energy at Voltara costs less and pays less. Pavo Quill kept the reactors running past shift change. His meal sits untouched beside the controls. Cheap power leaves room in your budget. His crew must sell more to earn the same.
 
 EV02 | Grey blight on Tillam's terraces | [price up: Tillam, food] | P
-Grey blight crept up Tillam's terraces overnight and rubs off like ash. The committee ruled it a rumour, since no form reports it, and asked the blight to file one. Food at Tillam costs more and pays more. A Seed Bank lets planet storage hold clearly more against the next one.
+Food at Tillam costs more and pays more. Grower Sella wipes grey dust from a dead leaf onto her sleeve. Her harvest crate is empty. A Seed Bank lets planet storage hold clearly more. Until then, each load costs more to bring home.
 
 EV03 | Ashgate's harvest comes in heavy | [price down: Ashgate, food] | P
-Ashgate's harvest came in heavy, and the Common Ledger counted only half. Food at Ashgate costs less and pays less. The other half sits on the dock, real and uncounted, while a boy sells it by the sack from a handcart. What is not on the form is still food, until it rots.
+Food at Ashgate costs less and pays less. Clerk Nera's book lists half the harvest. Her son wheels the rest to the dock in a handcart. Buying costs less today. Nera needs the sacks sold before damp reaches the grain.
 
 EV04 | Voltara's crews go hungry | [price up: Voltara, food] | P
-A cheerful official told Voltara's crews that hunger is a slow phase of a smooth future, and handed out a booklet on chewing. Food at Voltara costs more and pays more. The cut was equal for all. The crews note that equal is not full, and read the booklet twice.
+Food at Voltara costs more and pays more. Loader Venn folds his ration slip around a heel of bread. The Bureau thanks the crews for waiting. Your next load can pay more here. Venn keeps the slip for tomorrow.
 
 EV05 | Frost on Tillam | [price up: Tillam, energy] | P
-Winter came early to Tillam and the heaters never stop. Energy at Tillam costs more and pays more. Frost grows inside the ducts in patterns no one will explain. Old duct-keeper Brindle leaves it a cup of warm oil each night. The cup is empty by morning.
+Energy at Tillam costs more and pays more. The heaters run without rest. Brindle scrapes frost from the inside of a duct with his cup. He asks when the next load comes. You check what it will cost to send it.
 
 EV06 | Ashgate lights every furnace | [price up: Ashgate, energy] | P
-A plan reached Ashgate this morning, written in a hurry and stamped twice. Every foundry was relit to meet it. Energy at Ashgate costs more and pays more. An old brakeman asked what the rush was. Nobody answered, and the furnaces glared on all night.
+Energy at Ashgate costs more and pays more. Every foundry has relit for the new Plan. Brakeman Olan holds his coat against the furnace glare. He was meant to be home by now. The next load will cost more before it pays more.
 
 EV07 | Tillam's docks go on strike | [planet closed: Tillam] | P
-Tillam's dock crews walked out over a debt they say is owed. The Bureau asked where the debt lives, and the crews pointed at the main gate. The port is closed for a while, and routes touching Tillam are blocked. Hardy Strains reopens a closed planet a cycle sooner.
+Tillam's port is closed for a while. Routes touching Tillam are blocked. Dockhand Sella hangs her unpaid shift slips on the gate. The Bureau asks for time to review them. Hardy Strains reopens a closed planet a cycle sooner.
 
 EV08 | Ashgate seals its port | [planet closed: Ashgate] | P
-Something turned up in Ashgate's lower docks, and the doctors will only say the port is closed. Routes touching Ashgate are blocked until they say otherwise. The dock cat was seen leaving at speed. Nobody here is a witness. Everybody is a suspect.
+Ashgate's port is closed for a while. Routes touching Ashgate are blocked. Doctor Eda presses a notice to the glass with her bare palm. Her coat is still inside the sealed dock. Your crews wait outside with their cargo.
 
 EV09 | Voltara goes dark | [planet closed: Voltara] | I
-A fault in Voltara's grid took the port with it. The planet that lights everyone cannot light its own docks. The port is closed for a while, and routes touching Voltara are blocked. The law says lights on. The emergency says off. A clerk decides, by candle.
+Voltara's port is closed for a while. Routes touching Voltara are blocked after a grid fault. Clerk Neris holds a candle over the arrival book. She keeps a thumb on your ship's name. There is no berth she can give it.
 
 EV10 | A lender walks Tillam's market | [price down: Tillam, energy] | Q
-A lender's agent, a thin man named Shylo Vane, walked Tillam's market and bought every debt in sight. Sellers panicked, settled up and dumped their stock. Energy at Tillam costs less and pays less for now. A debt is real until someone stops believing in the paper.
+Energy at Tillam costs less and pays less for now. Shylo Vane has bought the sellers' debts. Trader Senn empties his stock to settle his share. He rubs the old price from his board. You can buy cheaply from him today.
 
 EV11 | Ashgate's foreman says enough | [price down: Ashgate, energy] | Q
-Ashgate foreman Dov Rennick read the numbers, said the shift had made enough, and sent his crew home. Energy at Ashgate costs less and pays less. Enough is a word the Plan does not print. By evening three more foremen had found it, and the furnaces cooled.
+Energy at Ashgate costs less and pays less. Foreman Dov Rennick sent his crew home after the shift met its target. He hangs the furnace key beside his child's coat. Your stock will pay less here. His hands have stopped shaking.
 
 EV12 | Voltara buys before the news | [price up: Voltara, energy] | Q
-A trader named Wex whispered on Voltara's docks that the far beacons had gone dark. They had not. Buyers bought energy hard anyway, and the lie came true by supper. Energy at Voltara costs more and pays more. Price Whisper shows next cycle's prices, rumour or not.
+Energy at Voltara costs more and pays more. Wex said the far beacons had failed. They still shine above a dock stripped of stock. Buyer Eren holds an empty fuel can. Price Whisper shows next cycle's prices before you commit another load.
 
 EV13 | A family buys Ashgate's food | [price up: Ashgate, food] | Q
-A family with old credits quietly bought every food contract on Ashgate. Their agent, a polite man named Corvale, asked only that nobody ask why. Food at Ashgate costs more and pays more. The Commons has no form for that question yet. It is writing one.
+Food at Ashgate costs more and pays more. Corvale's family bought every food contract. He flattens a receipt beneath the canteen's empty bread tray. Your cargo can earn more here. The cook asks which name she should put on her order.
 
 EV14 | The inspector's count | [price down: Voltara, food] | I
-Inspector Pell counted Voltara's food stores and found them sufficient, on a form. The market believed the form. Food at Voltara costs less and pays less. The pantries are still bare, now correctly accounted for. The form reads smoothly. That is most of the truth.
+Food at Voltara costs less and pays less. Inspector Pell marked the stores full on his form. Cook Venn turns an empty bin toward him. Pell asks for the bin's entry in the book. Your next sale pays less while they check.
 
 EV15 | Tillam's festival of founders | [price up: Tillam, food] | I
-Tillam declared a festival of founders, and everyone wore a founder's mask. Food at Tillam costs more and pays more. Three committees claim to be the real founders. By midnight nobody can tell who is who, and nobody will take off a mask to clear the tables.
+Food at Tillam costs more and pays more. The founders' festival has filled the halls. Cook Sella removes her mask to count the bread left. Your cargo can earn more here. She sets aside a crust before opening the kitchen door.
 
 EV16 | A ship leaves Tillam half empty | [price down: Tillam, food] | Q
-A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it. It sits on the sill.
+Food at Tillam costs less and pays less. A ship left for uncharted rock with room still in its hold. Cook Eren sells the food he saved for a friend aboard. He leaves her cup beside the till. The sale must pay for his own stay.
 
 ## Goods events (T154, 2026-11-02): silk, logic cores, ore
-EV21_TITLE | pool event title | Brannock's weavers down tools
-EV21_BODY | pool event text | Brannock's silk weavers downed tools over a form that counted their hours twice. Silk at Brannock costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Nobody has gone near the vat since.
+EV21_TITLE | pool event title | The weavers stop work
+EV21_BODY | pool event text | Silk at Brannock costs more and pays more. Weaver Nelle lays her shuttle across a form that counts her hours twice. The looms have stopped. Your next load can earn more. Nelle needs her hours counted before she takes the shuttle back.
 
-EV22_TITLE | pool event title | Quillon holds a gala
-EV22_BODY | pool event text | Quillon's buyers hold a gala to celebrate a quota met on paper. Silk at Quillon costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the guests look alike. Patron's List makes a price rise like this pay more.
+EV22_TITLE | pool event title | Borrowed sleeves at Quillon
+EV22_BODY | pool event text | Silk at Quillon costs more and pays more. Gala steward Coren pins a borrowed sleeve over his worn cuff. Every guest wants cloth before the doors close. Patron's List makes a price rise like this pay more. Coren asks how soon you can dock.
 
-EV24_TITLE | pool event title | Fire in Cindrel's reactor hall
-EV24_BODY | pool event text | A fire swept Cindrel's reactor hall and left the control floor black. Spy software at Cindrel costs more and pays more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.
+EV24_TITLE | pool event title | Ash in the control room
+EV24_BODY | pool event text | Spy software at Cindrel costs more and pays more. Fire has blackened the reactor controls. Fitter Ressa wipes ash from the shift list until her own name shows. Replacing the lost stock costs more. So does each day her crew waits for it.
 
-EV25_TITLE | pool event title | Mossfell recalls its tractors
-EV25_BODY | pool event text | Mossfell recalled its farm tractors to be retrained as safe. Spy software at Mossfell costs more and pays more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.
+EV25_TITLE | pool event title | The tractors stand still
+EV25_BODY | pool event text | Spy software at Mossfell costs more and pays more. The recalled tractors stand beside unworked rows. Foreman Iven holds a starter key against his palm. The new checks need software before the machines can return. His crew waits by the field gate.
 
 EV26 | A rich seam is logged twice | [price down: Voltara, ore] | Q
-A survey crew found a rich seam and logged it in two offices, so it is counted twice and sold twice. Ore at Voltara costs less and pays less while the news is fresh. With Smelting, ore orders ignore the size cap, so a cheap week can be a big one.
+Ore at Voltara costs less and pays less. Surveyor Edda has found her seam listed in separate offices. She lays the matching maps edge to edge. Smelting lets ore orders ignore the size cap. You can buy more cheaply while her sellers earn less.
 
 EV28 | Voltara's foundry wants rock | [price up: Voltara, ore] | P
-Voltara's foundry ordered more rock than the Plan had dreamed of. Ore at Voltara costs more and pays more. Every shortcut the founders took lies under the furnace floor, and the furnace wants more. Prospecting lets routes start at asteroid clusters, where the rock is free.
+Ore at Voltara costs more and pays more. Foundry hand Olan draws the new rock order on a dusted bench. The old order still shows beneath it. Prospecting lets routes start at asteroid clusters, where ore is free. The route still costs you.
 
 EV60 | Energy runs short at Voltara | [shortage: Voltara, energy] | Q
-Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it.
+Energy demand and prices at Voltara rise for a few cycles. Grid hand Pavo cups his hands around an unlit panel. The night shift needs more power than the order booked. A load can pay more here. Bringing it still takes time and credits.
 
 EV61 | Food runs short at Tillam | [shortage: Tillam, food] | Q
-Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here.
+Food demand and prices at Tillam rise for a few cycles. Cook Eren scrapes the last grain from a bin's seam. The terraces cannot fill his next order yet. Your load can earn more here. He keeps the empty bin by the door.
 
 EV62 | Food runs short at Ashgate | [shortage: Ashgate, food] | Q
-Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price.
+Food demand and prices at Ashgate rise for a few cycles. Ration clerk Nera lays the stock form inside an empty bread tray. She has counted again. A load can earn more here. The names waiting for it fill the back of her form.
 
 EV63 | Traffic jams at Tillam | [congestion: Tillam] | Q
-A line of convoys waits outside Tillam's docks for a slot nobody can promise. Lanes that touch Tillam cost more per trip for a few cycles. Ride it out or send the ships elsewhere.
+Lanes touching Tillam cost more per trip for a few cycles. Dockhand Sella presses a thumb into her untouched lunch. The convoy queue has no promised berth. Keep your ships here and pay more. Send them elsewhere and leave these orders waiting.
 
 EV64 | Traffic jams at Voltara | [congestion: Voltara] | Q
-Voltara's dock beacons flicker and every captain waits for the next one to go first. Lanes that touch Voltara cost more per trip for a few cycles. Ride it out or send the ships elsewhere.
+Lanes touching Voltara cost more per trip for a few cycles. Pilot Rusk taps the dark berth light with a fingernail. Every captain waits for clearance. Keep the lanes running at a higher cost, or send their cargo away from waiting buyers.
 
 # Events, choice events (draft 1, T96 T100 T103 T108, 2026-10-28)
 
 Format: ID | place | tag, then text. Choice events use the choice screen limits: title max 40, body max 280, button max 28, effect line max 90. Outcome texts are event popups: title max 32, text max 280, shown under NOT_EVENT_PREFIX with BTN_OK. No numbers: the game inserts any amount through a placeholder. Tags name the effect in words as the owner described it; the Economy Designer sets size and duration. Planet = {planet}.
 
 ## Debris in orbit [route efficiency down: {planet}, while the debris stays]
-EV17_TITLE | choice title | Wreckage is circling {planet}
-EV17_BODY | choice body | A field of old wrecks circles {planet}. Captain Rusk offers to sweep it for a fee. The Bureau filed the wreckage as unowned, so no one has to move it. Routes from {planet} carry less while it stays.
-EV17_PAY_BTN | button | Pay the fee
-EV17_PAY_EFF | effect line | Pay the fee. The debris is cleared and routes from {planet} run as before.
-EV17_LEAVE_BTN | button | Leave the debris
-EV17_LEAVE_EFF | effect line | Routes from {planet} carry less while the debris stays. It does not clear itself.
-EV17_PAID_TITLE | popup title | Orbit over {planet} is clear
-EV17_PAID | popup | Rusk's tugs swept the orbit and handed you a receipt. Routes from {planet} carry their full load again. The wreckage went somewhere. Rusk smiled when you asked, so you stopped asking.
-EV17_LEFT_TITLE | popup title | Debris stays over {planet}
-EV17_LEFT | popup | You left the wreck. Ships from {planet} thread around it in the dark and carry less. The offer stays open. Rusk's tug waits at the edge of the field, patient as a bill.
+EV17_TITLE | choice title | Wreckage circles {planet}
+EV17_BODY | choice body | Routes from {planet} carry less while wreckage stays in orbit. Captain Rusk offers to clear it for credits. A hull strip knocks against his window. Pay him and give up those credits. Leave it and crews from {planet} keep losing room in each load.
+EV17_PAY_BTN | button | Pay for clearance
+EV17_PAY_EFF | effect line | Pay for clearance. Debris clears. Routes from {planet} carry full loads again.
+EV17_LEAVE_BTN | button | Keep the debris
+EV17_LEAVE_EFF | effect line | Routes from {planet} carry less. Debris stays until you pay to clear it.
+EV17_PAID_TITLE | popup title | Routes from {planet} restored
+EV17_PAID | popup | Routes from {planet} carry full loads again. Rusk cleared the debris and sent his receipt. He rubs a dent in his tug's window while you check it. Those credits are spent. Your next crew has room for the cargo it had to leave behind.
+EV17_LEFT_TITLE | popup title | Debris remains at {planet}
+EV17_LEFT | popup | Routes from {planet} still carry less. Rusk keeps the offer available. Your pilot leaves a crate beside the hatch to make the reduced load. Its buyer's name faces out. Rusk's tug waits beyond the wreckage.
 
 ## Asteroid approach [warning; pay the state: no skill point, no reputation; decline: 50/50 bad outcome or nothing; bad outcome is storage destroyed or storage capacity cut]
-EV20_TITLE | choice title | An asteroid is approaching
-EV20_BODY | choice body | A rock is coming in on a slow path. The Bureau saw it late, as it sees everything. The state can turn it aside for a fee, and says it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.
-EV20_PAY_BTN | button | Pay the state
-EV20_PAY_EFF | effect line | Cost: payment to the state. Asteroid dealt with. The company gains one expansion point.
-EV20_DECLINE_BTN | button | Decline
-EV20_DECLINE_EFF | effect line | An even chance: company storage is hit, or nothing happens.
-EV20_PAID_TITLE | popup title | The asteroid is deflected
-EV20_PAID | popup | The state turned the rock aside and sent you the receipt. The company gains one expansion point. The asteroid drifts on toward someone else's sky. Nobody on the dock looked up until it was gone.
-EV20_REWARD | notice (shown after EV20_PAID) | Event reward: the asteroid is dealt with and the company gains an expansion point.
-EV20_HIT_TITLE | popup title | Company storage destroyed
-EV20_HIT_DESTROYED | popup | The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau entered it as an adjustment to the Common Ledger. Nobody said sorry. Your crew stood where the door used to be.
-EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage there is cracked and holds less. The Bureau wrote the word partial. The crack runs up the wall in a straight line. Your crew keep their distance from it.
-EV20_MISS_TITLE | popup title | The asteroid passes
-EV20_MISS | popup | The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, but kept the form. For one night your crew slept in their boots.
+EV20_TITLE | choice title | A rock on the dock chart
+EV20_BODY | choice body | An asteroid is approaching. The state can turn it aside for credits. Dockhand Neris traces its path across the storage door on her chart. Pay and spend credits needed elsewhere. Refuse and storage may be hit. Cask Cellar protects Luxury stock from such a cut.
+EV20_PAY_BTN | button | Pay for deflection
+EV20_PAY_EFF | effect line | Pay the state. The asteroid is deflected. Gain an expansion point.
+EV20_DECLINE_BTN | button | Refuse payment
+EV20_DECLINE_EFF | effect line | An even chance: company storage is hit or spared. A hit destroys it or cuts capacity.
+EV20_PAID_TITLE | popup title | The rock changes course
+EV20_PAID | popup | The state deflected the asteroid. Your company gains an expansion point. Neris folds the path chart along the storage door's outline. The receipt goes beside your other costs. Your crews unload through the door she marked.
+EV20_REWARD | notice (shown after EV20_PAID) | Asteroid deflected. Your company gains an expansion point.
+EV20_HIT_TITLE | popup title | Company storage lost
+EV20_HIT_DESTROYED | popup | The asteroid struck {planet}. Your company storage there and all its stock are gone. Neris holds the old load sheet against her chest. The Bureau asks her to list what was stored. She starts with the crates promised to your next crew.
+EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage there now holds less. Neris chalks the new stock line below the crack in the wall. Your crew moves the waiting crates back. The load sheet still asks for the old amount.
+EV20_MISS_TITLE | popup title | The rock leaves your sky
+EV20_MISS | popup | The asteroid passed without a hit. Nothing changes. Neris takes the path chart off the storage door. She folds it into her work coat. Your crews carry on loading, stepping around the place where she stood.
 
 # Choice events with follow-ups (rewritten 2026-11-11)
 
 Three story events with two choices each, one engine tag per choice (price up, price down, planet closed), and a follow-up popup that comes a few cycles after the choice (a choice carries follow_id; the follow-up is never drawn at random). Limits as the choice screen: title 40, body 280, button 28, effect line 90; popups: title 32, text 280. No numbers. Gates are in the plan file handoffs/story-designer/2026-11-11-event-expansion.json. BE01 and BE03 are Biotech only (they name food), BE02 is Luxury only (it names musk, silk and blooms).
 
 ## BE01 Tillam's sealed granary [2 choices, Biotech, Tillam]
-BE01_TITLE | choice title | Tillam's sealed granary
-BE01_BODY | choice body | Tillam keeps grain behind a lock only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The queue has not moved since dawn.
-BE01_OPEN_BTN | button | Open it to the crowd
-BE01_OPEN_EFF | effect line | Food at Tillam costs less and pays less for a while. Tillam remembers.
-BE01_SHUT_BTN | button | Keep the lock shut
-BE01_SHUT_EFF | effect line | Food at Tillam costs more and pays more for a while. Tillam remembers.
-BE01_OPEN_TITLE | popup title | The granary opens
-BE01_OPEN | popup | The lock gave way. The grain went out by hand, sack to sack, and no one in the line spoke. Food at Tillam costs less and pays less while stores are full. The committee recorded a loan. Nobody asked who owes whom.
-BE01_SHUT_TITLE | popup title | The lock stays shut
-BE01_SHUT | popup | You said no. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. A child at the front sat on her bag and watched your ship. Inside the granary, something shifted.
+BE01_TITLE | choice title | Grain behind the lock
+BE01_BODY | choice body | Tillam's grain waits behind the committee's lock. Cook Eren presses an empty sack against his knees in the queue. Release the grain and food pays less. Keep it stored and food costs more. The committee asks your crew to carry it, or leave the lock.
+BE01_OPEN_BTN | button | Release the grain
+BE01_OPEN_EFF | effect line | Food at Tillam costs less and pays less for a while. Tillam remembers the release.
+BE01_SHUT_BTN | button | Keep the grain stored
+BE01_SHUT_EFF | effect line | Food at Tillam costs more and pays more for a while. Tillam remembers the refusal.
+BE01_OPEN_TITLE | popup title | The sacks pass hand to hand
+BE01_OPEN | popup | Food at Tillam costs less and pays less while stores are full. Eren holds his sack beneath the grain chute. Your next load will earn less here. The committee clerk writes the released stock as a loan. Eren asks whose name goes beside it.
+BE01_SHUT_TITLE | popup title | The queue stays outside
+BE01_SHUT | popup | Food at Tillam costs more and pays more while it stays scarce. Eren folds his empty sack for the walk home. The grain remains behind the lock. Your stock can earn more here. He stops at your dock to ask when it will arrive.
 
 [follow-up of BE01_OPEN, tag: price up: Tillam, energy]
-BE01A_TITLE | popup title | Tillam burns bright for you
-BE01A | popup | Tillam remembered the grain. Heaters on every terrace run high, and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.
+BE01A_TITLE | popup title | Heat reaches the terraces
+BE01A | popup | Energy at Tillam costs more and pays more for a while. The committee runs the terrace heaters high after the grain release. Eren hangs his emptied sack near a warm duct. Your next energy load costs more before it earns more here.
 
 [follow-up of BE01_SHUT, tag: planet closed: Tillam]
-BE01B_TITLE | popup title | Tillam closes its port
-BE01B | popup | The queue that waited in the cold came down to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. No one shouts. They stand in rows and watch your ships sit still.
+BE01B_TITLE | popup title | The queue reaches the docks
+BE01B | popup | Tillam's port is closed for a while. Routes touching Tillam are blocked. Eren brings his folded sack to the dock gate. The granary queue stands beside him. Your pilot has a load ready. Eren keeps his hand on the latch.
 
 ## BE02 The beacon over Dunmere Reach [2 choices, Luxury, system 2]
-BE02_TITLE | choice title | A beacon over Dunmere Reach
-BE02_BODY | choice body | A beacon pulses over Dunmere Reach, from a rock no chart lists. Its pattern repeats, then changes, as if it heard the dock talk. The Bureau office at Quillon wants it logged and silenced. Your crews want to answer. Your ships pass it every cycle.
-BE02_ANSWER_BTN | button | Answer the beacon
-BE02_ANSWER_EFF | effect line | Musk at Quillon costs more and pays more for a while. Something answers back.
-BE02_REPORT_BTN | button | Report it to the Bureau
-BE02_REPORT_EFF | effect line | Quillon closes its port to check the sky. Routes touching Quillon are blocked for a while.
-BE02_ANSWER_TITLE | popup title | The beacon is answered
-BE02_ANSWER | popup | A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought musk as if a festival had been called. Musk there costs more and pays more. No one will say what the festival is for.
-BE02_REPORT_TITLE | popup title | Quillon checks the sky
-BE02_REPORT | popup | The Bureau filed the beacon as a fault and closed Quillon's port to inspect the sky. Routes touching Quillon are blocked for a while. The inspectors were polite. The beacon pulsed once, as if it had read the form.
+BE02_TITLE | choice title | A pulse beyond the chart
+BE02_BODY | choice body | A beacon over Dunmere Reach repeats the dock call. Pilot Ressa stops with her cup against her lip. Answer it and Quillon's musk costs more. Report it and Quillon closes for checks. The Bureau asks for a reply. Your ships pass that light each cycle.
+BE02_ANSWER_BTN | button | Reply to the beacon
+BE02_ANSWER_EFF | effect line | Musk at Quillon costs more and pays more for a while. The beacon answers.
+BE02_REPORT_BTN | button | Report the beacon
+BE02_REPORT_EFF | effect line | Quillon closes for a while. Routes touching Quillon are blocked during checks.
+BE02_ANSWER_TITLE | popup title | Your call comes back
+BE02_ANSWER | popup | Musk at Quillon costs more and pays more. Ressa sent the reply. The beacon went dark, then returned her pattern. Buyers began ordering for a festival no clerk could name. Ressa sets her cup down without drinking. Your next musk load has buyers.
+BE02_REPORT_TITLE | popup title | Checks close the port
+BE02_REPORT | popup | Quillon's port is closed for a while. Routes touching Quillon are blocked. The Bureau thanks Ressa for her report and begins its checks. She holds the reply slip beside the berth light. Beyond the dock glass, the beacon repeats her call.
 
 [follow-up of BE02_ANSWER, tag: price up: Mossfell, blooms]
-BE02A_TITLE | popup title | Visitors reach Mossfell
-BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want hothouse blooms and pay in odd, heavy coins. Hothouse blooms at Mossfell cost more and pay more for a while. They gave no names. They counted every stem twice, and watched your crew do it.
+BE02A_TITLE | popup title | Stems for unnamed guests
+BE02A | popup | Hothouse blooms at Mossfell cost more and pay more for a while. Visitors from the beacon's rock arrive without papers. Grower Nelle turns a heavy coin over in her palm. They count each stem before taking it. She asks where to send the next load.
 
 [follow-up of BE02_REPORT, tag: price down: Quillon, silk]
-BE02B_TITLE | popup title | The inspection finds nothing
-BE02B | popup | The inspectors found no fault and Quillon's port reopened. Stock held back for the check came out all at once. Silk at Quillon costs less and pays less for a while. The beacon is still up there. The report says it is not.
+BE02B_TITLE | popup title | The held stock goes on sale
+BE02B | popup | Quillon's port reopens after the checks find nothing. Silk costs less and pays less for a while as held stock reaches the docks. Ressa pins the report beside her berth slip. Through the glass, the beacon still flashes. She leaves the report there.
 
 ## BE03 A family offers cover [2 choices, Biotech, Ashgate, after the family bought Ashgate's food (EV13)]
-BE03_TITLE | choice title | A family offers cover
-BE03_BODY | choice body | The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. Your crew read the note over your shoulder. No one spoke.
-BE03_ACCEPT_BTN | button | Accept their cover
-BE03_ACCEPT_EFF | effect line | Food at Ashgate costs more and pays more for a while. The family will call in the favour.
-BE03_REFUSE_BTN | button | Refuse politely
-BE03_REFUSE_EFF | effect line | Food at Ashgate costs less and pays less for a while. The family will wait.
-BE03_ACCEPT_TITLE | popup title | The family keeps the docks
-BE03_ACCEPT | popup | The family's people took the docks at dawn, in clean coats. Food at Ashgate costs more and pays more, since their prices came with them. The docks are quiet. Your crew lower their voices there. A quiet dock has an owner.
-BE03_REFUSE_TITLE | popup title | The note is declined
-BE03_REFUSE | popup | You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. No one was threatened. Your crew check the locks twice each night.
+BE03_TITLE | choice title | Corvale offers dock cover
+BE03_BODY | choice body | Corvale offers to keep other food traders off Ashgate's docks for a share. He smooths the note beneath your cook's order. Accept and food costs more. Refuse and food pays less as his buyers withdraw. Your crew watches his hand leave the paper.
+BE03_ACCEPT_BTN | button | Accept the offer
+BE03_ACCEPT_EFF | effect line | Food at Ashgate costs more and pays more for a while. The family will claim a favour.
+BE03_REFUSE_BTN | button | Refuse the offer
+BE03_REFUSE_EFF | effect line | Food at Ashgate costs less and pays less for a while. The family waits.
+BE03_ACCEPT_TITLE | popup title | Corvale's people take posts
+BE03_ACCEPT | popup | Food at Ashgate costs more and pays more under the family's prices. Corvale's people stand at the docks. Cook Nera tucks her order inside her sleeve before passing them. Your cargo earns more here. Other traders wait beyond the gate.
+BE03_REFUSE_TITLE | popup title | The buyers step away
+BE03_REFUSE | popup | Food at Ashgate costs less and pays less as the family's buyers withdraw. Corvale takes back his note. Cook Nera lays her order flat again. Your stock will earn less. She reads the new price before choosing how much to ask for.
 
 [follow-up of BE03_ACCEPT, tag: planet closed: Ashgate]
-BE03A_TITLE | popup title | The family calls its favour
-BE03A | popup | The family closed Ashgate's docks to every ship but its own, and sent you the bill for the quiet. Routes touching Ashgate are blocked for a while. The note was courteous. A favour is a debt that keeps its place.
+BE03A_TITLE | popup title | The favour stops your ships
+BE03A | popup | Ashgate's docks close to every ship except the family's. Routes touching Ashgate are blocked for a while. Corvale sends thanks with a bill for his cover. Nera presses your waiting load sheet beneath it. His clerk asks her to leave both.
 
 [follow-up of BE03_REFUSE, tag: price down: Ashgate, energy]
-BE03B_TITLE | popup title | The family waits
-BE03B | popup | The family did nothing, which was its answer. Its buyers stayed away from the furnaces, and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading, never turning a page. He is there every shift.
+BE03B_TITLE | popup title | A reader by the furnace
+BE03B | popup | Energy at Ashgate costs less and pays less for a while. The family's buyers stay away from the furnaces. Corvale's courier sits by the dock with an unread page. Nera carries her order past him. He keeps his finger on the same line.
 
 # Events, dead worlds: retired (2026-11-03)
 
@@ -279,29 +279,29 @@ Tags updated 2026-11-04 to match data/chains.json pool_new (planets and goods as
 | EV50 | [price down: Mossfell, spores] | Q |
 | EV51 | [price up: Brannock, seed] | Q |
 
-EV40_TITLE | pool event title | Rivet guns pile up at Voltara
-EV40_BODY | pool event text | Voltara's foundry kept casting rivet guns after the Admiralty's order was filled, since its last line reads until victory. Stacks reach the roof. Rivet guns at Voltara cost less and pay less. A clerk asked if victory knew. Contract Doctrine softens Military price events.
-EV40_EFF | pool event weather line | Weather: no house changes its next weather.
+EV40_TITLE | pool event title | The order has no last load
+EV40_BODY | pool event text | Rivet guns at Voltara cost less and pay less. Hanno Sulo holds the filled order beside another stack. Its last line still says until victory. His crew keeps casting. Contract Doctrine softens Military price events. Your next sale pays less for their work.
+EV40_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
-EV43_TITLE | pool event title | A glut of sunmusk
-EV43_BODY | pool event text | A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and no two buyers agree what it smells of. The Bureau calls that variety. One dockhand calls it a headache.
-EV43_EFF | pool event weather line | Weather: no house changes its next weather.
+EV43_TITLE | pool event title | Sunmusk without an order
+EV43_BODY | pool event text | Sunmusk at Tillam costs less and pays less. Dockhand Eren cannot find an order for the convoy's stock. He covers his nose with his sleeve while checking the crates. Buying costs less today. Sellers keep asking him when someone will take it away.
+EV43_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
-EV46_TITLE | pool event title | The smelter goes cold
-EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace with their hands out. The metal inside still ticks as it shrinks.
-EV46_EFF | pool event weather line | Weather: no house changes its next weather.
+EV46_TITLE | pool event title | Cold metal in the smelter
+EV46_BODY | pool event text | Ingot at Voltara costs more and pays more until the furnace relights. A cracked line has stopped the smelter. Fitter Edda holds her hands over metal that no longer warms them. Your next load can earn more. Her crew still needs stock to work.
+EV46_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
-EV47_TITLE | pool event title | Alloy rolls off the line early
-EV47_BODY | pool event text | Voltara's line turned out seam alloy a week early, before the builders had placed an order. Seam alloy at Voltara costs less and pays less. The bales are stacked to the lamps, and a clerk is counting them for the third time. The count has not improved.
-EV47_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
+EV47_TITLE | pool event title | Alloy before the builders
+EV47_BODY | pool event text | Seam alloy at Voltara costs less and pays less. The line finished before the builders placed their orders. Loader Marel rubs a stack mark from his sleeve. Buying costs less now. He asks where to put the next load while these stacks wait.
+EV47_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
-EV49_TITLE | pool event title | Quarantine at the culture lab
-EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads each hour. One is short. Hardy Strains reopens a closed planet a cycle sooner.
-EV49_EFF | pool event weather line | Weather: no house changes its next weather.
+EV49_TITLE | pool event title | A seal on the lab door
+EV49_BODY | pool event text | Ashgate's port is closed for a while. Routes touching Ashgate are blocked after a culture changed colour. Ottoline Ryke checks names through the sealed lab door. Her thumb rests beside an unanswered name. Hardy Strains reopens a closed planet a cycle sooner.
+EV49_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
-EV50_TITLE | pool event title | Spores come in cheap
-EV50_BODY | pool event text | A damp season at Mossfell raised spore cultures in every crate, more than anyone could sell. Spore cultures at Mossfell cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.
-EV50_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
+EV50_TITLE | pool event title | Spores beyond the orders
+EV50_BODY | pool event text | Spore cultures at Mossfell cost less and pay less. Damp has brought more than the buyers ordered. Grower Imre wipes a wet crate lid before setting down his lunch. Buying costs less now. He keeps the unsold crates beside the shift's work.
+EV50_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
 
 
 # Early branch events, one per market, EV52 to EV55 (added 2026-11-06, T233)
@@ -310,53 +310,53 @@ Four one-time pool events, one per market (Military EV52, Luxury EV53, Minerals 
 Placeholder: {cash_in} is the credits the chosen option pays, number only. T234 fills it per option (A more than B). {market} is filled by the game in the EVnn_EFF line.
 No text names a good, a planet or a number: the goods of the early cycles are only energy and food, so each event speaks of crates, sets, cases and trays. The effect lines say only "pays more now" or "pays less now". No text hints at being seen, a risk or a later cost.
 
-EV52_TITLE | pool event title | A Fleet Office rush order
-EV52_BODY | pool event text | The Fleet Office gave you a rush order, and three larger crews want it if you slip. At the depot's back gate, Bosk Two-Stamps offers ready cash for some crates. His thumbs are blue from stamping forms nobody wrote. Sell fast, or sell at the counter.
-EV52_EFF | pool event weather line | Weather: no house changes its next weather.
-EV52_A_BTN | button | Sell to Bosk Two-Stamps
-EV52_A_EFF | effect line | Pays more now: {cash_in} credits.
-EV52_A_TITLE | popup title | Bosk has one stamp
-EV52_A | popup | Bosk paid in worn notes and stamped your slip. He owns one stamp. The name is a rumour he started himself. The crates left by the back gate before the clerk finished his tea. You gain {cash_in} credits now.
-EV52_B_BTN | button | Sell at the public counter
-EV52_B_EFF | effect line | Pays less now: {cash_in} credits.
-EV52_B_TITLE | popup title | The counter takes its time
-EV52_B | popup | The counter clerk checked each crate against the order, then checked the order against the crates. A stamp thumped somewhere in the back. It paid {cash_in} credits, less than the back gate would have.
+EV52_TITLE | pool event title | An order at the back gate
+EV52_BODY | pool event text | The Fleet Office needs its crates. Bosk Two-Stamps waits at the back gate with more credits than the public counter pays. Blue ink fills the crack in his thumb. He wants part of the order. Your loader holds the list against the waiting crates.
+EV52_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
+EV52_A_BTN | button | Sell at the back gate
+EV52_A_EFF | effect line | Gain {cash_in} credits now. This sale pays more.
+EV52_A_TITLE | popup title | Bosk takes the crates
+EV52_A | popup | You gain {cash_in} credits now. Bosk pays more than the public counter would. He presses his stained thumb onto the slip. Your loader crosses the sold crates off the Fleet Office list. Bosk folds the slip before the ink dries.
+EV52_B_BTN | button | Sell at the counter
+EV52_B_EFF | effect line | Gain {cash_in} credits now. This sale pays less.
+EV52_B_TITLE | popup title | The clerk checks the list
+EV52_B | popup | You gain {cash_in} credits, less than Bosk offered. The counter clerk matches every crate to the order. Your loader keeps a finger beside the next unchecked line. The clerk thanks her and turns back to the list.
 
-EV53_TITLE | pool event title | The Orrel House gala order
-EV53_BODY | pool event text | The Orrel House ordered cut-glass table sets for its gala, and two older firms bid for the same carriage. On a pleasure barge by the dock ring, Madame Fenn offers cash for a few sets. She calls every sale a private viewing and charges for the chair.
-EV53_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
-EV53_A_BTN | button | Sell to Madame Fenn
-EV53_A_EFF | effect line | Pays more now: {cash_in} credits.
-EV53_A_TITLE | popup title | A private viewing
-EV53_A | popup | The viewing lasted as long as it took to count the notes. Madame Fenn charged for the chair anyway. The sets went down the ramp wrapped in her shawls. You gain {cash_in} credits now. The gala table will be a few glasses short.
-EV53_B_BTN | button | Sell at the open stalls
-EV53_B_EFF | effect line | Pays less now: {cash_in} credits.
-EV53_B_TITLE | popup title | The stalls open at noon
-EV53_B | popup | You laid the sets out on the open stalls under the dock lamps. Buyers turned each glass to the light and haggled over chips that were not there. It paid {cash_in} credits, less than the barge would have.
+EV53_TITLE | pool event title | Sets for the gala table
+EV53_BODY | pool event text | The Orrel House needs its table sets. Madame Fenn offers more credits for some aboard her barge. Gala steward Nelle holds a seating card with a bent corner. Sell to Fenn for more, or take the sets to the public stalls for less.
+EV53_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
+EV53_A_BTN | button | Sell aboard the barge
+EV53_A_EFF | effect line | Gain {cash_in} credits now. This sale pays more.
+EV53_A_TITLE | popup title | Fenn wraps the glass
+EV53_A | popup | You gain {cash_in} credits now, more than the stalls would pay. Fenn wraps the sets in her shawl. Nelle turns over the seating card in her hand. The gala table will have fewer glasses when its guests arrive.
+EV53_B_BTN | button | Sell at the stalls
+EV53_B_EFF | effect line | Gain {cash_in} credits now. This sale pays less.
+EV53_B_TITLE | popup title | Glass beneath the lamps
+EV53_B | popup | You gain {cash_in} credits, less than Fenn offered. Buyers at the public stalls turn each glass beneath the lamps. Nelle keeps the bent seating card beside the sets. Your crew waits while the buyers work through the price.
 
-EV54_TITLE | pool event title | Deepline Works sample run
-EV54_BODY | pool event text | The Deepline Works hired you to carry sealed sample cases to its assay hall, and a faster crew is already loading. Tamsk Reddock, who runs the slag yard, offers cash for some cases. He weighs everything on one thumb and says heavy. Even the empty ones.
-EV54_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
-EV54_A_BTN | button | Sell to Tamsk Reddock
-EV54_A_EFF | effect line | Pays more now: {cash_in} credits.
-EV54_A_TITLE | popup title | Tamsk says heavy
-EV54_A | popup | Tamsk lifted a case on his thumb and said heavy, as he does every time. Then he paid in full from a tin. The cases rolled off to the slag yard on a cart with one good wheel. You gain {cash_in} credits now.
-EV54_B_BTN | button | Sell to the assay hall
-EV54_B_EFF | effect line | Pays less now: {cash_in} credits.
-EV54_B_TITLE | popup title | The assay hall counts
-EV54_B | popup | The assay hall took the cases at its own rate and its own pace. A clerk read each seal aloud, twice. Your crew stood in the cold while the ink dried. It paid {cash_in} credits, less than the slag yard would have.
+EV54_TITLE | pool event title | Samples at the yard gate
+EV54_BODY | pool event text | Deepline Works wants its sealed sample cases. Tamsk Reddock offers more credits for some at his slag yard. Your loader Edda grips a case by its worn handle. Sell to Tamsk for more, or carry the samples to the assay hall for less.
+EV54_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
+EV54_A_BTN | button | Sell at the slag yard
+EV54_A_EFF | effect line | Gain {cash_in} credits now. This sale pays more.
+EV54_A_TITLE | popup title | Tamsk counts out the notes
+EV54_A | popup | You gain {cash_in} credits now, more than the assay hall would pay. Tamsk takes the sealed cases. Edda eases her fingers off the worn handle. The cases leave for the slag yard with Deepline's labels still attached.
+EV54_B_BTN | button | Sell at the assay hall
+EV54_B_EFF | effect line | Gain {cash_in} credits now. This sale pays less.
+EV54_B_TITLE | popup title | The seals are read aloud
+EV54_B | popup | You gain {cash_in} credits, less than Tamsk offered. The assay clerk reads each seal before signing. Edda keeps her fingers curled around the empty handle space. Your crew waits for the clerk to finish the last case.
 
-EV55_TITLE | pool event title | Lowmoor Clinics need trays
-EV55_BODY | pool event text | The Lowmoor Clinics hired you to carry chilled sample trays to their wards, and a rival crew has a faster hull. Dr Pell Oruk waits behind the cold dock and offers cash for some trays. He tests each coin with a tooth and calls it mostly healthy.
-EV55_EFF | pool event weather line | Weather: no house changes its next weather.
-EV55_A_BTN | button | Sell to Dr Pell Oruk
-EV55_A_EFF | effect line | Pays more now: {cash_in} credits.
-EV55_A_TITLE | popup title | Mostly healthy coins
-EV55_A | popup | Dr Oruk bit every coin and found them mostly healthy. Then he paid in full. The trays left by the back door in a cold box, still labelled for a ward. You gain {cash_in} credits now. The ward gets fewer trays.
-EV55_B_BTN | button | Sell at the clinic desk
-EV55_B_EFF | effect line | Pays less now: {cash_in} credits.
-EV55_B_TITLE | popup title | The clinic desk signs
-EV55_B | popup | The clinic desk took the trays by the book. A nurse read every label aloud and the ward bell rang twice. It paid {cash_in} credits, less than the cold dock would have.
+EV55_TITLE | pool event title | Trays for Lowmoor Clinics
+EV55_BODY | pool event text | Lowmoor Clinics needs its chilled trays. Dr Pell Oruk waits behind the cold dock with more credits than the clinic desk pays. Nurse Ressa rubs a thumb over a ward label. Sell some trays to him for more, or take them to the desk for less.
+EV55_EFF | pool event weather line | Weather: all houses keep their next weather unchanged.
+EV55_A_BTN | button | Sell behind the dock
+EV55_A_EFF | effect line | Gain {cash_in} credits now. This sale pays more.
+EV55_A_TITLE | popup title | The ward label stays on
+EV55_A | popup | You gain {cash_in} credits now, more than the clinic desk would pay. Dr Oruk takes the trays in a cold box. Ressa's thumb leaves a damp mark beside the ward label. The ward will get fewer trays.
+EV55_B_BTN | button | Sell at the desk
+EV55_B_EFF | effect line | Gain {cash_in} credits now. This sale pays less.
+EV55_B_TITLE | popup title | Ressa checks each label
+EV55_B | popup | You gain {cash_in} credits, less than Dr Oruk offered. Ressa reads each tray's ward label at the clinic desk. Her thumb stops on the last name. She signs for the load before carrying it through.
 
 # Thread events TH01 to TH10: "The Lask page" (added 2026-11-06, T224)
 
@@ -378,124 +378,124 @@ Rules kept: every story works for either option of the one before (TH<nn> fires 
 | TH10 | follow of TH09 | [cash: pay {cash_out}] (new tag, see handoff) | [price up: Voltara, food] |
 
 ## TH01 A tug asks for your book
-TH01_TITLE | event title | A tug asks for your book
-TH01_BODY | event text | A tug named Slow Receipt docks at Voltara. Its owner, Maren Oake, once kept books for the Bureau. She asks to read your dock book, page by page. She says she hunts one debt. She does not say whose.
-TH01_A_BTN | button | Hand over the dock book
-TH01_A_EFF | effect line | Food at Voltara costs more and pays more for a while.
-TH01_A_TITLE | popup title | Oake reads by lamplight
-TH01_A | popup | Oake read all night and turned each page with one finger. Her helpers filled the canteen. Food at Voltara costs more and pays more for a while. At dawn she thanked you and wrote one line on her cuff.
-TH01_B_BTN | button | Send her to the Bureau desk
-TH01_B_EFF | effect line | Energy at Voltara costs less and pays less for a while.
-TH01_B_TITLE | popup title | Oake takes a number
-TH01_B | popup | The desk took her name and gave her a number. She waited in the long row while cranes stood idle overhead. Energy at Voltara costs less and pays less for a while. She did not complain. She counted the row.
+TH01_TITLE | event title | Oake asks for the dock book
+TH01_BODY | event text | Maren Oake docks Slow Receipt at Voltara. The former Bureau clerk rests a split fingernail on your dock book. She is tracing an unpaid loan. Let her read it and food costs more. Send her to the Bureau and energy pays less. She waits for your hand to move.
+TH01_A_BTN | button | Give Oake the book
+TH01_A_EFF | effect line | For a while, food at Voltara costs more and pays more.
+TH01_A_TITLE | popup title | A line on Oake's cuff
+TH01_A | popup | Food at Voltara costs more and pays more for a while. Oake's helpers fill the canteen as she reads your dock book. At dawn she writes a name on her cuff. She holds it toward the lamp before returning your book.
+TH01_B_BTN | button | Send Oake to the desk
+TH01_B_EFF | effect line | For a while, energy at Voltara costs less and pays less.
+TH01_B_TITLE | popup title | Oake waits beneath the cranes
+TH01_B | popup | Energy at Voltara costs less and pays less for a while. Cranes stand idle as the Bureau checks Oake's request. She rests your dock's visitor slip on her knee. Each time the clerk looks up, her hand lifts from it.
 
 ## TH02 The first page
-TH02_TITLE | event title | The first page
-TH02_BODY | event text | Oake comes back with a page, brown at the edges. It is the loan that bought the first ship of a crew like yours. Three lenders signed it. Two were repaid. The third, Teodor Lask, never came to collect.
-TH02_A_BTN | button | Search your own papers
-TH02_A_EFF | effect line | Food at Voltara costs less and pays less for a while.
-TH02_A_TITLE | popup title | A day among old crates
-TH02_A | popup | Your crew spent the day among old crates and ate from tins. Food at Voltara costs less and pays less for a while. One crate held a receipt with Lask's name on it. It was blank where the sum should be.
-TH02_B_BTN | button | Ask the old dock crews
-TH02_B_EFF | effect line | Energy at Voltara costs more and pays more for a while.
-TH02_B_TITLE | popup title | Talk after the shift
-TH02_B | popup | The old crews talked late and kept the lamps burning. Energy at Voltara costs more and pays more for a while. Most had heard the name Lask. None could say where they had heard it, and each one lowered a voice to say so.
+TH02_TITLE | event title | Lask never came to collect
+TH02_BODY | event text | Oake brings the loan page that bought a crew's first ship. Her finger stops beside Teodor Lask's unpaid name. Search your papers and food pays less. Ask old dock crews and energy costs more. Oake lays a blank sheet beside the page for what you find.
+TH02_A_BTN | button | Search the old papers
+TH02_A_EFF | effect line | For a while, food at Voltara costs less and pays less.
+TH02_A_TITLE | popup title | A receipt with no sum
+TH02_A | popup | Food at Voltara costs less and pays less for a while. Your crew searches old crates and eats from tins. Oake finds Lask's name on a receipt with no sum. She holds it against the loan page. The blank spaces line up.
+TH02_B_BTN | button | Ask the dock crews
+TH02_B_EFF | effect line | For a while, energy at Voltara costs more and pays more.
+TH02_B_TITLE | popup title | Lamps after the shift
+TH02_B | popup | Energy at Voltara costs more and pays more for a while. The old crews keep lamps burning while they talk. A loader traces Lask's name in spilled tea. He remembers hearing it. He cannot place the voice.
 
 ## TH03 Lask on a relief list
-TH03_TITLE | event title | Lask on a relief list
-TH03_BODY | event text | A cook at Tillam writes that the name Lask is on an old relief list from the blight years. The committee keeps it in a locked drawer. Oake asks you to carry her request there, with your seal on it.
-TH03_A_BTN | button | Send a ship with the request
-TH03_A_EFF | effect line | Food at Voltara costs more and pays more for a while.
-TH03_A_TITLE | popup title | A ship leaves with a letter
-TH03_A | popup | A hold went to Oake's letter and not to cargo. Food at Voltara costs more and pays more for a while. The ship left with the letter strapped to a crate, like a passenger who might change its mind.
-TH03_B_BTN | button | Wait for the next post ship
-TH03_B_EFF | effect line | Energy at Voltara costs less and pays less for a while.
-TH03_B_TITLE | popup title | The letter waits
-TH03_B | popup | The letter sat on the dock for the next post ship. Docks ran slow and drew less power. Energy at Voltara costs less and pays less for a while. Oake sat beside the letter the whole time, as if it might be taken.
+TH03_TITLE | event title | A name on the relief list
+TH03_BODY | event text | Cook Eren at Tillam found Lask on a relief list from the blight years. The list is locked away. Oake holds a request for your seal. Send it by ship and food costs more at home. Wait for the post ship and energy pays less.
+TH03_A_BTN | button | Send a request ship
+TH03_A_EFF | effect line | For a while, food at Voltara costs more and pays more.
+TH03_A_TITLE | popup title | Your seal leaves the dock
+TH03_A | popup | Food at Voltara costs more and pays more for a while. A hold went to Oake's letter instead of cargo. She presses your seal flat before the hatch shuts. Eren will have the request sooner. Your waiting food buyers have no load from that ship.
+TH03_B_BTN | button | Wait for the post ship
+TH03_B_EFF | effect line | For a while, energy at Voltara costs less and pays less.
+TH03_B_TITLE | popup title | Oake keeps the letter dry
+TH03_B | popup | Energy at Voltara costs less and pays less for a while. Dock work slows while the letter waits for the post ship. Oake keeps it beneath her coat when the roof drips. Eren has no request to show the committee yet.
 
 ## TH04 A second seeker
-TH04_TITLE | event title | A second seeker
-TH04_BODY | event text | A man in a grey coat, Aurel Dask of the Quill Lender House, finds Oake on your dock. His house buys old paper. He asks to copy the Lask page, and says he will find the heir sooner. He does not say what he will do then.
-TH04_A_BTN | button | Let Dask copy the page
-TH04_A_EFF | effect line | Food at Voltara costs less and pays less for a while.
-TH04_A_TITLE | popup title | Dask copies the page
-TH04_A | popup | Dask copied the page in a fast, tidy hand. His agents sold stores on the dock to pay for the hunt. Food at Voltara costs less and pays less for a while. He thanked Oake twice. She did not look up.
-TH04_B_BTN | button | Refuse to copy the page
-TH04_B_EFF | effect line | Energy at Voltara costs more and pays more for a while.
-TH04_B_TITLE | popup title | Dask goes back to his ship
-TH04_B | popup | Dask bowed and held his house's stock back from the dock. Energy at Voltara costs more and pays more for a while. His ship stayed in orbit, lamps lit, and it was still there when the crew went to bed.
+TH04_TITLE | event title | Dask asks for a copy
+TH04_BODY | event text | Aurel Dask of the Quill Lender House asks to copy Lask's page. He sets his pen across Oake's notes. He says his people can find the heir sooner. Give him a copy and food pays less. Refuse and energy costs more. His pen stays there.
+TH04_A_BTN | button | Give Dask a copy
+TH04_A_EFF | effect line | For a while, food at Voltara costs less and pays less.
+TH04_A_TITLE | popup title | Dask takes the copied names
+TH04_A | popup | Food at Voltara costs less and pays less for a while. Dask's agents sell stores to fund the search. Oake watches him blot the copied names with his cuff. He thanks her. Her hand remains on the page he leaves.
+TH04_B_BTN | button | Refuse Dask a copy
+TH04_B_EFF | effect line | For a while, energy at Voltara costs more and pays more.
+TH04_B_TITLE | popup title | Dask keeps his ship above you
+TH04_B | popup | Energy at Voltara costs more and pays more for a while. Dask holds his house's stock back. Oake watches his ship's lamps through the dock glass. She folds the page beneath her hand. The lamps are still there after shift change.
 
 ## TH05 A hull with a scraped name
-TH05_TITLE | event title | A hull with a scraped name
-TH05_BODY | event text | Under a tarp in Voltara's old yard sits a hull with its name scraped off. Oake reads a hull number through the dirt. It matches the page. The yard is sealed, and opening it pulls cranes from the shift.
-TH05_A_BTN | button | Open the old yard
-TH05_A_EFF | effect line | Energy at Voltara costs more and pays more for a while.
-TH05_A_TITLE | popup title | The tarp comes off
-TH05_A | popup | The cranes swung over to the yard and the lamps burned all shift. Energy at Voltara costs more and pays more for a while. Inside the hull was a bunk, a cup and a tally scratched on the wall. The last mark is shorter than the rest.
-TH05_B_BTN | button | Keep the yard sealed
-TH05_B_EFF | effect line | Food at Voltara costs less and pays less for a while.
-TH05_B_TITLE | popup title | The yard stays shut
-TH05_B | popup | You kept the yard sealed. The crews who came to look went home without eating at the stalls. Food at Voltara costs less and pays less for a while. Oake stood at the fence until the lamps changed over.
+TH05_TITLE | event title | The name scraped from a hull
+TH05_BODY | event text | Oake finds the loan's hull number beneath a tarp in Voltara's sealed yard. Bare metal shows where its name was. Unseal the yard and energy costs more as cranes move. Keep it sealed and food pays less. Oake presses the page against the fence.
+TH05_A_BTN | button | Unseal the old yard
+TH05_A_EFF | effect line | For a while, energy at Voltara costs more and pays more.
+TH05_A_TITLE | popup title | A cup beside the bunk
+TH05_A | popup | Energy at Voltara costs more and pays more for a while. Cranes and lamps serve the reopened yard. Oake finds a cup beneath the hull's bunk. She holds it by the handle. Nobody has a name to put beside it yet.
+TH05_B_BTN | button | Leave the yard sealed
+TH05_B_EFF | effect line | For a while, food at Voltara costs less and pays less.
+TH05_B_TITLE | popup title | Oake stays by the fence
+TH05_B | popup | Food at Voltara costs less and pays less for a while. Crews leave the sealed yard without eating at the stalls. Oake keeps the hull page pressed to the fence. The scraped patch of metal shows beyond it. She cannot reach the tarp.
 
 ## TH06 The Bureau answers
-TH06_TITLE | event title | The Bureau answers
-TH06_BODY | event text | The Bureau sends a letter, courteous and slow. It says the Commons settled the Lask debt long ago. The page copies a closed entry. It asks Oake to stop. It asks you to confirm that she has.
-TH06_A_BTN | button | Confirm she has stopped
-TH06_A_EFF | effect line | Food at Voltara costs less and pays less for a while.
-TH06_A_TITLE | popup title | The Bureau is satisfied
-TH06_A | popup | You signed the confirmation. The Bureau sent relief stores to the dock as thanks. Food at Voltara costs less and pays less for a while. Oake read the confirmation twice, then folded it and put it with the page.
-TH06_B_BTN | button | Say she has not stopped
-TH06_B_EFF | effect line | Voltara closes its port for a while. Routes touching Voltara are blocked.
-TH06_B_TITLE | popup title | Voltara closes its port
-TH06_B | popup | You wrote that she had not stopped. The Bureau sent inspectors, and they closed Voltara's port for a while. Routes touching Voltara are blocked. They were very careful with the dock book. They kept it overnight.
+TH06_TITLE | event title | The Bureau asks you to sign
+TH06_BODY | event text | The Bureau says the Commons settled Lask's debt. It asks you to confirm Oake has stopped her search. She holds the letter by its stiff fold. Sign and relief stores make food pay less. Say she continues and Voltara closes for checks.
+TH06_A_BTN | button | Confirm she stopped
+TH06_A_EFF | effect line | For a while, food at Voltara costs less and pays less.
+TH06_A_TITLE | popup title | Your name beneath the answer
+TH06_A | popup | Food at Voltara costs less and pays less for a while. The Bureau sends relief stores after your signed reply. Oake reads your name beneath the claim that she has stopped. She folds the reply into Lask's page. Both fit inside her coat.
+TH06_B_BTN | button | Confirm she continues
+TH06_B_EFF | effect line | Voltara closes for a while. All routes touching Voltara are blocked.
+TH06_B_TITLE | popup title | Inspectors take the dock book
+TH06_B | popup | Voltara's port is closed for a while. Routes touching Voltara are blocked after you confirm Oake still searches. The Bureau inspectors thank you for the dock book. Oake watches a clerk tie it with tape. Your next load waits outside.
 
 ## TH07 Slow Receipt is held
-TH07_TITLE | event title | Slow Receipt is held
-TH07_BODY | event text | The Bureau holds Slow Receipt at the dock for a form not yet filed. Oake sleeps in a borrowed coat on a crate. Some of your people want her gone before the next audit. Others bring her soup.
-TH07_A_BTN | button | Keep her in your bunk
-TH07_A_EFF | effect line | Food at Voltara costs more and pays more for a while.
-TH07_A_TITLE | popup title | A bunk with her name
-TH07_A | popup | The empty bunk was hers by morning. Two tables formed in the canteen, one with soup and one without. Food at Voltara costs more and pays more for a while. Nobody asked which table the tug belonged to.
-TH07_B_BTN | button | Find her a room ashore
-TH07_B_EFF | effect line | Energy at Voltara costs less and pays less for a while.
-TH07_B_TITLE | popup title | A room ashore
-TH07_B | popup | A clerk found her a room in the old block, with one cold heater. Energy at Voltara costs less and pays less for a while. She came to the dock each morning to look at her tug. It did not look back.
+TH07_TITLE | event title | A coat on a dock crate
+TH07_BODY | event text | The Bureau holds Slow Receipt for an unfiled form. Oake sleeps on a crate with her shoes still on. Give her your bunk and food costs more. Find her a room ashore and energy pays less. Your crew leaves soup beside the borrowed coat.
+TH07_A_BTN | button | Give Oake your bunk
+TH07_A_EFF | effect line | For a while, food at Voltara costs more and pays more.
+TH07_A_TITLE | popup title | Oake sets down her shoes
+TH07_A | popup | Food at Voltara costs more and pays more for a while. Oake joins your canteen and takes your bunk. She sets her shoes beneath it with their toes aligned. Your blanket hangs over the chair where you will sleep.
+TH07_B_BTN | button | Find Oake a room
+TH07_B_EFF | effect line | For a while, energy at Voltara costs less and pays less.
+TH07_B_TITLE | popup title | A key away from the tug
+TH07_B | popup | Energy at Voltara costs less and pays less for a while. Oake's room has a cold heater. She wraps its key in the borrowed coat's pocket. Each morning she walks back to Slow Receipt. The Bureau still holds it at the dock.
 
 ## TH08 A letter from a far station
-TH08_TITLE | event title | A letter from a far station
-TH08_BODY | event text | A letter reaches the dock. Ines Lask, daughter of Teodor, is old and writes slowly. She asks for no money. She asks that someone read the debt aloud once, in a room with people in it.
-TH08_A_BTN | button | Read it aloud on the dock
-TH08_A_EFF | effect line | Food at Voltara costs more and pays more for a while.
-TH08_A_TITLE | popup title | The dock hall fills
-TH08_A | popup | Word went round, and the hall filled with crews who had never met a Lask. They brought bread and stood. Food at Voltara costs more and pays more for a while. The back rows were the last to leave.
-TH08_B_BTN | button | Read it aloud by relay
-TH08_B_EFF | effect line | Energy at Voltara costs more and pays more for a while.
-TH08_B_TITLE | popup title | The relay stays on
-TH08_B | popup | The relay ran all night to carry one voice to a far room. Energy at Voltara costs more and pays more for a while. At the far end someone coughed once, and the line went on listening.
+TH08_TITLE | event title | Ines asks for a voice
+TH08_BODY | event text | Ines Lask sends a letter from a far station. Her pen has caught in the same word twice. She asks for no credits. Read her father's debt at the dock and food costs more. Read it by relay and energy costs more. She wants people there.
+TH08_A_BTN | button | Read at the dock
+TH08_A_EFF | effect line | For a while, food at Voltara costs more and pays more.
+TH08_A_TITLE | popup title | Bread passes through the hall
+TH08_A | popup | Food at Voltara costs more and pays more for a while. Crews gather for Ines's letter and bring bread to share. Oake moves a cup to make room on the table. None of these crews knew her father. They wait to hear his name.
+TH08_B_BTN | button | Read by relay
+TH08_B_EFF | effect line | For a while, energy at Voltara costs more and pays more.
+TH08_B_TITLE | popup title | A room at the far end
+TH08_B | popup | Energy at Voltara costs more and pays more for a while. The relay stays on to reach Ines's station. Oake bends toward the speaker when a chair scrapes at the far end. Someone has sat down to listen.
 
 ## TH09 The reading
-TH09_TITLE | event title | The reading
-TH09_BODY | event text | The reading is tonight. The page has three names and a sum written long ago. Someone must say it aloud. Oake holds the page with both hands. She says it is your dock, and your crew, so it is your voice.
-TH09_A_BTN | button | Read the page yourself
-TH09_A_EFF | effect line | Energy at Voltara costs less and pays less for a while.
-TH09_A_TITLE | popup title | Your voice on the page
-TH09_A | popup | Your voice shook on the third name, and the hall heard it. Most lamps were turned down to hear better. Energy at Voltara costs less and pays less for a while. When you finished no one clapped. They stayed seated.
-TH09_B_BTN | button | Let Oake read the page
-TH09_B_EFF | effect line | Food at Voltara costs less and pays less for a while.
-TH09_B_TITLE | popup title | Oake reads it flat
-TH09_B | popup | Oake read in a dry, flat voice, as she had read a thousand pages. At the third name she stopped, then went on. Food at Voltara costs less and pays less for a while. The stalls closed early and the hall stayed full.
+TH09_TITLE | event title | The name waits on the page
+TH09_BODY | event text | Oake holds the loan page toward you. Her thumb covers the crease beside Lask's name. Read it yourself and energy pays less as lamps dim. Ask Oake to read and food pays less as stalls shut. The listening crews wait for a voice.
+TH09_A_BTN | button | Read the loan page
+TH09_A_EFF | effect line | For a while, energy at Voltara costs less and pays less.
+TH09_A_TITLE | popup title | Your mouth forms his name
+TH09_A | popup | Energy at Voltara costs less and pays less for a while. Lamps dim for the reading. Your mouth dries at Teodor Lask's name. Oake keeps the page steady while you finish the sum. The crews stay seated after your last word.
+TH09_B_BTN | button | Ask Oake to read
+TH09_B_EFF | effect line | For a while, food at Voltara costs less and pays less.
+TH09_B_TITLE | popup title | Oake stops at Lask
+TH09_B | popup | Food at Voltara costs less and pays less for a while. The stalls shut as Oake reads. Her finger stops beneath Lask's name. She takes a breath before saying the sum. The crews wait through the pause.
 
 ## TH10 What is owed
-TH10_TITLE | event title | What is owed
-TH10_BODY | event text | Oake closes her ledger. The Lask debt stands in full, with its years. You can pay it to Ines Lask, and the page is struck. Or the Commons can enter it as shared, and the Bureau will call it settled. Ines has not asked for either.
-TH10_A_BTN | button | Pay the debt to Ines
-TH10_A_EFF | effect line | Pay {cash_out} credits to Ines Lask. Nothing else changes.
-TH10_A_TITLE | popup title | The page is struck
-TH10_A | popup | You paid {cash_out} credits to Ines Lask, and a clerk drew one line through her father's name. Oake folded the page into your dock book. Slow Receipt left on the next tide, light, with its lamp on.
-TH10_B_BTN | button | Enter it as shared
-TH10_B_EFF | effect line | Pay nothing. Food at Voltara costs more and pays more for a while.
-TH10_B_TITLE | popup title | The debt is shared
-TH10_B | popup | The clerk entered the debt in the Common Ledger and the Bureau stamped it settled. Nobody was paid. Food at Voltara costs more and pays more for a while, as clerks counted the dock stores. The page went into a drawer with its three names.
+TH10_TITLE | event title | A place to put the debt
+TH10_BODY | event text | Oake lays Lask's page beside your accounts. Pay Ines and those credits leave your company. Enter the debt as shared and nobody is paid. Food costs more while clerks count the stores. Ines has asked for neither. Oake sets her pen between the books.
+TH10_A_BTN | button | Pay Ines the debt
+TH10_A_EFF | effect line | Pay {cash_out} credits to Ines Lask. No other effects.
+TH10_A_TITLE | popup title | A line through Lask's name
+TH10_A | popup | You pay {cash_out} credits to Ines Lask. A clerk draws a line through her father's name. Oake folds the page into your dock book. Those credits cannot fund your next load. Slow Receipt leaves with its running lamp above the hatch.
+TH10_B_BTN | button | Record the shared debt
+TH10_B_EFF | effect line | Pay nothing. For a while, food at Voltara costs more and pays more.
+TH10_B_TITLE | popup title | The page goes into a drawer
+TH10_B | popup | You pay nothing. Food at Voltara costs more and pays more for a while as clerks count the stores. The Bureau records Lask's debt as shared and settled. Oake watches the clerk lower it into a drawer. Ines receives no credits.
 
 # Events, expansion (2026-11-11): posts, platforms, lanes, Military, Luxury, Minerals, Biotech
 
@@ -504,389 +504,389 @@ The posts and platforms events (EV_PST01 to EV_PST06, EV_PLT01 to EV_PLT04) and 
 
 ## Shared pool: posts and lanes (any CEO)
 
-EV_PST01_TITLE | pool event title | A dock that keeps a book
-EV_PST01_BODY | pool event text | The dock at Flintmoor keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it. A signed name earns the dock's favour. An unsigned one earns a refund.
+EV_PST01_TITLE | pool event title | Your name beside theirs
+EV_PST01_BODY | pool event text | Sign, and energy at Flintmoor costs more and pays more. Leave, and the dock refunds a small sum. Clerk Nera Venn holds the book flat. The last crew pressed a thumb into the wet ink. Your crew waits for the pen.
 EV_PST01_SIGN_BTN | button | Sign the book
 EV_PST01_SIGN_EFF | effect line | Energy at Flintmoor costs more and pays more for a while.
-EV_PST01_SIGN_TITLE | popup title | The book is signed
-EV_PST01_SIGN | popup | The clerk blotted your name and nodded, as if it had always been there. The dock's buyers took note, and energy at Flintmoor costs more and pays more for a while. On the page beside yours, someone else's handwriting changed.
+EV_PST01_SIGN_TITLE | popup title | Nera dries the page
+EV_PST01_SIGN | popup | Energy at Flintmoor costs more and pays more for a while. Nera blots your name. Your crew leans in to see it beside the others. The refund slip goes back in her drawer.
 EV_PST01_LEAVE_BTN | button | Leave without signing
 EV_PST01_LEAVE_EFF | effect line | You gain a small sum, the dock's refund for a name not written.
-EV_PST01_LEAVE_TITLE | popup title | The book stays shut
-EV_PST01_LEAVE | popup | You left the clerk waiting, pen raised. The clerk sent a small sum after you, the fee for a name not written. You gain a small sum. The clerk wrote a line anyway, in a hand that was not the clerk's.
+EV_PST01_LEAVE_TITLE | popup title | A refund without a name
+EV_PST01_LEAVE | popup | You gain a small sum as the dock's refund. Nera sets the pen across the blank line. Your crew files past her desk. Nobody asks to see the book again.
 
-EV_PST02_TITLE | pool event title | The Port Warden's stamp
-EV_PST02_BODY | pool event text | Warden Ilsa Dorne must inspect the new post at Brannock before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.
+EV_PST02_TITLE | pool event title | Ilsa has not reached your page
+EV_PST02_BODY | pool event text | A gift costs a small sum and brings Brannock's stamp today. Waiting makes energy cost less and pay less there. Warden Ilsa Dorne smooths a bent page. Your crew sits on the crates they came to unload.
 EV_PST02_GIFT_BTN | button | Send a gift
 EV_PST02_GIFT_EFF | effect line | Pay a small sum. The stamp comes today.
-EV_PST02_GIFT_TITLE | popup title | The Warden is hurried
-EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The Warden did not smile. Your crew took that for thanks.
+EV_PST02_GIFT_TITLE | popup title | The crates can move
+EV_PST02_GIFT | popup | You paid a small sum. Brannock's stamp arrives today. Ilsa sets the gift beneath her desk before calling your crew. A loader stands with the crate's edge still pressed into his palm.
 EV_PST02_WAIT_BTN | button | Wait for the stamp
 EV_PST02_WAIT_EFF | effect line | Energy at Brannock costs less and pays less for a while.
-EV_PST02_WAIT_TITLE | popup title | The stamp takes its time
-EV_PST02_WAIT | popup | You waited. The Warden checked every rivet, then the shadows between them. Buyers at Brannock held back while the dock stood idle, so energy there costs less and pays less for a while.
+EV_PST02_WAIT_TITLE | popup title | Ilsa turns another page
+EV_PST02_WAIT | popup | Energy at Brannock costs less and pays less for a while. Buyers have moved on while you waited. Ilsa checks the next page. Your loader rubs the crate mark from his palm.
 
-EV_PST03_TITLE | pool event title | The beam will not hold
-EV_PST03_BODY | pool event text | The survey beam at Cindrel will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.
+EV_PST03_TITLE | pool event title | Mara holds the beam
+EV_PST03_BODY | pool event text | Buy a part for a small sum, or pay more per trip at Cindrel for a few cycles. Foreman Mara Voss holds the survey beam steady with her knee. She can keep it there until the shift changes. Then someone must take her place.
 EV_PST03_PART_BTN | button | Buy the part
 EV_PST03_PART_EFF | effect line | Pay a small sum. The beam is fixed today.
-EV_PST03_PART_TITLE | popup title | The part is fitted
-EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The crew now knows where the weather comes from.
-EV_PST03_SHIFT_BTN | button | Wait for the next shift
+EV_PST03_PART_TITLE | popup title | Mara can step away
+EV_PST03_PART | popup | You paid a small sum. The beam is fixed today. Mara takes her knee off the frame and waits. The line holds. She sits beside the hauler while your crew starts unloading.
+EV_PST03_SHIFT_BTN | button | Wait for another shift
 EV_PST03_SHIFT_EFF | effect line | Lanes that touch Cindrel cost more per trip for a few cycles.
-EV_PST03_SHIFT_TITLE | popup title | The shift has an idea
-EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Haulers stacked up behind the dead beam, so lanes that touch Cindrel cost more per trip for a few cycles. The beam flickered once, toward nothing anyone had aimed at.
+EV_PST03_SHIFT_TITLE | popup title | Another knee at the frame
+EV_PST03_SHIFT | popup | Lanes that touch Cindrel cost more per trip for a few cycles. Haulers wait for the beam. Mara shows the next worker where to brace it. She leaves her cup within his reach.
 
-EV_PST04_TITLE | pool event title | A broker with spare fittings
-EV_PST04_BODY | pool event text | A broker named Odo Pell meets your ship at Mossfell with a tray of seals and a lease. A neighbouring post closed, and he must clear its books. He talks as if the deal were already done. He can hand over the lease, or the spare cells in its stores.
+EV_PST04_TITLE | pool event title | What Odo has left
+EV_PST04_BODY | pool event text | The lease makes energy at Mossfell cost more and pay more. The cells go into Company storage instead. Odo Pell holds out a seal with its strap worn through. His old post has closed. He asks which part you can use.
 EV_PST04_LEASE_BTN | button | Take the lease
 EV_PST04_LEASE_EFF | effect line | Energy at Mossfell costs more and pays more for a while.
-EV_PST04_LEASE_TITLE | popup title | The lease changes hands
-EV_PST04_LEASE | popup | Pell counted the seals twice and gave you one extra, as a courtesy. Buyers at Mossfell followed the lease, so energy there costs more and pays more for a while. The seals are warm, as if someone had only just let go of them.
+EV_PST04_LEASE_TITLE | popup title | Odo lets go of the seal
+EV_PST04_LEASE | popup | Energy at Mossfell costs more and pays more for a while. Odo puts the seal in your hand. He wheels the cells back inside. Your clerk threads a new strap through the seal before using it.
 EV_PST04_CELLS_BTN | button | Take the spare cells
 EV_PST04_CELLS_EFF | effect line | Some energy is added to your Company storage at Mossfell.
-EV_PST04_CELLS_TITLE | popup title | The cells are counted
-EV_PST04_CELLS | popup | Pell wheeled out the spare cells on a cart and read each tag aloud. Some energy is added to your Company storage at Mossfell. He said the closed post would not miss them, and looked at the sky as if someone might.
+EV_PST04_CELLS_TITLE | popup title | Odo brings the cart
+EV_PST04_CELLS | popup | Some energy is added to your Company storage at Mossfell. Odo unloads the cells himself. The lease stays under his arm. He asks your loader to keep the empty cart by the door.
 
-EV_PST05_TITLE | pool event title | A desk already stands here
-EV_PST05_BODY | pool event text | A desk with a broker's seal already stands on the dock at Quillon. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool, or a small sum to take your crates to another berth. He does not offer to move.
+EV_PST05_TITLE | pool event title | A place beside Rell
+EV_PST05_BODY | pool event text | Share the dock, and energy at Quillon costs more and pays more. Take another berth for a small sum. Broker Rell Sorn moves his cup to make room. His stool has worn a hollow in the floor. Your crates fill the space behind him.
 EV_PST05_SHARE_BTN | button | Share the dock
 EV_PST05_SHARE_EFF | effect line | Energy at Quillon costs more and pays more for a while.
-EV_PST05_SHARE_TITLE | popup title | The dock is shared
-EV_PST05_SHARE | popup | You took the next stool. The agent poured two cups and drank both. Buyers at Quillon saw two seals at one dock and bought hard, so energy there costs more and pays more for a while.
+EV_PST05_SHARE_TITLE | popup title | Rell shifts his stool
+EV_PST05_SHARE | popup | Energy at Quillon costs more and pays more for a while. Rell shifts his stool for your clerk. Their elbows meet over the orders. Your crew has buyers here, and a desk they must share.
 EV_PST05_MOVE_BTN | button | Take the other berth
 EV_PST05_MOVE_EFF | effect line | You gain a small sum.
-EV_PST05_MOVE_TITLE | popup title | A berth farther down
-EV_PST05_MOVE | popup | You took the far berth. The agent counted out a small sum without being asked, and you gain a small sum. The kettle went cold between the seals.
+EV_PST05_MOVE_TITLE | popup title | The walk to your desk
+EV_PST05_MOVE | popup | You gain a small sum for taking the other berth. Rell watches your crew carry the crates farther down. Your clerk sets a cup on the new desk. The first buyers stop at Rell's.
 
-EV_PST06_TITLE | pool event title | Residents come to look
-EV_PST06_BODY | pool event text | Tillam has grown, and its residents gather at the dock to see your ships. They stand in rows. A child asks if you will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.
-EV_PST06_OPEN_BTN | button | Hold an open dock
+EV_PST06_TITLE | pool event title | Sena waits at the rail
+EV_PST06_BODY | pool event text | A dock visit makes energy at Tillam cost more and pay more. Keep working for energy in Company storage instead. Sena Pell waits at the rail with her child. The child holds a bolt from your first ship. Your loader has seen them.
+EV_PST06_OPEN_BTN | button | Hold a dock visit
 EV_PST06_OPEN_EFF | effect line | Energy at Tillam costs more and pays more for a while.
-EV_PST06_OPEN_TITLE | popup title | The dock stays open
-EV_PST06_OPEN | popup | You set out chairs and a schedule, and the rows turned into a queue. The crowd bought energy for its stoves, so energy at Tillam costs more and pays more for a while. The child left with a bolt in her pocket.
+EV_PST06_OPEN_TITLE | popup title | Sena comes aboard
+EV_PST06_OPEN | popup | Energy at Tillam costs more and pays more for a while. Your loader leaves the spare cells to show Sena around. Her child fits the bolt against an empty hole. The loader crouches beside them.
 EV_PST06_WORK_BTN | button | Keep to the work
 EV_PST06_WORK_EFF | effect line | Some energy is added to your Company storage at Tillam.
-EV_PST06_WORK_TITLE | popup title | The rows thin out
-EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. The dock clerk stacked spare cells in your storage, a thanks that came with a stamp. Some energy is added to your Company storage at Tillam. The child watched until the last crate was stamped. Then she walked home alone.
+EV_PST06_WORK_TITLE | popup title | The bolt goes home
+EV_PST06_WORK | popup | Some energy is added to your Company storage at Tillam. Your loader keeps stacking cells. Sena takes her child's hand at the rail. The bolt leaves a round dent in the child's palm.
 
-EV_FLT01_TITLE | pool event title | A wreck on the lane
-EV_FLT01_BODY | pool event text | A hull drifts across the lane, cold, its name scraped off. The Flagship's scanner counts no one aboard, then counts again. Salvage is salvage, if no one comes to claim it. The hull can be sold as scrap, or stripped for its cells.
+EV_FLT01_TITLE | pool event title | The name beneath the paint
+EV_FLT01_BODY | pool event text | Sell the wreck for a small sum, or take its cells for Company storage at Voltara. Pilot Tavi Renn finds an empty hull across the lane. Nobody is aboard. Beneath the scraped name, a patch of blue paint matches her old berth.
 EV_FLT01_TOW_BTN | button | Sell it as scrap
 EV_FLT01_TOW_EFF | effect line | You gain a small sum for the salvage.
-EV_FLT01_TOW_TITLE | popup title | The wreck is sold
-EV_FLT01_TOW | popup | A scrap crew towed the hull away and paid at the dock. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.
+EV_FLT01_TOW_TITLE | popup title | Tavi watches the tow
+EV_FLT01_TOW | popup | You gain a small sum for the salvage. The scrap crew takes the hull with its cells still fitted. Tavi keeps the rear glass on until the blue patch is gone. Then she returns to the route board.
 EV_FLT01_STRIP_BTN | button | Strip its cells
 EV_FLT01_STRIP_EFF | effect line | Some energy is added to your Company storage at Voltara.
-EV_FLT01_STRIP_TITLE | popup title | The cells come out
-EV_FLT01_STRIP | popup | Your crew pulled the hull's cells one by one and carried them home. Some energy is added to your Company storage at Voltara. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.
+EV_FLT01_STRIP_TITLE | popup title | The cells reach home
+EV_FLT01_STRIP | popup | Some energy is added to your Company storage at Voltara. Tavi helps lift the cells from the wreck. The hull rolls away without them. She wipes blue paint from her glove before signing the stock sheet.
 
-EV_FLT02_TITLE | pool event title | A call on an old band
-EV_FLT02_BODY | pool event text | A distress call comes in on an old band, the voice polite and unhurried. By the time the Flagship turns, the call has become a recipe. A relay fee would let you check it from here. Or the band can stay busy while you hold your course.
+EV_FLT02_TITLE | pool event title | Eda keeps the band
+EV_FLT02_BODY | pool event text | Pay a small sum to check the call here. Otherwise, Brannock trips cost more for a few cycles. Eda Venn asks for help on an old band. Then she starts reading a recipe. Tavi holds a finger above the radio switch.
 EV_FLT02_RELAY_BTN | button | Pay the relay fee
 EV_FLT02_RELAY_EFF | effect line | Pay a small sum. The band is checked from here.
-EV_FLT02_RELAY_TITLE | popup title | The relay answers
-EV_FLT02_RELAY | popup | You paid a small sum, and the relay checked the band without a turn. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.
+EV_FLT02_RELAY_TITLE | popup title | Someone answers Eda
+EV_FLT02_RELAY | popup | You paid a small sum. The relay checked the band from here. Eda was waiting at an old cook station, reading to keep the call alive. Tavi lowers her finger when another voice says Eda's name.
 EV_FLT02_HOLD_BTN | button | Hold the course
 EV_FLT02_HOLD_EFF | effect line | Lanes that touch Brannock cost more per trip for a few cycles.
-EV_FLT02_HOLD_TITLE | popup title | The call fades
-EV_FLT02_HOLD | popup | You held the course. Other ships turned to answer, and the dock beacons at Brannock jammed with their replies. Lanes that touch Brannock cost more per trip for a few cycles. The voice said the last step twice, very slowly, and was gone.
+EV_FLT02_HOLD_TITLE | popup title | Ships turn toward the call
+EV_FLT02_HOLD | popup | Lanes that touch Brannock cost more per trip for a few cycles. Other ships turned to check Eda's call. Tavi holds your course. Eda starts the recipe again before the replies fill the band.
 
 ## Military pool
 
-EV41_TITLE | pool event title | Cindrel fires a training round
-EV41_BODY | pool event text | Cindrel's reactor crews were ordered to drill with live munitions, to prove the drill was real. The order ran three days past the drill. Munitions at Cindrel cost more and pay more. The blast doors still hum a low note when no one is near them.
+EV41_TITLE | pool event title | Bren counts the spent rounds
+EV41_BODY | pool event text | Munitions at Cindrel cost more and pay more. The drill order kept running after the crews went home. Bren Sorn sets a spent case beside the order. His next shift starts soon. He asks where the new rounds will come from.
 
-EV42_TITLE | pool event title | Quillon buys a parade
-EV42_BODY | pool event text | Quillon's buyers ordered weapons for a parade, since a march looks bare without them. Weapons at Quillon cost more and pay more. The parade has no route and no date. The crates arrive anyway, each signed for by a different clerk in the same hand.
+EV42_TITLE | pool event title | Weapons before the march
+EV42_BODY | pool event text | Weapons at Quillon cost more and pay more. Clerk Dena Marr signs for the parade crates before a route is set. Her sleeve catches on a nail. She frees it, signs the next receipt, and asks if the crews may go home yet.
 
-EV81_TITLE | pool event title | Energy runs short at Flintmoor
-EV81_BODY | pool event text | Flintmoor's powder works asked for more power than the moon's grid books. Old rim crews know the sound of a grid about to say no. Energy at Flintmoor is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.
+EV81_TITLE | pool event title | A light at Flintmoor
+EV81_BODY | pool event text | Flintmoor needs more energy and pays more for a few cycles. A rush order may follow. At the powder works, Mara Voss cups a hand around a dim lamp. The next crew waits beside her. Nobody takes off a coat.
 
-EV82_TITLE | pool event title | A hull waits for a stamp
-EV82_BODY | pool event text | A ship sits at Tillam waiting for a clearance stamp. A clerk will stamp it today for a payment. Or it waits its turn, and the dock fills behind it. Every idle hour is counted by someone who is not you.
+EV82_TITLE | pool event title | Noll waits below the office
+EV82_BODY | pool event text | Pay a small sum to clear the ship today. Otherwise, Tillam trips cost more for a few cycles. Mate Noll Renn waits below the stamp office. He has folded his supper into a scrap of cloth. Ships gather behind his hull.
 EV82_PAY_BTN | button | Pay for the stamp
 EV82_PAY_EFF | effect line | Pay a small sum. The ship moves today.
-EV82_PAY_TITLE | popup title | The hull moves
-EV82_PAY | popup | The stamp landed and the hull was gone by the next bell. You paid a small sum. Your crew did not watch it go.
+EV82_PAY_TITLE | popup title | Noll climbs aboard
+EV82_PAY | popup | You paid a small sum. The ship moves today. Noll takes the stamp to the dock without unfolding his supper. The clerk lays your payment slip beside the forms still waiting.
 EV82_WAIT_BTN | button | Wait its turn
 EV82_WAIT_EFF | effect line | Lanes that touch Tillam cost more per trip for a few cycles.
-EV82_WAIT_TITLE | popup title | The dock fills up
-EV82_WAIT | popup | One hull waited and others stacked behind it. Lanes that touch Tillam cost more per trip for a few cycles. The rim taught your crew to wait. It never taught them to like it.
+EV82_WAIT_TITLE | popup title | Supper below the stairs
+EV82_WAIT | popup | Lanes that touch Tillam cost more per trip for a few cycles. Noll sits below the office stairs and unfolds his supper. When the clerk calls a name, he puts it down. The name belongs to another crew.
 
-EV83_TITLE | pool event title | One patrol, two ends
-EV83_BODY | pool event text | A patrol cutter can hold one end of a lane for a while. Traders go where the line is watched. Voltara's dock or Flintmoor's yard gets it. The other keeps its own luck, and says so.
+EV83_TITLE | pool event title | Where Iven keeps watch
+EV83_BODY | pool event text | A patrol raises blast powder prices at Voltara or energy prices at Flintmoor. Both cost more and pay more. Captain Iven Rusk waits for your answer. His lamp has a cracked shade. Dock crews at both ends have asked him to stay.
 EV83_VOLT_BTN | button | Watch Voltara
 EV83_VOLT_EFF | effect line | Blast powder at Voltara costs more and pays more for a while.
-EV83_VOLT_TITLE | popup title | A watched dock
-EV83_VOLT | popup | Traders at Voltara saw the patrol light and stayed late. Blast powder at Voltara costs more and pays more for a while. The patrol never looked at the cargo, only at the people.
+EV83_VOLT_TITLE | popup title | Iven lights Voltara's dock
+EV83_VOLT | popup | Blast powder at Voltara costs more and pays more for a while. Iven sets his lamp above the dock. Traders stay to unload. Flintmoor's foreman reads the patrol notice again, then folds it into his coat.
 EV83_FLINT_BTN | button | Watch Flintmoor
 EV83_FLINT_EFF | effect line | Energy at Flintmoor costs more and pays more for a while.
-EV83_FLINT_TITLE | popup title | A watched yard
-EV83_FLINT | popup | Traders at Flintmoor saw the patrol light and unloaded without checking the door twice. Energy at Flintmoor costs more and pays more for a while. The cutter's lamp stayed on all shift.
+EV83_FLINT_TITLE | popup title | Iven lights Flintmoor's yard
+EV83_FLINT | popup | Energy at Flintmoor costs more and pays more for a while. Iven's lamp hangs over the yard. Traders start unloading. At Voltara, a loader takes down the chair left for the patrol and uses it himself.
 
-EV84_TITLE | pool event title | A rim crew pays a debt
-EV84_BODY | pool event text | A crew you once carried home pays what they owe. They offer credits, or a hold of blast powder left at Flintmoor. They do not ask which you prefer. They only ask that it be taken.
+EV84_TITLE | pool event title | The fare they still owe
+EV84_BODY | pool event text | Take a small sum, or blast powder for Company storage at Flintmoor. Bren Sorn's crew has come to repay the trip home you gave them. Bren holds a bag with a patched seam. Behind him, his crew has brought the powder cart.
 EV84_CASH_BTN | button | Take the credits
 EV84_CASH_EFF | effect line | You gain a small sum.
-EV84_CASH_TITLE | popup title | The debt is paid
-EV84_CASH | popup | The credits came in a worn bag. You counted them once and nodded once. You gain a small sum.
+EV84_CASH_TITLE | popup title | Bren sets down the bag
+EV84_CASH | popup | You gain a small sum. Bren leaves the patched bag on your desk. His crew takes the powder cart away. Before he goes, he asks whether the loader who brought them home still works here.
 EV84_GOODS_BTN | button | Take the powder
 EV84_GOODS_EFF | effect line | Some blast powder is added to your Company storage at Flintmoor.
-EV84_GOODS_TITLE | popup title | The powder is stacked
-EV84_GOODS | popup | The crew loaded the sacks themselves. Some blast powder is added to your Company storage at Flintmoor. You walked the shelf twice afterwards.
+EV84_GOODS_TITLE | popup title | Bren brings the cart in
+EV84_GOODS | popup | Some blast powder is added to your Company storage at Flintmoor. Bren's crew unloads the cart. He puts the credits back inside his coat. Your loader comes down to help, and Bren leaves room beside him.
 
-EV85_TITLE | pool event title | A convoy arrives all at once
-EV85_BODY | pool event text | A convoy that was late came in all at once at Voltara, every hold full of powder. Blast powder at Voltara costs less and pays less. The lane keeps its notes and moves on. Bad news is only news.
+EV85_TITLE | pool event title | All the holds reach Voltara
+EV85_BODY | pool event text | Blast powder at Voltara costs less and pays less. The delayed convoy has arrived with every hold full. Dena Marr rubs a thumb over her old sale price. Your crew has powder waiting too. The buyers walk past it toward the new crates.
 
-EV_FLT03_TITLE | pool event title | A toll on the lane
-EV_FLT03_BODY | pool event text | A patrol cutter hails the Flagship. It says the lane to Quillon is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you. Your ships use the same lane.
+EV_FLT03_TITLE | pool event title | Iven asks for a toll
+EV_FLT03_BODY | pool event text | Pay a small toll, or pay more per trip at Quillon for a few cycles. Captain Iven Rusk calls from his cutter. He holds the toll sheet against a cracked lamp shade. Your pilot knows his voice. The rest of your fleet uses this lane.
 EV_FLT03_PAY_BTN | button | Pay the toll
 EV_FLT03_PAY_EFF | effect line | Pay a small sum. The lane stays as it is.
-EV_FLT03_PAY_TITLE | popup title | The toll is paid
-EV_FLT03_PAY | popup | You paid a small sum and the cutter blinked twice, which is how it says thank you. The gun turned away last, like someone leaving a room backwards.
-EV_FLT03_AROUND_BTN | button | Take the wide way
+EV_FLT03_PAY_TITLE | popup title | Iven records the payment
+EV_FLT03_PAY | popup | You paid a small sum. The lane stays as it is. Iven sends a receipt and moves his cutter aside. Your pilot places the receipt beneath the route board, where the crew can see what passage cost.
+EV_FLT03_AROUND_BTN | button | Fly around the cutter
 EV_FLT03_AROUND_EFF | effect line | Lanes that touch Quillon cost more per trip for a few cycles.
-EV_FLT03_AROUND_TITLE | popup title | The wide way
-EV_FLT03_AROUND | popup | Your ships swung wide around a lane that was private by decree. Lanes that touch Quillon cost more per trip for a few cycles. The cutter followed for a while, to see that the sky was not borrowed.
+EV_FLT03_AROUND_TITLE | popup title | Quillon by another route
+EV_FLT03_AROUND | popup | Lanes that touch Quillon cost more per trip for a few cycles. Your ships go around the cutter. Tavi redraws the lane with a finger. Iven's lamp stays at the edge of the glass until she turns away.
 
-EV91_TITLE | pool event title | Cindrel closes for a drill
-EV91_BODY | pool event text | Cindrel's range officer called a drill and cleared every dock to run it. The drill is real, the officer says. The port is closed for a while, and routes touching Cindrel are blocked. The sirens ran a full day. No one learned what they were practising against.
+EV91_TITLE | pool event title | Bren closes the dock gate
+EV91_BODY | pool event text | Cindrel closes for a while. Routes touching it are blocked. Range officer Bren Sorn calls a drill and lowers the dock gate. Your loader has a coat on the far side. Bren hangs it over the rail before checking the latch.
 
-EV92_TITLE | pool event title | Two buyers want one convoy
-EV92_BODY | pool event text | Two buyers sent word on the same morning, each sure the rivets were meant for them. One sits at Quillon, behind a desk. One sits at Cindrel, behind a gun rack. A convoy can answer one of them first. The other will say it understands.
+EV92_TITLE | pool event title | The rivets cannot go both ways
+EV92_BODY | pool event text | Choose where rivets cost more and pay more: Quillon or Cindrel. Dena Marr needs them for dock repairs. Bren Sorn needs them for gun racks. Dena sends a bent rivet with her order. Bren asks you to read his before choosing.
 EV92_QUILLON_BTN | button | Answer Quillon
 EV92_QUILLON_EFF | effect line | Rivets at Quillon cost more and pay more for a while.
-EV92_QUILLON_TITLE | popup title | Quillon is answered
-EV92_QUILLON | popup | The convoy turned toward Quillon's desks. Rivets there cost more and pay more for a while. The buyer at Cindrel sent a note that said it understood, and the note was very neat.
+EV92_QUILLON_TITLE | popup title | Dena clears a shelf
+EV92_QUILLON | popup | Rivets at Quillon cost more and pay more for a while. Dena clears a shelf beside the repair tools. Bren asks when his turn will come. Your clerk holds his note while the convoy leaves.
 EV92_CINDREL_BTN | button | Answer Cindrel
 EV92_CINDREL_EFF | effect line | Rivets at Cindrel cost more and pay more for a while.
-EV92_CINDREL_TITLE | popup title | Cindrel is answered
-EV92_CINDREL | popup | The convoy turned toward Cindrel's gun racks. Rivets there cost more and pay more for a while. The desk at Quillon logged the delay and kept the page.
+EV92_CINDREL_TITLE | popup title | Bren clears the racks
+EV92_CINDREL | popup | Rivets at Cindrel cost more and pay more for a while. Bren clears the gun racks for the crew. Dena sends no further note. Her bent rivet stays beside the order on your desk.
 
-EV93_TITLE | pool event title | The Fleet Office pays in kind
-EV93_BODY | pool event text | A Fleet Office clerk settles an old account at Quillon. The estimate allows credits, or a lot of rivets from the depot shelf. The clerk does not say which the estimate prefers. The clerk says that is for the next estimate.
+EV93_TITLE | pool event title | What the Fleet Office owes
+EV93_BODY | pool event text | Take a small sum, or rivets for Company storage at Quillon. Fleet clerk Nera Venn has brought the old account to settle. She holds the receipt flat with a chipped cup. Your crew can use the credits. The rivets are already on the dock.
 EV93_CASH_BTN | button | Take the credits
 EV93_CASH_EFF | effect line | You gain a small sum.
-EV93_CASH_TITLE | popup title | The account is settled
-EV93_CASH | popup | The clerk stamped a slip and counted out credits in worn notes. You gain a small sum. The stamp was dry, and the clerk pressed it anyway.
+EV93_CASH_TITLE | popup title | Nera closes the cash page
+EV93_CASH | popup | You gain a small sum. Nera marks the cash page and sends the rivets back to the depot. A ring from her cup crosses the old balance. Your clerk waits for it to dry before filing the receipt.
 EV93_GOODS_BTN | button | Take the rivets
 EV93_GOODS_EFF | effect line | Some rivets are added to your Company storage at Quillon.
-EV93_GOODS_TITLE | popup title | The shelf is emptied
-EV93_GOODS | popup | Depot hands rolled out the rivet crates and stacked them in your bay at Quillon. Some rivets are added to your Company storage there. The clerk counted them off in the same voice as the credits.
+EV93_GOODS_TITLE | popup title | Nera signs for the crates
+EV93_GOODS | popup | Some rivets are added to your Company storage at Quillon. Nera closes the cash page without a payment. Your crew takes the crates from the dock. She keeps her cup on the receipt until the last crate is counted.
 
 ## Luxury pool
 
-EV44_TITLE | pool event title | A rich cut at Brannock
-EV44_BODY | pool event text | A cutter at Brannock found a flaw that makes every gem in the case look finer, and the case sold out by noon. Gems at Brannock cost more and pay more. Nobody can find the flaw again. The cutter has stopped trying to look.
+EV44_TITLE | pool event title | Dema's last gem
+EV44_BODY | pool event text | Gems at Brannock cost more and pay more. Cutter Dema Voss found a flaw that caught the light. The case sold out. Now she holds the last gem against her sleeve. Buyers wait for another like it. She keeps turning it in her hand.
 
-EV45_TITLE | pool event title | Attar floods Quillon
-EV45_BODY | pool event text | A convoy of attar reached Quillon on one tide, and the perfumers' guild took no stock of it. Attar at Quillon costs less and pays less. Every stall smells of a different promise. The guild counts it as one scent and sends no one to check.
+EV45_TITLE | pool event title | The attar nobody signed for
+EV45_BODY | pool event text | Attar at Quillon costs less and pays less. The convoy brought more than the guild would take. Rell Sorn wipes a ring of oil from a crate lid. Your crew's stock stands beside his. He asks your price before naming his own.
 
-EV76_TITLE | pool event title | Lunch at a buyer's table
-EV76_BODY | pool event text | A broker buys lunch for a Voltara buyer and leaves with the buyer's order in his head. Hothouse blooms at Voltara cost more and pay more. The buyer thinks it was a coincidence. The broker's smile is the first thing anyone recalls.
+EV76_TITLE | pool event title | Odo keeps the lunch receipt
+EV76_BODY | pool event text | Hothouse blooms at Voltara cost more and pay more. Odo Pell left lunch with the buyer's next order. He slides a stained napkin across your desk. Your crew can earn more from the blooms. The buyer's growers will pay more to replace them.
 
-EV77_TITLE | pool event title | An old broker wants thanks
-EV77_BODY | pool event text | A broker who says he taught you everything wants to be thanked. His friends sit at Ashgate's dock, and they are patient. Thank him in credits, or let them sell low at Ashgate for a while.
-EV77_THANK_BTN | button | Thank him
+EV77_TITLE | pool event title | Rell remembers teaching you
+EV77_BODY | pool event text | Pay a small sum, or let hothouse blooms at Ashgate cost less and pay less for a while. Rell Sorn asks thanks for teaching you the trade. He sets your first receipt on the table. His friends have crates of blooms at the dock.
+EV77_THANK_BTN | button | Pay the broker
 EV77_THANK_EFF | effect line | Pay a small sum.
-EV77_THANK_TITLE | popup title | A warm farewell
-EV77_THANK | popup | The broker took the credits and the credit, and told everyone at Ashgate what a fine pupil he had. You paid a small sum.
-EV77_SKIP_BTN | button | Smile and go
+EV77_THANK_TITLE | popup title | Rell folds the receipt
+EV77_THANK | popup | You paid a small sum. Rell folds your first receipt and puts it away. His friends leave their crates stacked. Your clerk enters the payment beside the next ship's upkeep and reads the balance again.
+EV77_SKIP_BTN | button | Decline the payment
 EV77_SKIP_EFF | effect line | Hothouse blooms at Ashgate cost less and pay less for a while.
-EV77_SKIP_TITLE | popup title | The friends sell low
-EV77_SKIP | popup | The broker's friends sold blooms at Ashgate for what they fetched. Hothouse blooms at Ashgate cost less and pay less for a while. You kept the smile. It is the only thing you kept.
+EV77_SKIP_TITLE | popup title | Rell's friends unpack
+EV77_SKIP | popup | Hothouse blooms at Ashgate cost less and pay less for a while. Rell's friends unpack at the dock. Your crew lowers its own sale board. Rell leaves your first receipt on the table for you to keep.
 
-EV78_TITLE | pool event title | The board shows two gaps
-EV78_BODY | pool event text | You read two price boards and see a gap on each. You can whisper one gap to one buyer. Whoever hears it first pays more for a while, and the other gap closes by itself. The board at Tillam is longer. Ashgate's is louder.
+EV78_TITLE | pool event title | A name beside each order
+EV78_BODY | pool event text | Raise musk prices at Tillam or hothouse bloom prices at Ashgate. Both cost more and pay more. Buyer Eda Venn has asked for musk. Sena Pell needs blooms. You can tip off a buyer. Your clerk has worn a hole through Sena's old order.
 EV78_TILLAM_BTN | button | Tell the Tillam buyer
 EV78_TILLAM_EFF | effect line | Musk at Tillam costs more and pays more for a while.
-EV78_TILLAM_TITLE | popup title | The Tillam buyer nods
-EV78_TILLAM | popup | The Tillam buyer nodded and said nothing. Musk at Tillam costs more and pays more for a while. Prices moved by the next bell, and nobody said by whose hand.
+EV78_TILLAM_TITLE | popup title | Eda reads your message
+EV78_TILLAM | popup | Musk at Tillam costs more and pays more for a while. Eda presses your message flat and calls her buyers. Your clerk puts Sena's order back beneath it. The hole in the page shows through.
 EV78_ASHGATE_BTN | button | Tell the Ashgate buyer
 EV78_ASHGATE_EFF | effect line | Hothouse blooms at Ashgate cost more and pay more for a while.
-EV78_ASHGATE_TITLE | popup title | The Ashgate buyer writes
-EV78_ASHGATE | popup | The Ashgate buyer wrote it on a napkin and left a large tip for lunch. Hothouse blooms at Ashgate cost more and pay more for a while.
+EV78_ASHGATE_TITLE | popup title | Sena calls her buyers
+EV78_ASHGATE | popup | Hothouse blooms at Ashgate cost more and pay more for a while. Sena calls her buyers with your message in hand. Eda asks whether you saw her musk order. Your clerk puts down the pen before answering.
 
-EV79_TITLE | pool event title | A gift from a grateful buyer
-EV79_BODY | pool event text | A buyer you once let win a deal sends a crate with a note. The note says it is a gift, not payment. Gifts are polite to accept. Credits are lighter to carry. The crate is hothouse blooms, waiting at Ashgate.
+EV79_TITLE | pool event title | Sena sends something back
+EV79_BODY | pool event text | Take a small sum, or hothouse blooms for Company storage at Ashgate. Sena Pell sends thanks for the deal you let her keep. Her note is tied to a crate with a piece of her work sash. She can send credits instead. She asks you to choose.
 EV79_CASH_BTN | button | Take the credits
 EV79_CASH_EFF | effect line | You gain a small sum.
-EV79_CASH_TITLE | popup title | Credits and a smile
-EV79_CASH | popup | The buyer sent credits instead, and a second note thanking you for understanding. You gain a small sum.
+EV79_CASH_TITLE | popup title | Sena sends the payment
+EV79_CASH | popup | You gain a small sum. Sena sends credits and takes the blooms back to her stall. Her note stays on your desk. Your clerk unties the strip of sash and folds it beside the receipt.
 EV79_GOODS_BTN | button | Take the blooms
 EV79_GOODS_EFF | effect line | Some hothouse blooms are added to your Company storage at Ashgate.
-EV79_GOODS_TITLE | popup title | A crate of blooms
-EV79_GOODS | popup | The crate reached Ashgate with a ribbon on it. Some hothouse blooms are added to your Company storage there. The ribbon was the buyer's. It stayed on the crate.
+EV79_GOODS_TITLE | popup title | Sena's crate comes in
+EV79_GOODS | popup | Some hothouse blooms are added to your Company storage at Ashgate. Sena sends no credits. Your loader carries the crate inside with the strip of sash still tied to it. He leaves her note on top.
 
-EV80_TITLE | pool event title | Mossfell has seen the smile
-EV80_BODY | pool event text | A broker's smile has been seen too often at Mossfell. Buyers now wait for his price to drop before they pay. Hothouse blooms at Mossfell cost less and pay less. The broker takes it as a compliment.
+EV80_TITLE | pool event title | Odo waits behind his blooms
+EV80_BODY | pool event text | Hothouse blooms at Mossfell cost less and pay less. Buyers know Odo Pell will lower his price if they wait. He holds his smile while they pass. A petal sticks to his cuff. Your crew turns its sale board toward the same buyers.
 
-EV94_TITLE | pool event title | The gala sends a bill
-EV94_BODY | pool event text | The house that held last season's gala sends your crew a bill for the sleeves they borrowed. The sum is small and the tone is warm. The house keeps a long memory for sleeves. Pay now, or let the house tell the story at Brannock's looms.
+EV94_TITLE | pool event title | The sleeves Dema lent you
+EV94_BODY | pool event text | Pay a small sum, or silk at Brannock costs less and pays less for a while. Dema Voss bills your crew for borrowed gala sleeves. A pin is still caught in the bill. She will take the story to the looms if the credits do not come.
 EV94_PAY_BTN | button | Pay the bill
 EV94_PAY_EFF | effect line | Pay a small sum.
-EV94_PAY_TITLE | popup title | The bill is paid
-EV94_PAY | popup | You paid a small sum. The house wrote a receipt in violet ink and sent the sleeves back, pressed. Nobody in your crew will say who wore which.
+EV94_PAY_TITLE | popup title | Dema returns the sleeves
+EV94_PAY | popup | You paid a small sum. Dema sends the sleeves back with a receipt. Your loader hangs them above his work coat. He takes the pin from the bill and fixes the receipt to the cloth.
 EV94_TELL_BTN | button | Let the house talk
 EV94_TELL_EFF | effect line | Silk at Brannock costs less and pays less for a while.
-EV94_TELL_TITLE | popup title | The story gets round
-EV94_TELL | popup | The house told the story at Brannock's looms, with gestures. Weavers laughed into their sleeves, and silk at Brannock costs less and pays less for a while. The bill is still on file.
+EV94_TELL_TITLE | popup title | The bill reaches the looms
+EV94_TELL | popup | Silk at Brannock costs less and pays less for a while. Dema takes the sleeve story to the looms. Weavers lower their offers to the crews she names. Your loader removes the pin from the bill and leaves the bill in view.
 
-EV95_TITLE | pool event title | Brannock's dyers run dry
-EV95_BODY | pool event text | Brannock's dye vats ran dry mid-batch, and the dyers asked for musk to fix the colour. Nobody will say what musk has to do with colour. Musk at Brannock costs more and pays more. The cloth came out the same shade, only warmer.
+EV95_TITLE | pool event title | The cloth in Dema's hands
+EV95_BODY | pool event text | Musk at Brannock costs more and pays more. The dyers need it to fix a batch after the vats ran dry. Dema Voss spreads the cloth over her knees. A pale band runs through it. She keeps her hands on either side while the buyers count.
 
-EV96_TITLE | pool event title | Two orders at the counter
-EV96_BODY | pool event text | Two orders reach the Voltara counter in one hour, and the case has room for one display. One buyer wants attar, one wants gems. Whichever is set out first draws the crowd. The other buyer will wait, and watch the case.
+EV96_TITLE | pool event title | Room beneath the lamp
+EV96_BODY | pool event text | Raise attar prices or gem prices at Voltara. Both cost more and pay more. Rell Sorn wants attar under the display lamp. Dema Voss has brought gems. Her empty case leaves a square in the dust. Only a single display fits.
 EV96_ATTAR_BTN | button | Set out the attar
 EV96_ATTAR_EFF | effect line | Attar at Voltara costs more and pays more for a while.
-EV96_ATTAR_TITLE | popup title | The attar is shown
-EV96_ATTAR | popup | The attar went under the lamp and the crowd leaned in. Attar at Voltara costs more and pays more for a while. The buyer of gems studied the empty velvet beside it.
+EV96_ATTAR_TITLE | popup title | Rell takes the display
+EV96_ATTAR | popup | Attar at Voltara costs more and pays more for a while. Rell sets his bottles beneath the lamp. Dema closes her gem case. She holds it on her knees while the buyers lean over his stock.
 EV96_GEMS_BTN | button | Set out the gems
 EV96_GEMS_EFF | effect line | Gems at Voltara cost more and pay more for a while.
-EV96_GEMS_TITLE | popup title | The gems are shown
-EV96_GEMS | popup | The gems went under the lamp and the crowd went still. Gems at Voltara cost more and pay more for a while. The buyer of attar left a scented card in the case.
+EV96_GEMS_TITLE | popup title | Dema takes the display
+EV96_GEMS | popup | Gems at Voltara cost more and pay more for a while. Dema puts her case beneath the lamp. Rell wraps his attar bottles again. He keeps the sales cloth folded across his arm while her buyers gather.
 
 ## Minerals pool
 
-EV48_TITLE | pool event title | Plate runs short at Quillon
-EV48_BODY | pool event text | Quillon's builders wanted plate for a hall that has no plan, and every sheet in the yard was spoken for by noon. Plate at Quillon costs more and pays more. The hall is drawn on a wall and not on paper. Someone keeps adding rooms.
+EV48_TITLE | pool event title | Mara draws another room
+EV48_BODY | pool event text | Plate at Quillon costs more and pays more. Builders have claimed every sheet for a hall still drawn on the wall. Mara Voss adds a room for the dock crew. Chalk catches in a crack. She works around it while your clerk reads the new price.
 
-EV70_TITLE | pool event title | A note from the old yard
-EV70_BODY | pool event text | A man you once paid for spare parts sends a note. Cinderrest wants dross before the next shift, and he gives no reason. Dross at Cinderrest costs more and pays more for a while. The note is signed twice, in two hands that do not match.
+EV70_TITLE | pool event title | Noll writes from Cinderrest
+EV70_BODY | pool event text | Dross at Cinderrest costs more and pays more for a while. Noll Renn, who sold you your first spare parts, asks for stock before his shift. A thumbprint blurs his name. Your clerk checks what you can spare before reading the note aloud.
 
-EV71_TITLE | pool event title | The count is off by a crate
-EV71_BODY | pool event text | The yard counts your spare parts and finds one crate more than the page says. You will not keep what is not written down. The yard pays you for it, in credits or in ore left at Voltara.
+EV71_TITLE | pool event title | Nera finds an extra crate
+EV71_BODY | pool event text | Take a small sum, or ore for Company storage at Voltara. Clerk Nera Venn finds spare parts beyond the count you signed. She rests her heel against the extra crate. The yard will pay for it either way. Your crew waits for you to choose.
 EV71_CASH_BTN | button | Take the credits
 EV71_CASH_EFF | effect line | You gain a small sum.
-EV71_CASH_TITLE | popup title | Credits, counted twice
-EV71_CASH | popup | The clerk counted the credits out twice, and so did you. The page and the crate now agree. You gain a small sum.
+EV71_CASH_TITLE | popup title | The crate stays at the yard
+EV71_CASH | popup | You gain a small sum. Nera marks the spare parts as paid. The ore stays in the yard. Your loader takes the receipt and runs a thumb along its crease before carrying it to the cash desk.
 EV71_ORE_BTN | button | Take the ore
 EV71_ORE_EFF | effect line | Some ore is added to your Company storage at Voltara.
-EV71_ORE_TITLE | popup title | Ore, on the shelf
-EV71_ORE | popup | The crate was swapped for sacks of ore. Some ore is added to your Company storage at Voltara. You checked every seal before you signed.
+EV71_ORE_TITLE | popup title | Ore in place of credits
+EV71_ORE | popup | Some ore is added to your Company storage at Voltara. Nera closes the cash page without a payment. Your loader checks the sacks, then signs. The extra crate stays beside her heel until the count is done.
 
-EV72_TITLE | pool event title | A clerk wants every bolt
-EV72_BODY | pool event text | A Bureau clerk at Ashgate wants to check every part aboard. Your books are in order and you say so. The check takes days either way. A fee hurries it. Or the line grows at the dock.
-EV72_PAY_BTN | button | Pay to hurry it
+EV72_TITLE | pool event title | Nera checks the next bolt
+EV72_BODY | pool event text | Pay a small sum to finish the check today. Otherwise, Ashgate trips cost more for a few cycles. Bureau clerk Nera Venn asks to see each part. She lays a white cloth beneath the bolts. Your crew's supper waits behind her chair.
+EV72_PAY_BTN | button | Pay for the check
 EV72_PAY_EFF | effect line | Pay a small sum. The check ends today.
-EV72_PAY_TITLE | popup title | The clerk is quick
-EV72_PAY | popup | The clerk stamped the last page and did not look up. You paid a small sum, and filed the receipt first.
-EV72_WAIT_BTN | button | Let the line grow
+EV72_PAY_TITLE | popup title | Nera folds the cloth
+EV72_PAY | popup | You paid a small sum. The check ends today. Nera finishes the last row before folding her white cloth. Your crew carries the bolts aboard. The receipt goes on your desk beside the upkeep page.
+EV72_WAIT_BTN | button | Wait for the check
 EV72_WAIT_EFF | effect line | Lanes that touch Ashgate cost more per trip for a few cycles.
-EV72_WAIT_TITLE | popup title | The dock is full
-EV72_WAIT | popup | Ships stacked up outside Ashgate. Nobody left, and nobody was told when. Lanes that touch Ashgate cost more per trip for a few cycles.
+EV72_WAIT_TITLE | popup title | Supper beside the bolts
+EV72_WAIT | popup | Lanes that touch Ashgate cost more per trip for a few cycles. Nera keeps checking the bolts. Your crew eats beside her chair. She moves the white cloth away from their plates and turns another page.
 
-EV73_TITLE | pool event title | One crew, two docks
-EV73_BODY | pool event text | You can lend a work crew to one dock for a short time. Cindrel's yard would run hot. Quillon's would run light. Both owe you a favour. The dock that gets the crew sees trade pick up for a while.
+EV73_TITLE | pool event title | Mara can lend her crew
+EV73_BODY | pool event text | Choose where ore costs more and pays more: Cindrel or Quillon. Mara Voss can lend her crew to a dock. Cindrel needs hands at the furnace. Quillon needs hands in the yard. She puts her patched gloves between the requests and waits.
 EV73_CINDREL_BTN | button | Send them to Cindrel
 EV73_CINDREL_EFF | effect line | Ore at Cindrel costs more and pays more for a while.
-EV73_CINDREL_TITLE | popup title | Cindrel's yard is busy
-EV73_CINDREL | popup | The crew worked two shifts at Cindrel. Ore there costs more and pays more for a while. The yard master wrote the favour in a small book.
+EV73_CINDREL_TITLE | popup title | Mara joins Cindrel's shift
+EV73_CINDREL | popup | Ore at Cindrel costs more and pays more for a while. Mara takes her crew to the furnace. Quillon's yard master sends back the unused work list. She folds it inside her patched glove before starting.
 EV73_QUILLON_BTN | button | Send them to Quillon
 EV73_QUILLON_EFF | effect line | Ore at Quillon costs more and pays more for a while.
-EV73_QUILLON_TITLE | popup title | Quillon's yard is busy
-EV73_QUILLON | popup | The crew worked easy hours at Quillon. Ore there costs more and pays more for a while. The yard master paid back in goodwill, which you also count.
+EV73_QUILLON_TITLE | popup title | Mara joins Quillon's shift
+EV73_QUILLON | popup | Ore at Quillon costs more and pays more for a while. Mara takes her crew to the yard. The furnace clerk at Cindrel asks who will come instead. She turns a patched glove in her hands before answering.
 
-EV74_TITLE | pool event title | Luck pays Ashgate once
-EV74_BODY | pool event text | A shipment of dross reaches Ashgate by a mistake nobody owns. Dross at Ashgate costs less and pays less for a while. You call it luck, and do not trust it. The second page of the manifest is blank.
+EV74_TITLE | pool event title | Noll reads the blank page
+EV74_BODY | pool event text | Dross at Ashgate costs less and pays less for a while. A shipment came to the wrong dock. Noll Renn holds up its blank delivery page. Your crew has dross waiting to sell. He looks from their crates to the new price and puts the page down.
 
-EV_FLT04_TITLE | pool event title | Dust across the lane
-EV_FLT04_BODY | pool event text | Fine dust crosses the lane to Flintmoor and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. Ships can slow with her, or push through and pay for the hull.
+EV_FLT04_TITLE | pool event title | Tavi eases back the lever
+EV_FLT04_BODY | pool event text | Slow down and pay more per trip at Flintmoor for a few cycles. Push through and pay a small repair sum. Dust taps against Tavi Renn's glass. She rests her hand on the speed lever. Your loaded ships are coming along the same lane.
 EV_FLT04_SLOW_BTN | button | Slow down
 EV_FLT04_SLOW_EFF | effect line | Lanes that touch Flintmoor cost more per trip for a few cycles.
-EV_FLT04_SLOW_TITLE | popup title | The dust passes
-EV_FLT04_SLOW | popup | The ships slowed and the dust went over like a long shift change. Lanes that touch Flintmoor cost more per trip for a few cycles. The hull rang once, low, and then did not ring again.
+EV_FLT04_SLOW_TITLE | popup title | Tavi keeps her hand there
+EV_FLT04_SLOW | popup | Lanes that touch Flintmoor cost more per trip for a few cycles. Your ships slow with Tavi. Dust taps the glass until her shift ends. She leaves her hand on the lever while the next pilot sits down.
 EV_FLT04_PUSH_BTN | button | Push through
 EV_FLT04_PUSH_EFF | effect line | Pay a small sum for hull repairs.
-EV_FLT04_PUSH_TITLE | popup title | The hull takes the dust
-EV_FLT04_PUSH | popup | The ships pushed through at speed. You paid a small sum for hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.
+EV_FLT04_PUSH_TITLE | popup title | Tavi reads the repair sheet
+EV_FLT04_PUSH | popup | You paid a small sum for hull repairs. Your ships pushed through the dust. At the dock, Tavi lays her palm against a new dent. She takes the repair sheet inside and holds it while your clerk counts the credits.
 
-EV_PLT01_TITLE | pool event title | Who works the dark
-EV_PLT01_BODY | pool event text | A crew from the Bureau's labour desk reaches the new platform on Cinderrest. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.
+EV_PLT01_TITLE | pool event title | Noll brings the night crew
+EV_PLT01_BODY | pool event text | Hire the crew for dross in Company storage at Cinderrest, or send them home for a small refund. Noll Renn arrives from the Bureau's labour desk. His crew has brought a kettle with a mended handle. They ask where the night shift sleeps.
 EV_PLT01_NIGHT_BTN | button | Hire the night crew
 EV_PLT01_NIGHT_EFF | effect line | Some dross is added to your Company storage at Cinderrest.
-EV_PLT01_NIGHT_TITLE | popup title | The night crew signs on
-EV_PLT01_NIGHT | popup | The night crew signed on without reading. By morning some dross lay in your storage at Cinderrest, stacked with great care. The foreman named the shift Always. It stuck.
+EV_PLT01_NIGHT_TITLE | popup title | Noll hangs up the kettle
+EV_PLT01_NIGHT | popup | Some dross is added to your Company storage at Cinderrest. Noll's crew signs on. He hangs their kettle beside the shift board. When the home flight leaves, a worker keeps a hand around its mended handle.
 EV_PLT01_DAY_BTN | button | Send the crew home
 EV_PLT01_DAY_EFF | effect line | You gain a small sum, the labour desk's refund.
-EV_PLT01_DAY_TITLE | popup title | The crew goes home
-EV_PLT01_DAY | popup | You sent the crew back to the labour desk, which refunded the hire with a small sum. You gain a small sum. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.
+EV_PLT01_DAY_TITLE | popup title | Noll takes the kettle back
+EV_PLT01_DAY | popup | You gain a small sum as the labour desk's refund. Noll takes his crew home without adding dross to your storage. He carries the kettle aboard. Your foreman clears their names from the shift board before sitting down.
 
-EV_PLT02_TITLE | pool event title | The roof sings
-EV_PLT02_BODY | pool event text | A gallery at Cinderrest sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.
+EV_PLT02_TITLE | pool event title | Mara hears the roof
+EV_PLT02_BODY | pool event text | Pay a small sum for props, or close Cinderrest for a while and block routes touching it. Mara Voss has brought everyone out of the gallery. A low note comes through the floor. She leaves her gloves beside the entry while you decide.
 EV_PLT02_PROP_BTN | button | Pay for props
 EV_PLT02_PROP_EFF | effect line | Pay a small sum. Routes from Cinderrest keep running.
-EV_PLT02_PROP_TITLE | popup title | The props go in
-EV_PLT02_PROP | popup | The props went in under the sound and the sound let them. You paid a small sum. Routes from Cinderrest keep running. The note dropped a step, the way a voice does when it has been understood.
+EV_PLT02_PROP_TITLE | popup title | Mara checks each prop
+EV_PLT02_PROP | popup | You paid a small sum. Routes from Cinderrest keep running. Mara checks each new prop before calling the crew back. The note fades as she works. She picks up her gloves at the entry and follows the last worker in.
 EV_PLT02_SEAL_BTN | button | Seal the gallery
 EV_PLT02_SEAL_EFF | effect line | Cinderrest closes for a while. Routes touching it are blocked.
-EV_PLT02_SEAL_TITLE | popup title | The gallery is sealed
-EV_PLT02_SEAL | popup | The crew sealed the gallery with slabs and tape. Cinderrest is closed for a while, and routes touching it are blocked. Behind the slabs the note went on, patient, like a tenant.
+EV_PLT02_SEAL_TITLE | popup title | Mara stays outside
+EV_PLT02_SEAL | popup | Cinderrest closes for a while. Routes touching it are blocked. Mara checks the last worker's name before sealing the gallery. The note still comes through the floor. She sits beside the crew with her gloves in her lap.
 
-EV_PLT03_TITLE | pool event title | A seam no one logged
-EV_PLT03_BODY | pool event text | The drill at Greywake broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.
+EV_PLT03_TITLE | pool event title | Noll's unmarked seam
+EV_PLT03_BODY | pool event text | Log the find for a small sum, or keep nullglass for Company storage at Greywake. Noll Renn's drill has reached a seam missing from the surveys. A clear chip rests in his glove. He has left the Bureau's report blank until you answer.
 EV_PLT03_LOG_BTN | button | Log the find
 EV_PLT03_LOG_EFF | effect line | You gain a small sum as a finder's share.
-EV_PLT03_LOG_TITLE | popup title | The find is logged
-EV_PLT03_LOG | popup | The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.
-EV_PLT03_HIDE_BTN | button | Keep it off the books
+EV_PLT03_LOG_TITLE | popup title | Noll fills in the report
+EV_PLT03_LOG | popup | You gain a small sum as a finder's share. Noll sends the report to the Bureau and waits for the stamped copy. The chip goes into the sample box. Your storage gets no lot from the find.
+EV_PLT03_HIDE_BTN | button | Keep the find unlogged
 EV_PLT03_HIDE_EFF | effect line | Some nullglass is added to your Company storage at Greywake.
-EV_PLT03_HIDE_TITLE | popup title | The find stays quiet
-EV_PLT03_HIDE | popup | The crew filled the carts before the shift bell and told no one. Some nullglass is added to your Company storage at Greywake. The seam is still bright in the dark, and still cold on the hand.
+EV_PLT03_HIDE_TITLE | popup title | Noll puts the chip away
+EV_PLT03_HIDE | popup | Some nullglass is added to your Company storage at Greywake. Noll leaves the report blank and helps load the carts. There is no finder's payment. He puts the clear chip in his glove before closing the drawer.
 
-EV_PLT04_TITLE | pool event title | The hum under the floor
-EV_PLT04_BODY | pool event text | The floor of the platform on Greywake hums while the crew sleeps, a steady note, the same each night. Two buyers want the next lot of nullglass, one at Cindrel and one at Quillon. The shift lead says the hum changes with the lot's road. She does not say how.
-EV_PLT04_CINDREL_BTN | button | Send the lot to Cindrel
+EV_PLT04_TITLE | pool event title | Eda has both orders
+EV_PLT04_BODY | pool event text | Choose where nullglass costs more and pays more: Cindrel or Quillon. At Greywake, shift lead Eda Venn lays both buyers' orders on the bunk. A hum rises through its frame. Each buyer asks for the next lot. She leaves room for you to sit.
+EV_PLT04_CINDREL_BTN | button | Send to Cindrel
 EV_PLT04_CINDREL_EFF | effect line | Nullglass at Cindrel costs more and pays more for a while.
-EV_PLT04_CINDREL_TITLE | popup title | The lot goes to Cindrel
-EV_PLT04_CINDREL | popup | The lot left for Cindrel and the hum thinned, then stopped. Nullglass at Cindrel costs more and pays more for a while. The shift lead slept well.
-EV_PLT04_QUILLON_BTN | button | Send the lot to Quillon
+EV_PLT04_CINDREL_TITLE | popup title | Eda answers Cindrel
+EV_PLT04_CINDREL | popup | Nullglass at Cindrel costs more and pays more for a while. Eda sends the lot there. Quillon's order stays beside her bunk. She folds it under the pillow. The hum comes through the frame when she lies down.
+EV_PLT04_QUILLON_BTN | button | Send to Quillon
 EV_PLT04_QUILLON_EFF | effect line | Nullglass at Quillon costs more and pays more for a while.
-EV_PLT04_QUILLON_TITLE | popup title | The lot goes to Quillon
-EV_PLT04_QUILLON | popup | The lot left for Quillon and the hum rose a note. Nullglass at Quillon costs more and pays more for a while. The engineers wrote down that it was not louder.
+EV_PLT04_QUILLON_TITLE | popup title | Eda answers Quillon
+EV_PLT04_QUILLON | popup | Nullglass at Quillon costs more and pays more for a while. Eda sends the lot there. Cindrel's order stays beside her bunk. She folds it under the pillow. The hum comes through the frame when she lies down.
 
 ## Biotech pool
 
-EV51_TITLE | pool event title | Seed stock sells out at Brannock
-EV51_BODY | pool event text | A planting season came early at Brannock, and every grower wanted seed stock before the frost. Seed stock at Brannock costs more and pays more. The growers say the frost will not come. They keep one eye on the sky and one on the lock.
+EV51_TITLE | pool event title | Sena keeps the seeds covered
+EV51_BODY | pool event text | Seed stock at Brannock costs more and pays more. Planting came early, and growers bought ahead of the frost. Sena Pell pulls a cloth over the last tray. Buyers ask her to lift it. She keeps a hand on the edge while your crew reads the price.
 
-EV88_TITLE | pool event title | Two clerks ask a favour
-EV88_BODY | pool event text | A clerk at Tillam and a clerk at Ashgate both ask you to put in a word for their dock. You know them both by name. You can do it for one this cycle. The other will understand, and remember.
+EV88_TITLE | pool event title | Eda and Sena both ask
+EV88_BODY | pool event text | Choose where spores cost more and pay more: Tillam or Ashgate. Eda Venn asks you to speak for Tillam's dock. Sena Pell asks for Ashgate's. Your clerk holds their letters together. Sena's has been folded until the paper has split.
 EV88_TILLAM_BTN | button | Speak for Tillam
 EV88_TILLAM_EFF | effect line | Spores at Tillam cost more and pay more for a while.
-EV88_TILLAM_TITLE | popup title | Tillam is pleased
-EV88_TILLAM | popup | The Tillam clerk bowed twice. Spores at Tillam cost more and pay more for a while. A queue of buyers formed by the next bell.
+EV88_TILLAM_TITLE | popup title | Eda has your word
+EV88_TILLAM | popup | Spores at Tillam cost more and pay more for a while. Eda posts your word beside the order board. Sena asks your clerk to keep her letter. He places a sheet beneath the split so it can still be read.
 EV88_ASHGATE_BTN | button | Speak for Ashgate
 EV88_ASHGATE_EFF | effect line | Spores at Ashgate cost more and pay more for a while.
-EV88_ASHGATE_TITLE | popup title | Ashgate is pleased
-EV88_ASHGATE | popup | The Ashgate clerk sent a card and a plate of something sweet. Spores at Ashgate cost more and pay more for a while.
+EV88_ASHGATE_TITLE | popup title | Sena has your word
+EV88_ASHGATE | popup | Spores at Ashgate cost more and pay more for a while. Sena posts your word beside the order board. Eda sends back your last letter. She has flattened its folds before putting it in the cover.
 
 ## Minerals pool, one more (EV75)
 
-EV75_TITLE | pool event title | Quillon stops paying for ore
-EV75_BODY | pool event text | Quillon's builders found a stack of ore in a closed yard and stopped buying. Ore at Quillon costs less and pays less for a while. The yard's gate was sealed with a form that no one remembers signing. The ore is warm.
+EV75_TITLE | pool event title | Mara finds the yard stock
+EV75_BODY | pool event text | Ore at Quillon costs less and pays less for a while. Mara Voss found stock behind a sealed yard gate. Builders no longer need your crew's ore. She brings back the key with rust across her palm. Your loader lowers the sale board without a word.
 
 ## Production charter events (T370, 2026-11-12; pool choice events, mechanics in data/chains.json by the gameplay agent, once per run)
 
-EV97_TITLE | pool event title | The depot wants a yard
-EV97_BODY | pool event text | The Bureau's depot office will name one of your worlds a supply yard. A yard buys more each shift, and the stamp costs. The clerk has the form filled in except for the world. He taps the blank line and waits.
-EV97_SIGN_BTN | button | Sign the requisition
+EV97_TITLE | pool event title | Ilsa leaves the world blank
+EV97_BODY | pool event text | Pay a small sum for a production charter, or let it lapse for a small payment. Warden Ilsa Dorne has brought the depot form. It lets a world buy and store more. She covers the blank world line with her hand while your clerk counts the credits.
+EV97_SIGN_BTN | button | Sign the charter
 EV97_SIGN_EFF | effect line | You gain a production charter and pay a small fee.
-EV97_SIGN_TITLE | popup title | The form is signed
-EV97_SIGN | popup | You signed, and the clerk stamped the page before the ink was dry. You gain a production charter and pay a small fee. Open a world's card to name the yard. The clerk will check the blank line.
+EV97_SIGN_TITLE | popup title | Ilsa passes you the form
+EV97_SIGN | popup | You gain a production charter and pay a small sum. Open a world's card to choose where to use it. Ilsa waits while your clerk enters the cost. She leaves the world line blank for you.
 EV97_LAPSE_BTN | button | Let the form lapse
 EV97_LAPSE_EFF | effect line | You gain a small sum.
-EV97_LAPSE_TITLE | popup title | The form lapses
-EV97_LAPSE | popup | You left the line blank. The clerk sighed, filed the form under lapsed, and paid out a small sum for the trouble. You gain a small sum. He wrote the date on the folder, in case.
+EV97_LAPSE_TITLE | popup title | Ilsa files the unused form
+EV97_LAPSE | popup | You gain a small sum. You receive no production charter. Ilsa marks the unused form and waits for your clerk to sign the payment slip. She keeps her hand over the world line until she closes the folder.
 
-EV98_TITLE | pool event title | A patron picks a house
-EV98_BODY | pool event text | A patron wants one world to carry her name, and every buyer there to stock for her. She pays nothing. She asks only that her rivals be told. Somewhere a broker is already drafting the list.
-EV98_ACCEPT_BTN | button | Accept the patronage
-EV98_ACCEPT_EFF | effect line | You gain a production charter. A home Luxury good costs less and pays less for a while.
-EV98_ACCEPT_TITLE | popup title | The patron is pleased
-EV98_ACCEPT | popup | The patron nodded once. You gain a production charter, and a Luxury good at your home world costs less and pays less for a while. Her rivals were told by evening. They sent no reply.
-EV98_DECLINE_BTN | button | Decline politely
+EV98_TITLE | pool event title | Dema asks for a world's name
+EV98_BODY | pool event text | Accept a production charter and lower a home Luxury good's buy and sell prices. Decline for a small sum. Patron Dema Voss wants her name on a world. Her ring has worn a dent in the form. She asks who will hear of it first.
+EV98_ACCEPT_BTN | button | Accept the charter
+EV98_ACCEPT_EFF | effect line | Gain a production charter. A home Luxury good costs less and pays less for a while.
+EV98_ACCEPT_TITLE | popup title | Dema sends the notice
+EV98_ACCEPT | popup | You gain a production charter. A Luxury good at your home world costs less and pays less for a while. Dema sends word of her gift to the other patrons. Your clerk holds the form where her ring dented it and checks your stock.
+EV98_DECLINE_BTN | button | Decline the charter
 EV98_DECLINE_EFF | effect line | You gain a small sum.
-EV98_DECLINE_TITLE | popup title | The offer is declined
-EV98_DECLINE | popup | You declined, and she took it well, which was worse. A small sum arrived the next day, with a card. You gain a small sum. The card has no name on it.
+EV98_DECLINE_TITLE | popup title | Dema takes the form back
+EV98_DECLINE | popup | You gain a small sum. You receive no production charter. Dema takes the form back and leaves the payment slip. Your clerk slides it toward you. The dent from her ring is pressed into the copy beneath.
