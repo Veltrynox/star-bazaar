@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-13",
+  "task": "T378",
+  "status": "done",
+  "files_changed": ["game/gigs.gd", "game/main.gd", "game/pathfinder_view.gd", "data/balance.json", "handoffs/juice-programmer/2026-11-13-T378.json", "schedule.json"],
+  "open_questions": [],
+  "handoff": "Gig arrival beat. Hook: new signal gig_posted(uid) in game/gigs.gd, emitted once per new offer in _open_signal, post_salvage and post_opening; post_opening got an announce flag (default true) and ensure_opening (save load) passes false, so a load and expiries never fire it. main (_on_gig_posted): the rail gig icon pops (x1.35), flashes warm for gig_appear_beat_s and two rings open from it (Juice.pop/flash/ping_burst, all scaled by Juice.motion; at motion 0 only the existing badge). Then a REAL-time hold of gig_appear_pause_s (2.0 s) using _event_pause_held/_event_prev_paused plus _gig_hold_left, ticked in main._process before the paused return. Skipped when paused, game over, hold already held, event popup, preface, any window or motion 0. The hold lets go early if the player unpauses, and defers to an event popup or the dock sheet that opened meanwhile (dock sheet gets _dock_was_paused fixed so the game is not stuck paused); it never unpauses a game the player had paused. Map: pathfinder_view connects gig_posted; if the offer sits in the viewed system one pooled warm ring (_appear_ring, created on first use, no per-frame allocation) pulses twice over gig_appear_beat_s on the real clock (the 3D fx pool freezes while paused, so this one uses real time). New keys in data/balance.json values: gig_appear_pause_s 2.0, gig_appear_beat_s 1.2 (noted in source). Load-check: gigs.gd and pathfinder_view.gd clean; main.gd only the pre-existing Voice identifier error. Screenshot logs/screenshots/T378.png: scene loads, no breakage (a static scene, the beat itself is not in it). Not checked by eye: the icon pop, the map ring and the 2 s hold feel. Idea not built: a brief camera nudge toward the new gig marker."
+}
