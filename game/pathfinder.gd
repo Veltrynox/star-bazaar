@@ -78,11 +78,10 @@ var _fast := false              # gig flagship_speed: permanent, the Flagship fl
 var _legacy := false            # a save from before discovery: every planet counts as established
 var _last_now := -1.0           # game time (cycles) of the last sync
 var _explore := false           # T206: exploration mode: the ship scouts and establishes every planet of its system by itself
-var _hold := {}                 # T269 Flagship hold: good -> units (cap flagship_hold_units)
+var _old_hold := {}             # an old save's hold contents, handed to the gig board once after a load (take_old_hold); the ship has no hold now
 var _boost := false             # T269 boost on
 var _charges := -1              # T269 boost charges left; -1 = full (read live from flagship_boost_charges)
 var _refill_left := 0.0         # T269 cycles until the next charge comes back
-var _burn_owed := 0.0           # T269 fraction of an energy unit burned but not yet taken from the hold
 var _idle_left := 0.0           # T271: cycles the ship cannot take orders (a gig cost); runs on the game clock
 var _self_order := false        # T206: true while the mode itself gives an order (a manual order ends the mode)
 
@@ -112,11 +111,10 @@ func reset() -> void:
 	_build_total = 0.0
 	_build_left = 0.0
 	_last_now = -1.0
-	_hold = {}
+	_old_hold = {}
 	_boost = false
 	_charges = -1
 	_refill_left = 0.0
-	_burn_owed = 0.0
 	_idle_left = 0.0
 	_sys = 1
 	_docked = home_id()
@@ -525,26 +523,9 @@ func advance(cycles: float) -> void:
 	_tick_charges(cycles)
 	_coast(cycles)
 	_idle_left = maxf(0.0, _idle_left - cycles)
-	if _boost and _leg != "jump":  # the jump burns no energy
-		var rate := _bal("flagship_boost_energy", 0.0)
-		var run := cycles
-		if rate > 0.0:
-			run = minf(cycles, maxf(0.0, float(hold_units("energy")) - _burn_owed) / rate)
-			_burn_owed += run * rate
-			var whole := floori(_burn_owed)
-			if whole > 0:
-				_take("energy", whole)
-				_burn_owed -= float(whole)
-		if run < cycles:
-			_advance_flight(run)
-			_boost = false  # out of fuel
-			_burn_owed = 0.0
-			_advance_flight(cycles - run)
-			return
 	_advance_flight(cycles)
 	if _boost and _state != "flying":  # the flight ended (arrived or stopped): the Boost is used up
 		_boost = false
-		_burn_owed = 0.0
 
 ## T374: after an abort the idle ship eases its speed to 0 over the usual brake, drifting on along its heading.
 func _coast(cycles: float) -> void:
@@ -806,78 +787,14 @@ func _finish_build() -> void:
 	build_done.emit(pid)
 	main.on_flight_changed()
 
-# ---- T269 Flagship: hold, storage moves, boost -----------------------------------------------------------
-## Refusal reasons for the UI: "not_docked" | "hold_full" | "no_fuel" (also "no_stock", "storage_full", "no_charges").
+# ---- T269 Flagship: boost (no hold, no trading since 2026-11-13) --------------------------------------------
+## Boost refusal reasons for the UI: "not_flying" | "no_charges".
 
-func hold_cap() -> int:
-	return maxi(0, int(_bal("flagship_hold_units", 0.0)) + roundi(Bazaar.wing_bonus("hold_units")))  # T298 wings
-
-func hold_units(good: String) -> int:
-	return int(_hold.get(good, 0))
-
-func hold_total() -> int:
-	var n := 0
-	for k in _hold:
-		n += int(_hold[k])
-	return n
-
-func hold_space() -> int:
-	return maxi(0, hold_cap() - hold_total())
-
-## Goods in the hold with units > 0 (hidden goods stay out: Availability).
-func hold_goods() -> Dictionary:
-	var out := {}
-	for k in _hold:
-		if int(_hold[k]) > 0 and Availability.good(str(k)):
-			out[str(k)] = int(_hold[k])
+## An old save's hold contents (good -> units), once; empty afterwards (the gig board carries them on).
+func take_old_hold() -> Dictionary:
+	var out := _old_hold
+	_old_hold = {}
 	return out
-
-func _put(good: String, n: int) -> int:
-	var put := clampi(n, 0, hold_space())
-	if put > 0:
-		_hold[good] = hold_units(good) + put
-	return put
-
-func _take(good: String, n: int) -> int:
-	var got := clampi(n, 0, hold_units(good))
-	if got > 0:
-		_hold[good] = hold_units(good) - got
-		if int(_hold[good]) <= 0:
-			_hold.erase(good)
-	return got
-
-## Planet index of the world the ship is docked at and may trade at; -1 when it cannot (flying, building, open space, not established).
-func dock_planet() -> int:
-	if _state != "idle" or _docked == "" or not established(_docked):
-		return -1
-	return _index_of(_docked)
-
-
-## Free move hold -> that world's company storage. Returns "" or a reason ("not_docked", "no_stock", "storage_full").
-func unload_to_storage(planet: int, good: String, units: int) -> String:
-	if dock_planet() < 0 or dock_planet() != planet:
-		return "not_docked"
-	if units <= 0 or hold_units(good) <= 0:
-		return "no_stock"
-	var put: int = main.storage.add(main.storage.planet_key(planet), good, mini(units, hold_units(good)))
-	if put <= 0:
-		return "storage_full"
-	_take(good, put)
-	return ""
-
-## Free move that world's company storage -> hold.
-func load_from_storage(planet: int, good: String, units: int) -> String:
-	if dock_planet() < 0 or dock_planet() != planet:
-		return "not_docked"
-	var key: String = main.storage.planet_key(planet)
-	if units <= 0 or main.storage.amount(key, good) <= 0:
-		return "no_stock"
-	if hold_space() <= 0:
-		return "hold_full"
-	var n := mini(mini(units, main.storage.amount(key, good)), hold_space())
-	main.storage.remove(key, good, n)
-	_put(good, n)
-	return ""
 
 ## T271 gig cost: the ship takes no order for this many cycles (game clock). 0 clears it.
 func hold_for(cycles: float) -> void:
@@ -898,18 +815,15 @@ func boost_charges() -> int:
 	return boost_max_charges() if _charges < 0 else mini(_charges, boost_max_charges())
 
 
-## Switches the boost. Turning on spends one charge and needs energy in the hold. "" ok, else "no_fuel" | "no_charges".
+## Switches the boost. Turning on spends one charge; it burns no energy. "" ok, else "not_flying" | "no_charges".
 func set_boost(on: bool) -> String:
 	if not on:
 		_boost = false
-		_burn_owed = 0.0
 		return ""
 	if _boost:
 		return ""
 	if _state != "flying":  # one Boost lasts one flight: nothing to spend it on while idle or building
 		return "not_flying"
-	if _bal("flagship_boost_energy", 0.0) > 0.0 and hold_units("energy") <= 0:
-		return "no_fuel"
 	if boost_charges() <= 0:
 		return "no_charges"
 	if _charges < 0:
@@ -993,7 +907,7 @@ func to_dict() -> Dictionary:
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
 		"leg": _leg, "final_to": _v(_final_to), "jump_from": _jump_from, "jump_t": _jump_t, "jump_dur": _jump_dur,
 		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
-		"hold": _hold.duplicate(), "idle": _idle_left, "boost_charges": _charges, "boost_refill": _refill_left,
+		"idle": _idle_left, "boost_charges": _charges, "boost_refill": _refill_left,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy, "fast": _fast}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -1052,10 +966,10 @@ func from_dict(d) -> void:
 		_build_left = clampf(float(d.get("build_left", _build_total)), 0.0, _build_total)
 		_state = "building"
 		_docked = _build
-	if typeof(d.get("hold")) == TYPE_DICTIONARY:  # T269: an older save has no hold: empty, charges full
+	if typeof(d.get("hold")) == TYPE_DICTIONARY:  # an older save held goods: kept for take_old_hold, the ship has no hold now
 		for k in d["hold"]:
 			if int(d["hold"][k]) > 0:
-				_hold[str(k)] = int(d["hold"][k])
+				_old_hold[str(k)] = int(d["hold"][k])
 		_charges = int(d.get("boost_charges", -1))
 		_refill_left = maxf(0.0, float(d.get("boost_refill", 0.0)))
 	_idle_left = maxf(0.0, float(d.get("idle", 0.0)))  # T271; an older save has none

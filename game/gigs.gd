@@ -4,7 +4,7 @@ extends RefCounted
 ## Data: data/gigs.json (signals); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
 ## free, an expired signal is gone for the run) and "salvage" (T296: cargo pods a raid dropped, posted by
-## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the Star Bazaar station (a "storage" flight), no window, no expiry to speak of; arriving there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
+## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods are carried aboard the Flagship and unloaded at the next established world; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the Star Bazaar station (a "storage" flight), no window, no expiry to speak of; arriving there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req, rewards}.
@@ -31,6 +31,7 @@ var offers: Array = []         # open offers, oldest first
 var done := {}                 # data id -> true (finished)
 var skipped := {}              # data id -> true (expired, gone for the run)
 var signals_seen := 0
+var carried := {}               # good -> units: salvage pods aboard the Flagship (state only, no hold and no limit), saved
 var gigs_done := 0             # signals answered plus salvage offers scooped empty (run note gigs_done)
 var gigs_expired := 0          # signals that ran out of time (run note gigs_expired)
 var last_signal_cycle := -100000
@@ -75,6 +76,7 @@ func reset() -> void:
 	signals_seen = 0
 	gigs_done = 0
 	gigs_expired = 0
+	carried = {}
 	last_signal_cycle = -100000
 	pending = ""
 	_uid = 0
@@ -163,28 +165,55 @@ func opening_offer() -> Dictionary:
 			return o
 	return {}
 
-## The Flagship reached a salvage marker: the pods load into the hold; what does not fit stays (the offer ends when empty).
+## The Flagship reached a salvage marker: all pods are carried (state `carried`, no hold and no limit) and the offer ends.
+## They are delivered into the storage of the next established world the Flagship reaches (deliver_pods).
 func _scoop(o: Dictionary) -> void:
-	var left_pods: Array = []
 	var lines: Array = []
 	for p in o.get("pods", []):
-		var put: int = main.flight._put(str(p["good"]), int(p["units"]))
-		if put > 0 and Availability.good(str(p["good"])):
-			lines.append("%d %s" % [put, Ui.good_name(str(p["good"])).to_lower()])
-		if int(p["units"]) - put > 0:
-			left_pods.append({"good": str(p["good"]), "units": int(p["units"]) - put})
-	o["pods"] = left_pods
-	o["accepted"] = false
+		var n := int(p["units"])
+		if n <= 0:
+			continue
+		carried[str(p["good"])] = int(carried.get(str(p["good"]), 0)) + n
+		if Availability.good(str(p["good"])):
+			lines.append("%d %s" % [n, Ui.good_name(str(p["good"])).to_lower()])
+	offers.erase(o)
 	if not lines.is_empty():
 		scooped.emit()
-	if left_pods.is_empty():
-		offers.erase(o)
-		gigs_done += 1
-		main.note("gigs_done")
-		main.post_notice(StoryText.get_or("NOT_SALVAGE_DONE", "Pods scooped into the Flagship hold: {lines}.", {"lines": ", ".join(lines)}))
-	else:
-		main.post_notice(StoryText.get_or("NOT_SALVAGE_FULL", "The Flagship hold is full. Some pods stay adrift.", {}))
+	gigs_done += 1
+	main.note("gigs_done")
+	main.post_notice(StoryText.get_or("NOT_SALVAGE_DONE", "Pods scooped aboard the Flagship: {lines}.", {"lines": ", ".join(lines)}))
 	changed.emit()
+
+## True while the Flagship carries salvage pods.
+func carrying() -> bool:
+	return not carried.is_empty()
+
+## An old save's Flagship hold (good -> units): carried like pods. Delivered at once when the ship sits at an established world.
+func take_old_hold(old: Dictionary) -> void:
+	for k in old:
+		if int(old[k]) > 0:
+			carried[str(k)] = int(carried.get(str(k), 0)) + int(old[k])
+	if carrying() and main.flight != null and main.flight.state() == "idle" and main.flight.docked_at() != "":
+		deliver_pods(main.planet_index_of(main.flight.docked_at()))
+
+## The Flagship reached world `planet`: carried pods go into its company storage when it is an established world (what the
+## storage cannot take stays carried for the next world).
+func deliver_pods(planet: int) -> void:
+	if carried.is_empty() or planet < 0 or not main.flight.established(main.map.planets[planet].get("id", "")):
+		return
+	var key: String = main.storage.planet_key(planet)
+	var lines: Array = []
+	for g in carried.keys():
+		var put: int = main.storage.add(key, str(g), int(carried[g]))
+		if put <= 0:
+			continue
+		carried[g] = int(carried[g]) - put
+		if int(carried[g]) <= 0:
+			carried.erase(g)
+		if Availability.good(str(g)):
+			lines.append("%d %s" % [put, Ui.good_name(str(g)).to_lower()])
+	if not lines.is_empty():
+		changed.emit()  # no notice: the stock shows in the world's storage (a text id for one is proposed in the handoff)
 
 # ---- spawn -----------------------------------------------------------------------------------------------------------
 
@@ -593,7 +622,7 @@ static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Diction
 func to_dict() -> Dictionary:
 	return {"seed": seed_value, "offers": offers.duplicate(true), "done": done.keys(), "skipped": skipped.keys(),
 		"signals_seen": signals_seen, "gigs_done": gigs_done, "gigs_expired": gigs_expired,
-		"last_signal_cycle": last_signal_cycle, "uid": _uid}
+		"last_signal_cycle": last_signal_cycle, "uid": _uid, "carried": carried.duplicate()}
 
 ## A missing or bad dictionary (a save from before gigs) means an empty board, nothing done.
 func from_dict(s) -> void:
@@ -614,4 +643,8 @@ func from_dict(s) -> void:
 	gigs_expired = int(s.get("gigs_expired", 0))
 	last_signal_cycle = int(s.get("last_signal_cycle", -100000))
 	_uid = int(s.get("uid", 0))
+	if typeof(s.get("carried")) == TYPE_DICTIONARY:
+		for k in s["carried"]:
+			if int(s["carried"][k]) > 0:
+				carried[str(k)] = int(s["carried"][k])
 	changed.emit()

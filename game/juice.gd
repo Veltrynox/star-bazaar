@@ -89,7 +89,9 @@ const TONES := {
 	"raid": [[330.0, 0.07], [220.0, 0.16]],                                              # T300: raiders strike
 	"scoop": [[880.0, 0.05], [1175.0, 0.09]],                                            # T300: pods scooped
 	"opening": [[523.0, 0.1], [659.0, 0.1], [784.0, 0.1], [1047.0, 0.12], [1319.0, 0.4]],  # T300: the Bazaar opens
+	"coin": [[1760.0, 0.035], [2349.0, 0.14]],                                          # owner 2026-11-14: a route is made (very slight)
 }
+const COIN_DB := -27.0
 const TONE_RATE := 22050
 
 ## 16-bit mono sound of the notes, played one after the other. Pure; the headless tests call it.
@@ -124,6 +126,282 @@ static func play_tone(host: Node, id: String, db: float = -14.0) -> void:
 		root.set_meta(key, pl)
 	pl.volume_db = db
 	pl.play()
+
+## ---- Button and planet sounds: ceramic hover tick, firmer press click, industrial hum. Noise based, built once. ----
+## All levels and shapes are here. Hover is quiet on purpose; press is clearly stronger; the hum sits under everything.
+const UI_HOVER_DB := -24.0
+const UI_PRESS_DB := -17.0            # owner 2026-11-14: press was too sharp; lower, low-passed and quieter
+const UI_HUM_DB := -31.0              # owner 2026-11-14: the planet hum is a soft ambient bed, not a machine
+const UI_HOVER_COOLDOWN_MS := 50      # sweeping across a row of tiles ticks at most this often
+const UI_HOVER_SECONDS := 0.03
+const UI_PRESS_SECONDS := 0.08
+const UI_HUM_SECONDS := 3.2
+const UI_HOVER_PARTIAL_HZ := 3000.0   # the hover blip starts here and glides down (variants drift a few % around it)
+const UI_PRESS_PARTIAL_HZ := 420.0    # owner 2026-11-14: heavier, less pitchy press
+const UI_PRESS_BODY_HZ := 75.0        # the low sub-tick under a press
+const UI_PRESS_BODY_AMP := 0.85       # how much of the press is the low thump (was 0.5)
+const UI_PRESS_STEP2 := 1.15          # pitch of the second blip vs the first (was 1.5: too chirpy)
+const UI_PRESS_LOWPASS := 0.12        # one-pole low-pass on the press (smaller = more muffled)
+const UI_PITCH_SPREAD := 0.05         # pitch variants run from -spread to +spread
+const UI_VARIANTS := 4
+const HUM_BASE_HZ := 58.0
+const UI_LEARN_DB := -19.0            # a skill is learned: richer than the press, still not loud
+const UI_LEARN_SECONDS := 0.9
+const UI_LEARN_HZ := 130.8            # base pitch of the dark power chord (C3: root, fifth, octave)
+const UI_EVENT_DB := -22.0            # an event appears: quieter in feel than the press click
+const UI_EVENT_SECONDS := 0.7
+const UI_EVENT_HZ := 880.0            # lowest bell partial; the others sit at inharmonic ratios above it
+const UI_EVENT_STEP_SECONDS := 0.045  # each further bell partial starts this much later (a quick, soft cascade)
+const UI_EVENT_COOLDOWN_MS := 1500    # several events at once chime once
+const AMBIENT_PATH := "res://assets/audio/ambient_space.ogg"   # made by tools/make_ambient.py
+const AMBIENT_DB := -20.0             # quiet bed under the whole game; ignores the motion setting
+const AMBIENT_FADE_SECONDS := 4.0
+const _UI_CACHE := "juice_ui_sound_cache"
+
+static func _pcm(samples: PackedFloat32Array) -> AudioStreamWAV:
+	var data := PackedByteArray()
+	data.resize(samples.size() * 2)
+	for i in samples.size():
+		var v := int(clampf(samples[i], -1.0, 1.0) * 32767.0)
+		data[i * 2] = v & 0xFF
+		data[i * 2 + 1] = (v >> 8) & 0xFF
+	var w := AudioStreamWAV.new()
+	w.format = AudioStreamWAV.FORMAT_16_BITS
+	w.mix_rate = TONE_RATE
+	w.stereo = false
+	w.data = data
+	return w
+
+## A clean synthetic UI blip. Hover (body_hz = 0): one soft sine that glides down about 30 %, with a faint ring-mod
+## shimmer (shimmer = its depth). Press (body_hz > 0): a two-step "blip-bip" with a rising FM chirp and a short
+## resonant tail, plus a low sub-tick for weight. pitch scales the partials. No noise. Pure; tests may call it.
+## seed_value is kept for the call signature and is unused.
+static func tick_samples(seconds: float, partial_hz: float, body_hz: float, shimmer: float, pitch: float, _seed_value: int) -> PackedFloat32Array:
+	var n := int(seconds * TONE_RATE)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var ph := 0.0
+	var ph_m := 0.0
+	var press := body_hz > 0.0
+	for i in n:
+		var t := float(i) / TONE_RATE
+		var p := float(i) / maxf(1.0, float(n))
+		var attack := minf(1.0, float(i) / 50.0)               # about 2 ms: soft, no hard edge
+		var v := 0.0
+		if not press:
+			var f := partial_hz * pitch * (1.0 - 0.3 * p)      # short downward sweep
+			ph += TAU * f / TONE_RATE
+			ph_m += TAU * f * 1.51 / TONE_RATE
+			var env := attack * exp(-5.0 * p)
+			v = sin(ph) * (1.0 - shimmer * 0.5 + shimmer * 0.5 * sin(ph_m)) * env * 0.4
+			v += sin(ph * 2.006 + 0.4) * env * 0.03          # a faint detuned octave: a little sheen
+		else:
+			var step2 := p >= 0.45                              # the second, higher blip
+			var lp := (p - 0.45) / 0.55 if step2 else p / 0.45
+			var f2 := partial_hz * pitch * (UI_PRESS_STEP2 if step2 else 1.0) * (1.0 + 0.04 * lp)  # slight upward chirp
+			ph += TAU * f2 / TONE_RATE
+			ph_m += TAU * f2 * 2.0 / TONE_RATE
+			var env2 := minf(1.0, lp * (0.45 if step2 else 1.0) * float(n) / 50.0) * exp(-3.2 * lp)
+			v = sin(ph + 0.6 * sin(ph_m) * exp(-6.0 * lp)) * env2 * 0.3
+			var tail := 0.0 if not step2 else sin(TAU * partial_hz * pitch * 3.0 * t) * exp(-9.0 * lp) * 0.06
+			v += tail
+			v += sin(TAU * body_hz * 2.0 * pitch * t) * exp(-12.0 * p) * 0.04  # a short, quiet low ring after the thump
+			v += sin(TAU * body_hz * pitch * t) * UI_PRESS_BODY_AMP * attack * exp(-16.0 * p)  # sub-tick: the weight
+		out[i] = v
+	return out
+
+## Layered sci-fi notification for a new event: four FM bell partials at inharmonic ratios in a quick soft cascade,
+## a bandpassed "data shimmer" noise gliding up, a faint low pad swell for body, and a glassy tail of decaying echoes.
+## Soft attack (no sharp transient). Pure; tests may call it.
+static func event_samples(seconds: float, hz: float, step_seconds: float) -> PackedFloat32Array:
+	var n := int(seconds * TONE_RATE)
+	var dry := PackedFloat32Array(); dry.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var ratios := [1.0, 1.34, 1.82, 2.47, 3.15]
+	var gains := [0.5, 0.38, 0.28, 0.2, 0.05]  # the fifth partial is one extra quiet glint
+	var low := 0.0
+	var band := 0.0
+	for i in n:
+		var t := float(i) / TONE_RATE
+		var p := float(i) / maxf(1.0, float(n))
+		var v := 0.0
+		for k in ratios.size():
+			var lt: float = t - step_seconds * float(k)
+			if lt < 0.0:
+				continue
+			var f: float = hz * float(ratios[k])
+			var env := minf(1.0, lt / 0.01) * exp(-6.0 * lt)
+			v += sin(TAU * f * lt + 1.1 * sin(TAU * f * 3.5 * lt) * exp(-10.0 * lt)) * env * float(gains[k])
+		# data shimmer: state-variable bandpass over noise, centre glides 1500 -> 5000 Hz
+		var fc := 1500.0 + 3500.0 * p
+		var fq := 2.0 * sin(PI * fc / TONE_RATE)
+		var x := rng.randf_range(-1.0, 1.0)
+		low += fq * band
+		var high := x - low - 0.35 * band
+		band += fq * high
+		v += band * 0.16 * sin(PI * p) * sin(PI * p)
+		# low pad swell
+		v += (sin(TAU * 196.0 * t) + sin(TAU * 198.5 * t)) * 0.07 * sin(PI * p) * sin(PI * p)
+		dry[i] = v
+	var out := PackedFloat32Array(); out.resize(n)
+	for i in n:
+		var v := dry[i]
+		for e in [[0.085, 0.34], [0.17, 0.22], [0.26, 0.14], [0.36, 0.08], [0.47, 0.04]]:
+			var j: int = i - int(float(e[0]) * TONE_RATE)
+			if j >= 0:
+				v += dry[j] * float(e[1])
+		var fade := minf(1.0, float(n - i) / 400.0)  # no click at the very end
+		out[i] = v * 0.42 * fade
+	return out
+
+## Skill learned, dark corporate sci-fi: a vault-lock thump with a low-passed metallic clunk, two relay ticks, a low
+## saw power chord (root, fifth, octave; no third) under a closing low-pass, a faint sub swell and a dark echo tail.
+## Nothing bright: everything is low-passed well under 3 kHz. Pure.
+static func learn_samples(seconds: float, hz: float) -> PackedFloat32Array:
+	var n := int(seconds * TONE_RATE)
+	var dry := PackedFloat32Array(); dry.resize(n)
+	var clunk := [[210.0, 0.5], [337.0, 0.4], [561.0, 0.3], [783.0, 0.2]]  # damped inharmonic latch partials
+	var y := 0.0
+	for i in n:
+		var t := float(i) / TONE_RATE
+		var p := float(i) / maxf(1.0, float(n))
+		var v := sin(TAU * 70.0 * t * (1.0 - 0.2 * minf(t * 10.0, 1.0))) * minf(1.0, t / 0.005) * exp(-12.0 * t) * 0.7  # lock-in thump
+		var lt := t - 0.03
+		if lt >= 0.0:
+			for c in clunk:
+				v += sin(TAU * float(c[0]) * lt) * exp(-45.0 * lt) * minf(1.0, lt / 0.002) * float(c[1]) * 0.35
+		for rt in [0.0, 0.065]:  # two relay ticks just before the clunk (dark: short low blips)
+			var rl: float = t - rt
+			if rl >= 0.0 and rl < 0.02:
+				v += sin(TAU * 480.0 * rl) * exp(-220.0 * rl) * 0.12
+		var pt := t - 0.1
+		if pt >= 0.0:
+			var env := minf(1.0, pt / 0.08) * exp(-3.4 * pt)
+			var chord := 0.0
+			for r in [1.0, 1.5, 2.0]:  # root, fifth, octave
+				var ph := fposmod(hz * float(r) * pt, 1.0)
+				chord += (2.0 * ph - 1.0) * 0.5 + sin(TAU * hz * float(r) * pt) * 0.3
+			var cut := 0.04 + 0.16 * exp(-4.0 * pt)  # the low-pass closes
+			y += (chord - y) * cut
+			v += y * env * 0.5
+		v += sin(TAU * 49.0 * t) * 0.1 * sin(PI * minf(p * 1.6, 1.0))  # faint sub swell
+		dry[i] = v
+	var out := PackedFloat32Array(); out.resize(n)
+	var e1 := 0.0
+	for i in n:
+		var v := dry[i]
+		for e in [[0.12, 0.28], [0.24, 0.18], [0.37, 0.1]]:
+			var j: int = i - int(float(e[0]) * TONE_RATE)
+			if j >= 0:
+				v += dry[j] * float(e[1])
+		e1 += (v - e1) * 0.25  # dark overall: nothing bright survives
+		out[i] = e1 * 0.55 * minf(1.0, float(n - i) / 600.0)
+	return out
+
+## Abstract industrial hum: low fundamental with detuned harmonics, slow beating, band-limited machinery noise,
+## soft fade in and out. The loop-free sound is built once.
+static func hum_samples(seconds: float) -> PackedFloat32Array:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var n := int(seconds * TONE_RATE)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / TONE_RATE
+		var p := float(i) / maxf(1.0, float(n))
+		var fade := minf(1.0, p / 0.35) * minf(1.0, (1.0 - p) / 0.5)
+		fade = fade * fade * (3.0 - 2.0 * fade)
+		var f := HUM_BASE_HZ
+		var v := sin(TAU * f * t) * 0.5
+		v += sin(TAU * (f * 2.0 + 0.9) * t) * 0.28          # a slow 0.9 Hz beat against the octave
+		v += sin(TAU * (f * 3.0 - 1.3) * t) * 0.16
+		v += sin(TAU * (f * 4.02) * t) * 0.08
+		v += sin(TAU * (f * 6.0 + 0.5 * sin(TAU * 0.3 * t)) * t) * 0.03 * (0.5 + 0.5 * sin(TAU * 0.35 * t))  # a faint wandering harmonic shimmer
+		v *= 0.88 + 0.12 * sin(TAU * 0.7 * t)                # slow, gentle swell
+		var white := rng.randf_range(-1.0, 1.0)
+		lp += (white - lp) * 0.10
+		lp2 += (lp - lp2) * 0.02
+		var mach := (lp - lp2) * (0.5 + 0.5 * sin(TAU * 5.0 * t + 1.0))  # band of noise, pulsing like machinery
+		v += mach * 0.2                                       # only a trace of machinery: ambient, not industrial
+		out[i] = v * fade * 0.55
+	return out
+
+## One-pole low-pass (a = 0..1, smaller = darker), level kept roughly the same. Pure.
+static func lowpass(samples: PackedFloat32Array, a: float) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	out.resize(samples.size())
+	var y := 0.0
+	for i in samples.size():
+		y += (samples[i] - y) * a
+		out[i] = y * 1.6
+	return out
+
+static func _ui_streams(root: Window, kind: String) -> Array:
+	var cache: Dictionary = root.get_meta(_UI_CACHE) if root.has_meta(_UI_CACHE) else {}
+	if not cache.has(kind):
+		var list := []
+		if kind == "hum":
+			list.append(_pcm(hum_samples(UI_HUM_SECONDS)))
+		elif kind == "learn":
+			list.append(_pcm(learn_samples(UI_LEARN_SECONDS, UI_LEARN_HZ)))
+		elif kind == "event":
+			list.append(_pcm(event_samples(UI_EVENT_SECONDS, UI_EVENT_HZ, UI_EVENT_STEP_SECONDS)))
+		else:
+			for k in UI_VARIANTS:
+				var pitch := 1.0 + UI_PITCH_SPREAD * (2.0 * float(k) / float(UI_VARIANTS - 1) - 1.0)
+				if kind == "hover":
+					list.append(_pcm(tick_samples(UI_HOVER_SECONDS, UI_HOVER_PARTIAL_HZ, 0.0, 0.35, pitch, 11 + k)))
+				else:
+					list.append(_pcm(lowpass(tick_samples(UI_PRESS_SECONDS, UI_PRESS_PARTIAL_HZ, UI_PRESS_BODY_HZ, 0.0, pitch, 31 + k), UI_PRESS_LOWPASS)))
+		cache[kind] = list
+		root.set_meta(_UI_CACHE, cache)
+	return cache[kind]
+
+## Plays one of the pooled players (small round robin per kind) with a random pitch variant.
+static func _play_ui(host: Node, kind: String, db: float, pool_size: int) -> void:
+	var root := host.get_tree().root
+	var streams := _ui_streams(root, kind)
+	var key := "juice_ui_pool_" + kind
+	var pool: Array = root.get_meta(key) if root.has_meta(key) else []
+	if pool.is_empty():
+		for i in pool_size:
+			var np := AudioStreamPlayer.new()
+			root.add_child(np)
+			pool.append(np)
+		root.set_meta(key, pool)
+		root.set_meta(key + "_i", 0)
+	var idx: int = (int(root.get_meta(key + "_i")) + 1) % pool.size() if pool_size > 1 else 0
+	root.set_meta(key + "_i", idx)
+	var pl: AudioStreamPlayer = pool[idx]
+	if not is_instance_valid(pl):
+		return
+	pl.stream = streams[randi() % streams.size()]
+	pl.volume_db = db
+	pl.play()
+
+## Soft ceramic tick for a mouse over an enabled button. Global cooldown; silent when motion is 0.
+static func play_hover(host: Node) -> void:
+	if not _active(host):
+		return
+	var now := Time.get_ticks_msec()
+	var root := host.get_tree().root
+	if root.has_meta("juice_ui_hover_at") and now - int(root.get_meta("juice_ui_hover_at")) < UI_HOVER_COOLDOWN_MS:
+		return
+	root.set_meta("juice_ui_hover_at", now)
+	_play_ui(host, "hover", UI_HOVER_DB, 2)
+
+## Firmer click for a pressed button.
+static func play_press(host: Node) -> void:
+	if _active(host):
+		_play_ui(host, "press", UI_PRESS_DB, 2)
+
+## The planet-open hum. One player: a new planet restarts it (never stacks).
+static func play_hum(host: Node) -> void:
+	if _active(host):
+		_play_ui(host, "hum", UI_HUM_DB, 1)
 
 ## ---- T274: crates and floating numbers (dock sheet) ----
 
@@ -290,6 +568,7 @@ static func install_press(tree: SceneTree) -> void:
 	if tree == null or tree.root.has_meta("juice_press"):
 		return
 	tree.root.set_meta("juice_press", true)
+	start_ambient(tree)
 	tree.node_added.connect(_press_for)
 	tree.node_added.connect(_panel_for)
 	_press_walk(tree.root)
@@ -305,6 +584,13 @@ static func _press_for(n: Node) -> void:
 		n.set_meta(_META_PRESS, true)
 		var b: BaseButton = n
 		b.button_down.connect(func() -> void: press(b, true))
+		b.button_down.connect(func() -> void: press(b, true))
+		b.mouse_entered.connect(func() -> void:
+			if not b.disabled:
+				play_hover(b))
+		b.button_down.connect(func() -> void:
+			if not b.disabled:
+				play_press(b))
 		b.button_up.connect(func() -> void: press(b, false))
 		b.mouse_exited.connect(func() -> void: press(b, false))
 		# T222: a mouse click must not leave keyboard focus on the button, or Space would press it again
@@ -462,8 +748,11 @@ static func ping_burst(host: Control, at: Vector2, tint: Color) -> void:
 	if not _active(host):
 		return
 	ping(host, at, tint)
-	host.get_tree().create_timer(_seconds(BURST_GAP)).timeout.connect(func() -> void:
-		if is_instance_valid(host) and host.is_inside_tree():
+	var tw := host.create_tween()  # bound to host: freed with it (a tree timer outlived a freed Main and called a dead capture)
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)  # runs while paused, as the tree timer did
+	tw.tween_interval(_seconds(BURST_GAP))
+	tw.tween_callback(func() -> void:
+		if host.is_inside_tree():
 			ping(host, at, tint))
 
 ## Points of a rounded rectangle outline, clockwise from the top-left corner start (closed: last = first).
@@ -526,3 +815,37 @@ class Ring extends Control:
 		Rings.draw_shock(self, Vector2.ZERO, 4.0, PING_RADIUS * 0.6, clampf((t - 0.15) / 0.85, 0.0, 1.0), Color(tint.lerp(Color.WHITE, 0.4), 0.7), 1.5, 0)
 		if t < 0.35:
 			draw_circle(Vector2.ZERO, 5.0 * (1.0 - t / 0.35) + 1.0, Color(1, 1, 1, 0.5 * (1.0 - t / 0.35)))
+
+## The ambient bed: one looping player on the root, faded in once, never restarted by panels or scenes.
+static func start_ambient(tree: SceneTree) -> void:
+	if tree == null or tree.root.has_meta("juice_ambient") or not ResourceLoader.exists(AMBIENT_PATH):
+		return
+	var st = load(AMBIENT_PATH)
+	if st == null:
+		return
+	if "loop" in st:
+		st.loop = true
+	var pl := AudioStreamPlayer.new()
+	pl.stream = st
+	pl.volume_db = -60.0
+	tree.root.add_child(pl)
+	tree.root.set_meta("juice_ambient", pl)
+	pl.play()
+	pl.create_tween().tween_property(pl, "volume_db", AMBIENT_DB, AMBIENT_FADE_SECONDS) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+## The new-event chime. One cooldown, so a burst of events chimes once. Silent when motion is 0.
+static func play_event(host: Node) -> void:
+	if not _active(host):
+		return
+	var now := Time.get_ticks_msec()
+	var root := host.get_tree().root
+	if root.has_meta("juice_ui_event_at") and now - int(root.get_meta("juice_ui_event_at")) < UI_EVENT_COOLDOWN_MS:
+		return
+	root.set_meta("juice_ui_event_at", now)
+	_play_ui(host, "event", UI_EVENT_DB, 1)
+
+## The skill-learned reward sound. Silent when motion is 0.
+static func play_learn(host: Node) -> void:
+	if _active(host):
+		_play_ui(host, "learn", UI_LEARN_DB, 1)

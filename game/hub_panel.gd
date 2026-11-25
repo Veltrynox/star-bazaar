@@ -142,11 +142,16 @@ func refresh() -> void:
 	fl.text = StoryText.get_or("ST_HUB_POOL_FREE", "Free ships: {n}", {"n": hs.free_for_pool()})
 	fl.theme_type_variation = "LabelMuted"
 	_body.add_child(fl)
-	var ticked := 0  # worlds the hub is switched on for (the hub world itself always counts)
-	for w in hs.worlds_in_reach(hub):
-		if not hs.is_world_off(hub, w):
-			ticked += 1
-	if ticked > 0 and hs.pool_of(hub) <= 0:  # worlds are ticked but no ship can serve them
+	var el := Label.new()
+	el.name = "HubEarned"
+	var tot: int = hs.earned_total(hub)
+	if tot > hs.earned_last(hub):
+		el.text = StoryText.get_or("ST_HUB_EARNED_TOTAL", "Hub earned {n} last cycle · {total} in all", {"n": hs.earned_last(hub), "total": tot})
+	else:
+		el.text = StoryText.get_or("ST_HUB_EARNED", "Hub earned {n}", {"n": hs.earned_last(hub)})
+	el.theme_type_variation = "LabelMuted"
+	_body.add_child(el)
+	if hs.needs_ship(hub):  # worlds are ticked but no ship can serve them
 		var al := Label.new()
 		al.name = "HubNoShipAlert"
 		al.theme_type_variation = "LabelBad"

@@ -71,6 +71,7 @@ func _draw() -> void:
 		_draw_needs(i, scale_px, font, c2.y + r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px)
 		_draw_goods(i, c2, r_px, scale_px, capital)
 	_draw_station_beats(scale_px)
+	_draw_hub_no_ship(cam, scale_px)
 
 func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	var p = map.prosperity
@@ -221,6 +222,31 @@ func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 		var sr: float = _k("beat_stage_radius_px", 260.0) * scale_px
 		Juice.draw_shock(self, c, r_px, r_px + sr, u, sc, maxf(1.0, 4.0 * scale_px), 20)
 		Juice.draw_shock(self, c, r_px, r_px + sr * 0.6, clampf((u - 0.18) / 0.82, 0.0, 1.0), Color(sc, 0.6), maxf(1.0, 2.0 * scale_px), 0)
+
+const HUB_BLINK_PERIOD := 1.0   # s, soft alpha pulse of the no-ship mark
+const HUB_BLINK_MIN := 0.25
+const HUB_MARK_GAP_PX := 8.0    # above the world / station disc
+const HUB_MARK_SIZE_PX := 7.0
+
+## A soft blinking warning mark above a hub that has ticked worlds but no ship (Hubs.needs_ship). Pure draw, no input, no allocation beyond draw calls.
+func _draw_hub_no_ship(cam: Camera3D, scale_px: float) -> void:
+	if map.hubs == null:
+		return
+	var a := lerpf(HUB_BLINK_MIN, 1.0, 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.001 * TAU / HUB_BLINK_PERIOD))
+	var col := Color(Ui.col("signal_warn"), a)
+	var right: Vector3 = cam.global_transform.basis.x.normalized()
+	for h in map.hubs.hubs_needing_ship():
+		if not map._hub_in_view(h):
+			continue
+		var centre: Vector3 = map._hub_pos(h)
+		if cam.is_position_behind(centre):
+			continue
+		var c: Vector2 = cam.unproject_position(centre)
+		var r_px: float = c.distance_to(cam.unproject_position(centre + right * map._hub_rad(h)))
+		var m := HUB_MARK_SIZE_PX * scale_px
+		var top := c + Vector2(0.0, -(r_px + HUB_MARK_GAP_PX * scale_px + m))
+		draw_colored_polygon(PackedVector2Array([top + Vector2(0, -m), top + Vector2(m, m), top + Vector2(-m, m)]), col)  # warning triangle
+		draw_rect(Rect2(top + Vector2(-0.5 * scale_px, -m * 0.35), Vector2(maxf(1.0, scale_px), m * 0.8)), Color(Ui.col("panel_100"), a))  # the bar of the "!"
 
 ## Beats of the Star Bazaar station (key -system id): the stage flash and ring, and the hub ripple that starts from the station and runs out to its farthest world.
 func _draw_station_beats(scale_px: float) -> void:

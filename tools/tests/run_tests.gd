@@ -65,6 +65,8 @@ func _run() -> void:
 	await _test_tut_g0_rmb()
 	await _test_tut_counter()
 	await _test_tut_full_walk()
+	await _test_tier2_growth()
+	await _test_numbering_pathfinder()
 	await _test_tut_hero_highlight()
 	await _test_tut_speed_card()
 	await _test_tut_skills_card()
@@ -75,6 +77,7 @@ func _run() -> void:
 	await _test_ship_clock()
 	await _test_energy_then_food()
 	await _test_salvage()
+	await _test_flagship_carry()
 	await _test_system_suns()
 	await _test_stations()
 	await _test_station_send()
@@ -351,15 +354,14 @@ func _test_localisation() -> void:
 	check(not mm.get("skip_button"), "T324: the main menu has no Skip tutorial button")
 	var skip_was: bool = SaveGame.skip_tutorial()
 	SaveGame.set_skip_tutorial(false)
-	cs._mark_skip(false)
-	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and not cs.skip_button.button_pressed, "T322: skip tutorial is off by default, an unchecked toggle")
-	cs.skip_button.button_pressed = true
-	check(SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and cs.skip_button.button_pressed and cs.skip_button.tooltip_text == StoryText.get_text("MENU_HINT_SKIP_TUTORIAL"), "T322: skip tutorial on is saved, the toggle is checked and keeps its hint")
+	# the new company screen no longer has a Skip tutorial button (the setting is still stored in settings.cfg)
+	check(not ("skip_button" in cs), "T324: the new company screen has no Skip tutorial button")
+	SaveGame.set_skip_tutorial(true)
 	var cfs := ConfigFile.new()
 	cfs.load("user://settings.cfg")
-	check(cfs.get_value("game", "skip_tutorial", false) == true and cfs.get_value("game", "language", "") == "en", "T322: the setting sits in settings.cfg next to the language")
-	cs.skip_button.button_pressed = false
-	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL"), "T322: pressing again turns the tutorial back on")
+	check(SaveGame.skip_tutorial() and cfs.get_value("game", "skip_tutorial", false) == true and cfs.get_value("game", "language", "") == "en", "T322: the setting sits in settings.cfg next to the language")
+	SaveGame.set_skip_tutorial(false)
+	check(not SaveGame.skip_tutorial(), "T322: skip tutorial turns back off")
 	SaveGame.set_skip_tutorial(skip_was)
 	cs.queue_free()
 	mm.queue_free()
@@ -498,7 +500,7 @@ func _lint_walk(o, file: String, path: String, bal: Dictionary, errs: Array) -> 
 			var v = o[k]
 			var ks := str(k)
 			if typeof(v) == TYPE_STRING:
-				if (ks == "key" or ks.ends_with("_key")) and not bal.has(str(v)):
+				if (ks == "key" or ks.ends_with("_key")) and not (ks == "key" and path.ends_with("/choices")) and not bal.has(str(v)):  # a choice's "key" is its button label id, not a balance key
 					errs.append("%s %s/%s: unknown balance key '%s'" % [file, path, ks, v])
 				elif ks.ends_with("_id") and RegEx.create_from_string("^[A-Z][A-Z0-9_]+$").search(str(v)) != null and not StoryText.has_text(str(v)):
 					errs.append("%s %s/%s: unknown text id '%s'" % [file, path, ks, v])
@@ -550,6 +552,10 @@ func _test_data_pack_lint() -> void:
 			if StoryText.has_text(str(p.get("name_id", ""))):
 				planet_names.append(StoryText.get_text(str(p["name_id"])).to_lower())
 			price_blocks.append(["data/systems.json " + str(p["id"]), p.get("base_prices", {})])
+	for sy in _read_json("res://data/systems_placeholder.json").get("systems", []):  # live system 3 lives here
+		for p in sy["planets"]:
+			planet_ids.append(str(p["id"]))
+			price_blocks.append(["data/systems_placeholder.json " + str(p["id"]), p.get("base_prices", {})])
 	for pb in price_blocks:
 		for k in pb[1].keys():
 			if not Goods.has(_good_of_price_key(str(k))):
@@ -664,7 +670,7 @@ func _test_data_pack_lint() -> void:
 			errs.append("data/chains.json pool_new %s: unknown good '%s'" % [nid, eff["good"]])
 		if eff.has("planet") and not planet_ids.has(str(eff["planet"])):
 			errs.append("data/chains.json pool_new %s: unknown planet '%s'" % [nid, eff["planet"]])
-		if not market_ids.has(str(ne.get("market", "mil"))):
+		if ne.get("market") != null and not market_ids.has(str(ne.get("market", "mil"))):  # null = no market (post and fleet events)
 			errs.append("data/chains.json pool_new %s: unknown market '%s'" % [nid, ne["market"]])
 	for kid in chains_json["pool_kept"].keys():
 		if not seen_ev.has(str(kid)):
@@ -922,10 +928,10 @@ func _test_tutorial_lock() -> void:
 	m._on_planet_clicked(t)
 	check(m.selected_planet != t and m.last_notice != "", "lock step 3: planet clicks are muted")
 	check(not bool(m.set_local_order(a, "energy", "sell", true)["ok"]) and not bool(m.remove_connection(int(m.engine.routes[0]["id"]))["ok"]) and m.engine.routes.size() == 1, "lock step 3: Sell and route removal are muted")
-	m.set_speed(2.0)
+	m.set_speed(6.0)  # the speeds are 3, 6, 18, 36 (shown 1x 2x 6x 12x)
 	m.set_paused(false)
-	check(m.time_speed == 2.0 and not m.paused, "lock step 3: the time control still works")
-	m.set_speed(1.0)
+	check(m.time_speed == 6.0 and not m.paused, "lock step 3: the time control still works")
+	m.set_speed(m.SPEED_BASE)
 	var cash0: int = m.cash
 	while m.cycle < 2:
 		m._end_cycle()
@@ -1049,22 +1055,23 @@ func _test_tip_spacing(m: Node) -> void:
 	m.tut_step = m.TUT_GUIDE.size()
 	m._tut_show()
 	m.tips_off = false
+	m.tut_win_seen["planet_icons"] = true  # the one-time Planet icons window would otherwise open first and hold the tip clock
 	m.tip_sig = {}
 	m.tips_seed_pending = false
 	for def in m.TIP_DEFS:
 		m.tips_seen[str(def["id"])] = true
-	for id in ["TIP_TAX", "TIP_HUNGRY", "TIP_DOCK"]:
+	for id in ["TIP_TAX", "TIP_HUNGRY", "TIP_PLATFORM"]:
 		m.tips_seen.erase(id)
-	m.tip_signal("dock")
+	m.tip_signal("platform")
 	m.tip_signal("hungry")
 	m.tip_signal("tax")
 	var gap: float = float(m.balance.get("tip_gap_seconds", 90))
 	var c0: int = m.cycle
-	check(gap > 0.0 and m.tip_can_show(), "T339: tips can show in the test world and the gap key exists", "gap %s preface %s event %s dock %s tut %s skill %s galaxy %s over %s" % [gap, m.preface, m.event_notice, m.dock_sheet, m.tut_card.visible, m.skill_screen != null and m.skill_screen.visible, m.galaxy_view != null and m.galaxy_view.visible, m.game_over])
+	check(gap > 0.0 and m.tip_can_show(), "T339: tips can show in the test world and the gap key exists", "gap %s preface %s event %s tut %s skill %s galaxy %s over %s" % [gap, m.preface, m.event_notice, m.tut_card.visible, m.skill_screen != null and m.skill_screen.visible, m.galaxy_view != null and m.galaxy_view.visible, m.game_over])
 	_tip_clock_to(m, c0, 0.0)
 	_tip_run(m, 1.0)
 	check(m.tip_card.visible and m.tip_active == "TIP_TAX" and m.tip_text_label.text == StoryText.get_text("TIP_TAX"), "T339: of three tips due at once the highest priority shows first", m.tip_active)
-	check(m.tip_queue.has("TIP_HUNGRY") and m.tip_queue.has("TIP_DOCK") and not m.tips_seen.has("TIP_HUNGRY"), "T339: the others wait unseen in the queue")
+	check(m.tip_queue.has("TIP_HUNGRY") and m.tip_queue.has("TIP_PLATFORM") and not m.tips_seen.has("TIP_HUNGRY"), "T339: the others wait unseen in the queue")
 	check(m.tip_left > 0.0 and m.tip_left <= m.TIP_SECS_MAX and m.tip_card_secs(202) >= 10.0, "T339: the card life stays up long enough for the longest tip", str(m.tip_left))
 	_tip_close_by_time(m)
 	check(not m.tip_card.visible and m.tip_active == "", "T339: the card closes by itself")
@@ -1080,14 +1087,18 @@ func _test_tip_spacing(m: Node) -> void:
 	check(m.tip_active == "", "T339: still no card before the second gap is over")
 	_tip_clock_to(m, c0, 2.0 * gap)
 	_tip_run(m, 1.0)
-	check(m.tip_active == "TIP_DOCK" and m.tip_queue.is_empty(), "T339: the third tip shows a gap later and the queue is empty: none lost, none doubled", m.tip_active)
+	check(m.tip_active == "TIP_PLATFORM" and m.tip_queue.is_empty(), "T339: the third tip shows a gap later and the queue is empty: none lost, none doubled", m.tip_active)
 	# the right-hand box: newest with its why-line, the two before it small below
 	var board: Node = m.tip_now_label.get_parent()
-	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_DOCK") and m.tip_now_why.text == StoryText.get_text("TIP_DOCK_WHY"), "T339: the right panel shows the active tip with its why-line")
-	check(board.is_ancestor_of(m.tip_recent_box) and m.tip_recent_box.visible and m.tip_recent_box.get_child_count() == 2, "T339: the right panel lists the two earlier tips", str(m.tip_recent_box.get_child_count()))
+	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_PLATFORM") and m.tip_now_why.text == StoryText.get_text("TIP_PLATFORM_WHY"), "T339: the right panel shows the active tip with its why-line")
+	check(board.is_ancestor_of(m.tip_recent_box) and not m.tip_recent_box.visible and m.tip_recent_box.get_child_count() == 2, "T339: the right panel holds the two earlier tips on later pages (page 1 shows the newest only)", str(m.tip_recent_box.get_child_count()))
+	m._tip_page_step(1)  # the board is a pager now: one tip at a time, newest first
+	check(m.tip_recent_box.visible and (m.tip_recent_box.get_child(0) as Control).visible and not m.tip_now_label.visible, "T339: the next page shows the first earlier tip")
+	m._tip_page_step(-1)
+	check(m.tip_now_label.visible and not m.tip_recent_box.visible, "T339: paging back shows the newest tip again")
 	check((m.tip_recent_box.get_child(0) as Label).text == StoryText.get_text("TIP_HUNGRY") and (m.tip_recent_box.get_child(1) as Label).text == StoryText.get_text("TIP_TAX"), "T339: the list is newest first")
 	_tip_close_by_time(m)
-	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_DOCK"), "T339: after the card closes the panel still shows the last tip")
+	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_PLATFORM"), "T339: after the card closes the panel still shows the last tip")
 	# a fourth tip pushes the oldest out: only the last three remain
 	m.tips_seen.erase("TIP_SALVAGE")
 	m.tip_signal("salvage")
@@ -1097,7 +1108,7 @@ func _test_tip_spacing(m: Node) -> void:
 	var rec := ""
 	for c in m.tip_recent_box.get_children():
 		rec += (c as Label).text + "|"
-	check(m.tip_now_label.text == StoryText.get_text("TIP_SALVAGE") and not rec.contains(StoryText.get_text("TIP_TAX")) and rec.contains(StoryText.get_text("TIP_DOCK")), "T339: the oldest of four is gone from the panel", rec)
+	check(m.tip_now_label.text == StoryText.get_text("TIP_SALVAGE") and not rec.contains(StoryText.get_text("TIP_TAX")) and rec.contains(StoryText.get_text("TIP_PLATFORM")), "T339: the oldest of four is gone from the panel", rec)
 	# two tips about one thing share one card
 	_tip_close_by_time(m)
 	m.tips_seen.erase("TIP_WEATHER")
@@ -1431,7 +1442,7 @@ func _test_tut_g0_rmb() -> void:
 		await process_frame
 	check(f.state() == "flying" and not m.paused, "T329: Establish on the target sends the ship and starts the clock", str([f.state(), m.paused]))
 	for i in 12:
-		if m._tut_g0_id() != "TUT_G0_FLY":
+		if m._tut_g0_id() == "TUT_G0_DONE":
 			break
 		m.debug_advance_cycle()
 		await process_frame
@@ -1566,10 +1577,13 @@ func _test_tut_counter() -> void:
 			detail += "%d:%d/%d " % [seen[k][0], seen[k][1], seen[k][2]]
 			if k > 0:
 				var stepped: bool = seen[k][0] != seen[k - 1][0]
-				if stepped and seen[k][1] != seen[k - 1][1] + 1:
+				var win_gap: int = 1 if seen[k][0] == m.TUT_GUIDE.size() - 1 else 0  # the Planet icons window is a slide of its own before the last card
+				if stepped and seen[k][1] != seen[k - 1][1] + 1 + win_gap:
 					ok = false  # a new step must be exactly one more
-				if not stepped and seen[k][1] != seen[k - 1][1]:
-					ok = false  # the same step keeps its number
+				if not stepped and seen[k][0] != 0 and seen[k][1] != seen[k - 1][1]:
+					ok = false  # the same step keeps its number (step 0 has several cards, each its own slide)
+				if not stepped and seen[k][0] == 0 and seen[k][1] != seen[k - 1][1] + 1 and seen[k][3] != seen[k - 1][3]:
+					ok = false  # a new card of step 0 is one more
 			if seen[k][1] > seen[k][2]:
 				ok = false
 		check(ok and seen[-1][1] == seen[-1][2], tag + "counter runs 1, 2, 3 ... without repeat or jump and ends on k of k", detail)
@@ -1616,6 +1630,11 @@ func _test_tut_full_walk() -> void:
 				if key != last_key and m.tut_card.visible and parts.size() == 2:
 					last_key = key
 					rows.append([m._tut_id(m.tut_step), int(parts[0]), int(parts[1]), m.tut_step, m.tut_skip_btn.visible and m.tut_skip_btn.is_visible_in_tree(), m.tut_finish_btn.visible and m.tut_finish_btn.is_visible_in_tree()])
+				if m.tut_step == m.TUT_GUIDE.size() - 1 and m.tut_win != null:
+					m.tut_win.closed.emit()  # the Planet icons window comes first; close it to reach the last card
+					await process_frame
+					await process_frame
+					continue
 				if m.tut_step == m.TUT_GUIDE.size() - 1:
 					break
 				match m.tut_step:
@@ -1681,7 +1700,7 @@ func _test_tut_full_walk() -> void:
 							_click_at(m.skill_screen.node_buttons[best].get_global_rect().get_center())
 							for k in 3:
 								await process_frame
-							_click_at(m.skill_screen.learn_button.get_global_rect().get_center())
+							m.learn_skill(best)  # learning is hold-to-learn now (no Learn button); the walk calls the same entry point
 						for k in 3:
 							await process_frame
 						if m.skill_screen.visible:
@@ -1703,12 +1722,12 @@ func _test_tut_full_walk() -> void:
 			var skips_ok := true
 			for r in rows:
 				var new_step: bool = r[3] != step_prev
-				if new_step and r[1] != n_prev + 1 and not (r[3] == 0 and step_prev == -1):
+				if new_step and r[1] != n_prev + 1 + (1 if r[3] == m.TUT_GUIDE.size() - 1 else 0) and not (r[3] == 0 and step_prev == -1):  # the window slide sits before the last card
 					ok = false
-				if not new_step and r[1] != n_prev:
+				if not new_step and r[1] != n_prev and r[3] != 0:
 					ok = false
-				if r[3] == 0 and r[1] != 1:
-					ok = false  # slide 1 is one slide: flight, speed, build, wait, Yay and Voltara cards all read 1
+				if not new_step and r[3] == 0 and r[1] != n_prev + 1:
+					ok = false  # every card of step 0 (flight, speed, travel, wait, Yay, Voltara) is its own slide: one more each
 				if r[1] > r[2] or r[2] > t_prev:
 					ok = false
 				if r[3] != m.TUT_GUIDE.size() - 1 and (not r[4] or r[5]):
@@ -1761,7 +1780,7 @@ func _check_upkeep_highlight(m: Control, tag: String, cbr: Rect2) -> void:
 			covers = true
 	check(m.tut_hl.visible and fr.grow(1.0).encloses(hl) and covers, tag + "T333b: the outline sits inside the forecast panel and covers a Ship upkeep line", str([hl, fr, lines]))
 	check(not hl.is_equal_approx(cbr) and not hl.intersects(cbr), tag + "T333b: the outline is not the cash box", str([hl, cbr]))
-	var tip: Vector2 = m._tut_target_rect("expenses", m.cash_box).get_center()
+	var tip: Vector2 = m._tut_arrow_point("expenses", m.cash_box)
 	var inside := false
 	for lr in lines:
 		if (lr as Rect2).has_point(tip):
@@ -1783,7 +1802,7 @@ func _test_tut_skills_card() -> void:
 		for i in 4:
 			await process_frame
 		m.skill_points = 0 if mode == "nopoint" else 3
-		m.tut_step = 9 if mode == "nopoint" else 10
+		m.tut_step = 10  # (Grow, step 9, now waits for a world to reach tier 2, so the no-point case starts at Skills)
 		m._tut_sig = []
 		for i in 4:
 			await process_frame
@@ -1811,9 +1830,10 @@ func _test_tut_skills_card() -> void:
 			if id.begins_with("FND_") and ss.node_state(m.learned_skills, m.skill_points, m.balance, id) == "learnable" and m.skill_lock_reason(id) == "":
 				if best == "" or SkillTree.cost(m.balance, id) < SkillTree.cost(m.balance, best):
 					best = id
+		await create_timer(1.2).timeout  # the window's intro animation moves the nodes for a moment
 		var nr: Rect2 = ss.node_buttons[best].get_global_rect()
 		var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
-		check(best != "" and m.tut_hl.visible and hl.is_equal_approx(nr), tag + "window open: the outline is the cheapest learnable Foundation (%s)" % best, str([hl, nr]))
+		check(best != "" and m.tut_hl.visible and hl.position.distance_to(nr.position) < 1.5 and hl.size.distance_to(nr.size) < 1.5, tag + "window open: the outline is the cheapest learnable Foundation (%s)" % best, str([hl, nr]))
 		check(m.tut_arrow.visible and nr.grow(8.0).has_point(m.tut_arrow.position), tag + "window open: the arrow tip is on that node", str([m.tut_arrow.position, nr]))
 		var cr: Rect2 = m.tut_card.get_global_rect()
 		var clash := ""
@@ -1826,7 +1846,8 @@ func _test_tut_skills_card() -> void:
 		for i in 3:
 			await process_frame
 		check(ss.selected == best, tag + "clicking the lit node selects it", ss.selected)
-		_click_at(ss.learn_button.get_global_rect().get_center())
+		ss._hold_start(best)  # learning is a long press on the node (the same entry the button_down signal calls)
+		await create_timer(ss.HOLD_SECONDS + 0.2).timeout
 		for i in 4:
 			await process_frame
 		check(m.has_skill(best) and m.tut_step > 10, tag + "learning it advances the step", str([m.learned_skills, m.tut_step]))
@@ -1855,7 +1876,7 @@ func _test_tut_speed_card() -> void:
 				m._on_fly_establish_requested(str(map.planets[m.tut_fly_target()].get("id", "")))  # the menu entry's handler
 				for k in 4:
 					await process_frame
-				check(m._tut_g0_id() == "TUT_G0_FLY" and m.tutorial_label.text == speed_text, tag + "T334: the speed card shows right after the establish order, before arrival", m.tutorial_label.text)
+				check(m._tut_g0_id() == "TUT_G0_TRAVEL" and m.tutorial_label.text == speed_text, tag + "T334: the speed card shows right after the establish order, before arrival", m.tutorial_label.text)
 				check(not m.paused, tag + "T334: the clock runs (order accepted)")
 				m.set_paused(false)
 				# the ship arrives and builds while the card is up: it stays, the arrival cards wait behind it
@@ -1878,7 +1899,7 @@ func _test_tut_speed_card() -> void:
 			for k in 4:
 				await process_frame
 			check(m.tut_step == 0 and m.tutorial_label.text == speed_text, tag + "the speed card shows right after slide 1 (T334: right after the order with discovery)", m.tutorial_label.text)
-			check(m.tut_count.text.begins_with("1 of "), tag + "it counts as slide 1", m.tut_count.text)
+			check(m.tut_count.text.begins_with("2 of "), tag + "it counts as slide 2 (every card is one slide)", m.tut_count.text)
 			check(m.tut_next.is_visible_in_tree(), tag + "Next shows on the speed card")
 			var row: Rect2 = m.speed_buttons[0].get_global_rect()
 			for b in m.speed_buttons:
@@ -1964,23 +1985,25 @@ func _test_tut_sell_and_order() -> void:
 			for i in 6:
 				await process_frame
 		check(m.selected_planet == a and m.planet_panel.visible and m.tutorial_label.text == sell_text, tag + "the end world's panel is open on the Sell card")
-		var sb: Button = null
-		for n in m.planet_panel.find_children("*", "Button", true, false):
-			if n.name == "PaysSellButton" and n.is_visible_in_tree():
-				sb = n
-		check(sb != null, tag + "the route line has a Sell button at the end world")
+		var sb: Button = m._tut_sell_node() as Button  # the route line has no Sell button now: the good's resource button is the Sell control
+		check(sb != null and sb.name == "BuyButton_energy", tag + "the end world's Sell control is the route good's resource button")
 		if sb != null:
 			var rect: Rect2 = sb.get_global_rect()
 			var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
-			check(m._tut_highlight_key() == "sell" and m.tut_hl.visible and hl.is_equal_approx(rect), tag + "the outline is the Sell button", str([hl, rect]))
+			check(m._tut_highlight_key() == "sell" and m.tut_hl.visible and hl.position.distance_to(rect.position) < 1.5 and hl.size.distance_to(rect.size) < 1.5, tag + "the outline is the Sell button (the resource button breathes by under a pixel)", str([hl, rect]))
 			var tip: Vector2 = m.tut_arrow.global_position
-			check(m.tut_arrow.visible and tip.y >= rect.position.y - 1.0 and tip.y <= rect.end.y + 1.0 and absf(tip.x - rect.get_center().x) <= rect.size.x * 0.5 + 40.0, tag + "the arrow points at the Sell button", str([tip, rect]))
+			check(m.tut_arrow.visible and tip.y >= rect.position.y - 1.0 and tip.y <= rect.end.y + 1.0 and absf(tip.x - m.planet_panel.get_global_rect().end.x) <= 8.0, tag + "the arrow points at the Sell button from the panel edge, level with it", str([tip, rect]))
 			var rb := m.planet_panel.find_child("BuyButton_energy", true, false) as Control
-			check(rb == null or not hl.intersects(rb.get_global_rect()), tag + "the outline is not the resource button", str([hl]))
-			_click_at(rect.get_center())
+			check(rb == null or rb == sb, tag + "the outline is the good's resource button", str([hl]))
+			_rclick_at(rect.get_center())  # the card says: right-click Energy, choose Sell
+			await process_frame
+			var smenu := sb.get_node_or_null("ContextMenu_energy") as PopupMenu
+			check(smenu != null and smenu.visible and not smenu.is_item_disabled(smenu.get_item_index(m.planet_panel.MENU_SELL)), tag + "right-click on the outlined button opens the menu with Sell enabled")
+			if smenu != null:
+				smenu.id_pressed.emit(m.planet_panel.MENU_SELL)  # the menu's own signal; popups have no hit test headless
 			for i in 6:
 				await process_frame
-			check(m.engine.local_on(a, "energy", "sell"), tag + "a real click on the outlined button turns Sell on")
+			check(m.engine.local_on(a, "energy", "sell"), tag + "choosing Sell turns the Sell order on")
 			check(m.tut_step >= 7, tag + "the guide moves on", str(m.tut_step))
 		await _free_main(m)
 	# speed card ordering with discovery: order -> speed card -> (Next) -> arrival cards -> Yay -> Voltara
@@ -1991,12 +2014,12 @@ func _test_tut_sell_and_order() -> void:
 	m2._on_fly_establish_requested(str(m2.map.planets[m2.tut_fly_target()].get("id", "")))
 	for i in 4:
 		await process_frame
-	check(m2.tutorial_label.text == speed_text and m2.tut_count.text.begins_with("1 of "), "T334 order: the speed card right after the order, counted as slide 1", m2.tutorial_label.text)
+	check(m2.tutorial_label.text == speed_text and m2.tut_count.text.begins_with("2 of "), "T334 order: the speed card right after the order, counted as slide 2", m2.tutorial_label.text)
 	_click_at(m2.tut_next.get_global_rect().get_center())
 	for i in 4:
 		await process_frame
 	check(m2.tutorial_label.text != speed_text and m2.tut_step == 0, "T334 order: Next ends the speed card", m2.tutorial_label.text)
-	check(m2._tut_g0_id() == "TUT_G0_FLY" and m2.tutorial_label.text != speed_text, "T334 order: after Next the flight is still under way and the arrival cards are still ahead", m2.tutorial_label.text)
+	check(m2._tut_g0_id() == "TUT_G0_TRAVEL" and m2.tutorial_label.text != speed_text, "T334 order: after Next the flight is still under way and the arrival cards are still ahead", m2.tutorial_label.text)
 	m2.flight.finish_flight()
 	m2.debug_establish_now(str(m2.map.planets[m2.tut_fly_target()].get("id", "")))
 	for i in 4:
@@ -2156,6 +2179,11 @@ func _test_tutorial_steps() -> void:
 	check(m.tut_step == 10, "tutorial steps: skills waits until a skill is learned")
 	m.tut_step = 12
 	m.tut_goal_t = 0.0
+	m.tut_win_seen = {}
+	m._tut_show()
+	m._tut_tick(0.0)  # the Planet icons window opens first and holds the last card back
+	check(m.tut_win != null and not m.tut_card.visible, "tutorial steps: the window comes before the last card")
+	m._tut_win_close(true)  # then the last card and its timer
 	m._tut_show()
 	m._tut_tick(m.TUT_LAST_SECS - 1.0)
 	check(m.tut_step == 12, "tutorial steps: last step stays before its time is up")
@@ -2166,6 +2194,7 @@ func _test_tutorial_steps() -> void:
 	m._tut_tick(100.0)
 	check(m.tut_step == 2, "tutorial steps: the timer only runs on the last step")
 	_test_tutorial_t316(m)
+	_test_tutorial_numbering(m)
 	_test_tip_spacing(m)
 	m.debug_restart_tutorial()
 	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
@@ -2384,7 +2413,7 @@ func _test_main() -> void:
 	m._end_cycle()
 	await process_frame
 	check(not m.game_over and bz.complete() and bz.opening_pending and m.gigs.has_opening(), "opening: the last stage posts the Opening gig, it does not win by itself")
-	check(bz.wing_pending == 2 and bz.wing_options(1).size() == 2 and bz.wing_options(4).is_empty(), "wings: two options for a listed stage, none for the last")
+	check(bz.wing_pending == 2 and bz.wing_options(2).size() == 2 and bz.wing_options(1).size() == 1 and bz.wing_options(4).is_empty(), "wings: a stage with two options asks for a pick; a stage left with one wing and the last stage offer none")
 	m.balance["bazaar_wing_wing_2a"] = 10
 	check(bz.choose_wing(0) and bz.wings == ["WING_2A"] and Bazaar.wing_bonus("tax_pct") == 10.0 and not bz.choose_wing(0), "wings: a pick is kept and its balance amount counts")
 	var rc := bz.recap()
@@ -2399,8 +2428,8 @@ func _test_main() -> void:
 	await process_frame
 	m.event_notice.confirmed.emit(-1)
 	await process_frame
-	var fam := "END_%s_GOOD" % (m.run_branch() if m.run_branch() != "" else str(Markets.ids[0])).to_upper()
-	check(m.game_over and bz.complete() and bz.opened and ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == fam, "win: the last stage wins with the branch family", str(ended))
+	var fam := "END_%s_" % (m.run_branch() if m.run_branch() != "" else str(Markets.ids[0])).to_upper()
+	check(m.game_over and bz.complete() and bz.opened and ended.size() == 1 and ended[0][0] == "WIN" and str(ended[0][1]).begins_with(fam), "win: the last stage wins with the branch family", str(ended))
 	check(m.end_screen != null and _stats_runs() == 1, "win: end screen shown, run recorded once")
 	check(not FileAccess.file_exists("user://autosave.json"), "win: save cleared")
 	m._continue_free_play()
@@ -2429,15 +2458,16 @@ func _test_main() -> void:
 	_wipe_user()
 	m = await _new_main()
 	m._dismiss_preface()
-	var salvage := floori(float(bal["salvage_share"]) * float(bal["ship_price"]))
+	var salvage := floori(float(bal["salvage_share"]) * float(ShipsT.price(ShipsT.fleet, bal)))  # the fleet type's base price
 	m.ships = 2
 	m.cash = -500
 	m.cycle = 3
+	var idle5: int = m.engine.idle_ship_cost()  # both ships sit on no route and pay ship_idle_upkeep before the repossession
 	m.prosperity.balance["prosperity_tax_t1"] = 0  # T258: tax is its own test below
 	var ended5 := []
 	m.run_ended.connect(func(side, id): ended5.append([side, id]))
 	m._end_cycle()
-	check(m.ships == 1 and m.cash == -500 + salvage and not m.game_over, "bankrupt: one ship repossessed, salvage_share x ship_price credited, no stipend that cycle", "%d %d" % [m.ships, m.cash])
+	check(m.ships == 1 and m.cash == -500 + salvage - idle5 and not m.game_over, "bankrupt: one ship repossessed, salvage_share x ship_price credited, no stipend that cycle", "%d %d" % [m.ships, m.cash])
 	check(m.rescues_paid == 0 and m.repossessions == 1, "bankrupt: counters (no rescue paid, one repossession)")
 	m.cash = -(salvage + 100)
 	m._end_cycle()
@@ -2451,8 +2481,9 @@ func _test_main() -> void:
 	m.cash = -100
 	m.cycle = 3
 	m.prosperity.balance["prosperity_tax_t1"] = 0
+	var idle1: int = m.engine.idle_ship_cost()
 	m._end_cycle()
-	check(not m.game_over and m.ships == 0 and m.cash == salvage - 100, "bankrupt: debt covered by salvage keeps the run alive", "%d %d" % [m.ships, m.cash])
+	check(not m.game_over and m.ships == 0 and m.cash == salvage - 100 - idle1, "bankrupt: debt covered by salvage keeps the run alive", "%d %d" % [m.ships, m.cash])
 	await _free_main(m)
 	# the newest route's ship goes first
 	m = await _new_main()
@@ -2688,8 +2719,8 @@ func _test_skill_screen_ui() -> void:
 	Skills.learned.append_array(FND3)
 	m.skill_screen.select("MIL_1")
 	check(m.skill_screen.confirm_row_absent(), "skill screen: no separate confirm step")
-	m.skill_screen.learn_button.pressed.emit()
-	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text == SkillTree.skill_name("MIL_1"), "skill screen: Learn button learns in one click, spends points; the node shows only its name")
+	m.skill_screen.confirm_learn()
+	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text == SkillTree.skill_name("MIL_1"), "skill screen: learning the selected node spends points (hold-to-learn calls the same entry); the node shows only its name")
 	Skills.learned.append_array(["MIL_3", "MIL_5"])
 	m.skill_screen.refresh()
 	check(m.skill_screen.use_rows["MIL_5"].visible and m.skill_screen.use_buttons.has("MIL_5"), "skill screen: learned bot skill shows its Use menu")
@@ -2752,35 +2783,44 @@ func _check_skill_blocks(sk, label: String) -> void:
 	var fnd_bottom := -1.0
 	var mkt_top := 1.0e9
 	var all_in := true
+	var offender := ""
+	var hsb: HScrollBar = sk.tree_scroll.get_h_scroll_bar()
+	var h_scrolls: bool = hsb.max_value > hsb.page + 1.0
 	var scroll_rect: Rect2 = sk.tree_scroll.get_global_rect()
 	var tree_rect: Rect2 = sk._tree.get_global_rect()
 	for id in SkillTree.all_ids():
 		if not sk.node_buttons.has(id):
 			continue
 		var r: Rect2 = (sk.node_buttons[id] as Control).get_global_rect()
-		if not tree_rect.encloses(r.grow(-1.0)) or r.position.x < scroll_rect.position.x - 1.0 or r.end.x > scroll_rect.end.x + 1.0:
+		if not tree_rect.encloses(r.grow(-1.0)) or (not h_scrolls and (r.position.x < scroll_rect.position.x - 1.0 or r.end.x > scroll_rect.end.x + 1.0)):  # a tree wider than the window scrolls sideways
 			all_in = false
+			if offender == "":
+				offender = "%s %s tree %s scroll %s" % [id, r, tree_rect, scroll_rect]
 		if id.begins_with("FND_"):
 			fnd_bottom = maxf(fnd_bottom, r.end.y)
 		else:
 			mkt_top = minf(mkt_top, r.position.y)
 	check(fnd_bottom > 0.0 and fnd_bottom <= mkt_top, "skill blocks (%s): Foundations nodes sit above every market node" % label, "%s %s" % [fnd_bottom, mkt_top])
-	check(all_in, "skill blocks (%s): every node button is inside the scrolled tree, within the scroll width" % label)
+	check(all_in, "skill blocks (%s): every node button is inside the scrolled tree, within the scroll width" % label, offender)
 	var ends_ok := true
 	var n_links := 0
-	for id in sk.cells:
-		for p in SkillTree.prereqs(id):
-			if not sk.cells.has(p):
-				continue
-			n_links += 1
-			var e: Array = sk.link_ends(p, id)
-			var o: Vector2 = tree_rect.position
-			var ra: Rect2 = (sk.node_buttons[p] as Control).get_global_rect()
-			var rb: Rect2 = (sk.node_buttons[id] as Control).get_global_rect()
-			if absf((e[0] as Vector2).x + o.x - (ra.position.x + ra.size.x * 0.5)) > 1.0 or absf((e[1] as Vector2).x + o.x - (rb.position.x + rb.size.x * 0.5)) > 1.0:
-				ends_ok = false
-			if (e[0] as Vector2).y + o.y < ra.end.y - 1.0 or (e[0] as Vector2).y + o.y > ra.end.y + 70.0 or absf((e[1] as Vector2).y + o.y - rb.position.y) > 1.0:
-				ends_ok = false
+	var rects := {}  # tree-local rect of every visible node cell, as the link drawing reads them
+	var origin: Vector2 = tree_rect.position
+	for cid in sk.cells:
+		var cc: Control = sk.cells[cid]
+		if cc.is_visible_in_tree():
+			var cr := cc.get_global_rect()
+			rects[cid] = Rect2(cr.position - origin, cr.size)
+	sk._route_links(rects)  # T365: links are routed polylines (link_ends is gone)
+	for rt in sk._routes:
+		n_links += 1
+		var pts: PackedVector2Array = rt["pts"]
+		var ra: Rect2 = rects[rt["p"]]
+		var rb: Rect2 = rects[rt["id"]]
+		var below: bool = absf(pts[0].x - (ra.position.x + ra.size.x * 0.5)) <= 1.0 and absf(pts[0].y - ra.end.y) <= 1.0 and absf(pts[pts.size() - 1].x - (rb.position.x + rb.size.x * 0.5)) <= 1.0 and absf(pts[pts.size() - 1].y - rb.position.y) <= 1.0
+		var side: bool = pts.size() == 2 and absf(pts[0].y - pts[1].y) <= 1.0 and (absf(pts[0].x - ra.end.x) <= 1.0 or absf(pts[0].x - rb.end.x) <= 1.0)
+		if not (below or side):
+			ends_ok = false
 	check(n_links > 0 and ends_ok, "skill blocks (%s): link end points sit on the prerequisite and node buttons" % label, str(n_links))
 
 func _node_text_has(n: Node, text: String) -> bool:
@@ -2970,6 +3010,7 @@ func _test_skills_core() -> void:
 	var fab = preload("res://game/fabric.gd").new()
 	fab.setup(bal)
 	fab.built = true
+	fab.on = true  # production starts off
 	var st2 := Storage.new()
 	st2.setup(bal, 2, ["dross", "nullglass", "plate", "energy"])
 	var fkey := Storage.system_key(1)
@@ -3093,7 +3134,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 22 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION >= 22 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -3116,7 +3157,7 @@ func _bal() -> Dictionary:
 func _mean_sell(good: String) -> int:
 	var vals := []
 	var all_planets: Array = _read_json("res://data/planets.json")["planets"].duplicate(true)
-	for sy in _read_json("res://data/systems.json")["systems"]:
+	for sy in _read_json("res://data/systems.json")["systems"] + _read_json("res://data/systems_placeholder.json").get("systems", []):
 		all_planets.append_array(sy["planets"].duplicate(true))
 	for pl in all_planets:
 		Goods.merge_prices(pl)  # goods.json prices count like the data files
@@ -3179,7 +3220,7 @@ func _test_markets() -> void:
 		for m in Markets.ids:
 			if Markets.goods_of[m].has(g):
 				n += 1
-		if g == "energy":  # the shared good belongs to no market (T239)
+		if g == "energy" or g == "cask":  # the shared good and the branch-free Vault Cask belong to no market (T239)
 			if n != 0 or Markets.market_of(g) != "":
 				all_one = false
 		elif n != 1 or Markets.market_of(g) == "":
@@ -3189,10 +3230,10 @@ func _test_markets() -> void:
 	var total := 0
 	for m in Markets.ids:
 		total += Markets.goods_of[m].size()
-	check(total == goods.size() - 1, "markets: no good listed twice or left out", str(total))
+	check(total == goods.size() - 2, "markets: no good listed twice or left out (energy and cask have no market)", str(total))
 	var base_ok := true
 	for g in goods:
-		if g != "energy" and (Markets.value_of(g) != _mean_sell(g) or Markets.value_of(g) <= 0):
+		if g != "energy" and g != "cask" and (Markets.value_of(g) != _mean_sell(g) or Markets.value_of(g) <= 0):
 			base_ok = false
 	check(base_ok, "markets: base_value is the rounded mean of <good>_sell over the planets")
 	check(Markets.is_common("energy") and not Markets.is_common("food") and not Markets.is_common("ore") and not Markets.is_common("silk"), "markets: energy is the only common raw")
@@ -3334,6 +3375,7 @@ func _test_rescue_waiting() -> void:
 	m._check_stranded()
 	check(m.cash == 1, "rescue: a running route means no rescue")
 	rec["state"] = "stalled"
+	m.last_net = -1  # the stipend is earned: it needs a cycle that lost cash (2026-11-12)
 	m._check_stranded()
 	check(m.cash == 1 + stip, "rescue: only stalled routes count as not running")
 	# stall fix: two running routes, cash above one trip but below both fixed costs, flat for 2 cycles
@@ -3359,9 +3401,9 @@ func _test_rescue_waiting() -> void:
 	check(m.cash == fixed * 2 + 1, "rescue: cash covering all routes' fixed cost is not rescued")
 	# ship cash floor: after the price, cash must cover every open route's fixed cost
 	m.ships = 2
-	m.cash = int(bal["ship_price"]) + fixed * 2 - 1
+	m.cash = m.ship_price() + fixed * 2 - 1  # the price steps with the fleet size and ship type
 	check(not m.can_buy_ship()["ok"] and m.can_buy_ship().get("floor", false), "ship floor: refused when cash after price < routes x fixed cost")
-	m.cash = int(bal["ship_price"]) + fixed * 2
+	m.cash = m.ship_price() + fixed * 2
 	check(m.can_buy_ship()["ok"], "ship floor: allowed at exactly the floor")
 	e.routes = [rec]
 	rec["state"] = "running"
@@ -3393,7 +3435,8 @@ func _test_rescue_waiting() -> void:
 	var before: int = st.amount(a_key, c)
 	r = e.settle(5000)
 	check(before - st.amount(a_key, c) == 3 and rec["state"] == "running", "T70: partial load moves only what fits and keeps running")
-	check(int(r["upkeep"]) == e.upkeep_part() and int(r["gross"]) == int(r["delta"]) + e.upkeep_part(), "T69: settle reports upkeep and gross")
+	var up_exp: int = e.upkeep_part(rec) + e.idle_ship_cost()  # the route's ship plus ships on no route (ship_idle_upkeep)
+	check(int(r["upkeep"]) == up_exp and int(r["gross"]) == int(r["delta"]) + up_exp, "T69: settle reports upkeep and gross")
 	e.local.clear()
 	e.routes = [rec]
 	var other: Dictionary = e.new_record(1, 0, c)
@@ -3579,7 +3622,7 @@ func _test_events() -> void:
 			check(m.events.is_minor(str(e["id"])) == is_price, "icons: classification of " + str(e["id"]))
 	for id in ["EV17", "EV20", "EV07", "EV08", "EV09"]:
 		check(major_ids.has(id), "icons: %s is important" % id)
-	for id in ["EV01", "EV02", "EV24"]:
+	for id in ["EV01", "EV02", "EV40"]:  # EV24 names a system 2 planet: it resolves to no effect while only system 1 is in the run
 		check(minor_ids.has(id), "icons: %s is minor" % id)
 	for sid in Chains.step_ids():
 		check(not m.events.is_minor(sid), "icons: chain step %s is important" % sid)
@@ -3668,27 +3711,22 @@ func _test_events() -> void:
 			seen20 = true
 	check(seen20, "events gate: gated event can be picked at min_cycle")
 	# good gate: no silk event while no open planet trades silk
-	var silk_ids: Array = []
-	for d in m.events.defs:
-		if str(m.events.effect_of_event(str(d["id"])).get("c", "")) == "silk":
-			silk_ids.append(str(d["id"]))
-	var silk_early := false
-	for i in 400:
-		if silk_ids.has(m.events.random_id([], 13)):
-			silk_early = true
-	check(silk_ids.size() >= 2 and not silk_early and not m.events.available(silk_ids[0], 13), "events good gate: no silk event while only system 1 is open", str(silk_ids))
+	# The shipped silk events name system 2 planets (s2_p1, s2_p4) that do not exist in a system 1 run, so the gate is
+	# tested with a probe event on planet_2 (a lux run: silk is a Luxury good).
+	m._set_run_choice("", "", "lux")
+	m.events.by_id["T_SILK"] = {"id": "T_SILK", "pool_effect": {"type": "price_pct", "planet": "planet_2", "good": "silk", "direction": "up"}}
+	check(not m.events.available("T_SILK", 13) and not m.events.good_available("T_SILK"), "events good gate: no silk event while only system 1 is open")
 	m.events.planets[1]["base_prices"]["silk_buy"] = 20
 	var had_sys2: bool = m.open_systems.has(2)
 	if not had_sys2:
 		m.open_systems.append(2)  # availability: silk shows (and its events may fire) only once system 2 is open
-	var silk_seen := false
-	for i in 600:
-		if silk_ids.has(m.events.random_id([], 13)):
-			silk_seen = true
+	var silk_ok: bool = m.events.available("T_SILK", 13)
 	m.events.planets[1]["base_prices"].erase("silk_buy")
 	if not had_sys2:
 		m.open_systems.erase(2)
-	check(silk_seen and m.events.available(silk_ids[0], 13) == false, "events good gate: silk event can be picked once an open planet trades silk")
+	m.events.by_id.erase("T_SILK")
+	m._set_run_choice("", "", "")
+	check(silk_ok, "events good gate: silk event can be picked once an open planet trades silk")
 	m.events.by_id["EV20"].erase("min_cycle")
 	m.debug_force_event = true
 	m.cycle = 1
@@ -3726,7 +3764,9 @@ func _test_good_info() -> void:
 			continue
 		var tt := tb.tooltip_text
 		check(tt.contains(StoryText.get_text("GOOD_" + c.to_upper() + "_DESC")), "good info: %s tooltip has the description" % c, tt)
-		check(tt.contains(StoryText.get_or("LBL_GOOD_MARKET", "{market} market.", {"market": StoryText.get_or("SK_TAB_" + str(Goods.entry(c).get("market", "")).to_upper(), "")})), "good info: %s tooltip has the market line" % c, tt)
+		var mk := str(Goods.entry(c).get("market", ""))  # energy is the one shared good: it belongs to no market, so no market line
+		var mline := StoryText.get_or("LBL_GOOD_MARKET", "{market} market.", {"market": StoryText.get_or("SK_TAB_" + mk.to_upper(), mk.capitalize())})
+		check(tt.contains(mline) if mk != "" else not tt.contains(" market."), "good info: %s tooltip has the market line (none for a good with no market)" % c, tt)
 		check(tt.contains(StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")), "good info: %s tooltip keeps its existing lines" % c, tt)
 		check(Availability.names_hidden_good(tt) == "", "good info: %s tooltip names no hidden good" % c, tt)
 		for ws in ["smelter", "munitions", "atelier", "culture_lab"]:
@@ -3807,13 +3847,13 @@ func _test_next_cycle() -> void:
 	e.local.clear()
 	m.planet_panel.show_planet(0)
 	var bt0 := m.planet_panel.find_child("BuyButton_" + c, true, false) as Button
-	check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null and bt0 != null and not bt0.tooltip_text.contains("Next cycle"), "next cycle: no panel line, no tooltip text when in and out are both 0")
+	check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null and bt0 != null and not bt0.tooltip_text.contains("Next cycle"), "next cycle: no panel line, no Next cycle tooltip text (the tooltip only states what the world offers each cycle)")
 	var o2: Dictionary = m.set_local_order(0, c, "sell", true)
 	if o2["ok"]:
 		m.planet_panel.show_planet(0)
 		var bt1 := m.planet_panel.find_child("BuyButton_" + c, true, false) as Button
 		check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null, "next cycle: no separate line in the panel")
-		check(bt1 != null and bt1.tooltip_text.contains("Next cycle"), "next cycle: the resource button tooltip shows it with a sell order and stock", str(bt1.tooltip_text if bt1 != null else ""))
+		check(bt1 != null and bt1.tooltip_text.contains("Available each cycle"), "next cycle: the resource button tooltip shows it with a sell order and stock", str(bt1.tooltip_text if bt1 != null else ""))
 	await _free_main(m)
 
 ## Ship types and CEOs (goal ship-ceo-skills-resources): multipliers, stats, perks, floor, save round-trip, old save.
@@ -4010,7 +4050,7 @@ func _test_ships() -> void:
 	for tx in texts:
 		if str(tx).begins_with("Buy a ship"):
 			buy_btn = true
-	check(not buy_btn and texts.has(StoryText.get_text("BTN_REMOVE")), "planet panel: no Buy ship button, ships have their own Remove")
+	check(not buy_btn and texts.has("\u2212") and texts.has("+"), "planet panel: no Buy ship button, the lane has its own + and \u2212 ship buttons (the per-ship Remove is gone)", str(texts))
 	var buys := 0
 	var sends := 0
 	var combined := 0
@@ -4032,14 +4072,14 @@ func _test_ships() -> void:
 	check(combined == 0 and buys == traded_n and sends == 0, "T141 planet panel: one Buy toggle per resource, Send to... only in the right-click menu, no combined button")
 	# T143: each route row says where its money lands, with a control to turn the destination Sell order on
 	var pays := _find_named(m.planet_panel, "PaysLine")
-	check(pays != null and _find_named(pays, "PaysSellButton") != null, "T143: route row has a pays line with a Sell control while the destination Sell is off")
+	check(pays == null and _find_named(m.planet_panel, "LaneShips") != null, "T143: owner 2026-11-13: a lane has one status line (LaneShips), no pays dot; the Sell order is the good's own resource button")
 	var dst: int = int(e.routes[0]["b"])
 	check(not m.engine.local_on(dst, c, "sell"), "T143: destination Sell starts off")
-	(_find_named(pays, "PaysSellButton") as Button).pressed.emit()
-	check(m.engine.local_on(dst, c, "sell"), "T143: the control turns the destination Sell order on")
+	m.toggle_local(dst, c, "sell")  # the destination's own Sell toggle (what the pays dot pressed)
+	check(m.engine.local_on(dst, c, "sell"), "T143: the Sell toggle turns the destination Sell order on")
 	m.planet_panel.show_planet(0, int(e.routes[0]["id"]))
-	check(_find_named(m.planet_panel, "PaysSellButton") == null or _find_named(m.planet_panel, "PaysSellButton") != _find_named(pays, "PaysSellButton"), "T143: panel rebuilt after toggle")
-	m.cash = int(bal["ship_price"]) - 1
+	check(_find_named(m.planet_panel, "PaysSellButton") == null, "T143: still no pays dot after the toggle")
+	m.cash = m.ship_price() - 1  # the price steps with the fleet size
 	var rb2: Dictionary = m.send_stock_buying(1, 2, c)
 	check(not rb2["ok"] and m.ships == 2 and e.routes.size() == 2, "send: no free ship and no cash makes no route and buys nothing")
 	m.cash = 10000
@@ -4083,11 +4123,11 @@ func _test_ships() -> void:
 	check(pr_l != null and pr_l.get_parent() == buy_b and pr_l.text.contains(" / ") and not pr_l.text.contains(StoryText.get_text("BTN_BUY")) and not pr_l.text.contains(StoryText.get_text("BTN_SELL")) and not buy_b.text.contains(" 1"), "resource button: second row shows plain buy / sell numbers, row 1 has no price", str(pr_l.text if pr_l != null else ""))
 	m.planet_panel.show_planet(1)
 	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop") and bb.tooltip_text.contains("Buy order:"), "buy toggle: the resource button is pressed while the order is on, tooltip has the order state")
+	check(bb != null and bb.button_pressed and bb.tooltip_text.contains(StoryText.get_text("LBL_NOW_BUYING")), "buy toggle: the resource button is pressed while the order is on, tooltip has the order state (Currently being bought)")
 	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Buy order:")), "buy toggle: no Buy order status line in the panel")
 	var stop_n := 0
 	for b in _all_buttons(m.planet_panel):
-		if b.text == bb.text:
+		if str(b.name) == "BuyButton_" + c:  # the button itself has no text since the resource tile (name label, icon, prices inside)
 			stop_n += 1
 	check(stop_n == 1, "buy toggle: one button per resource", str(stop_n))
 	check(_find_named(m.planet_panel, "BuyGrid") != null and bb.get_parent().get_parent() == _find_named(m.planet_panel, "BuyGrid"), "buy table: resource buttons are cells of the BuyGrid")
@@ -4103,7 +4143,7 @@ func _test_ships() -> void:
 	m.planet_panel.show_planet(1)
 	bb = _find_named(m.planet_panel, "BuyButton_" + c) as Button
 	var bp_l := _find_named(bb, "Prices_" + c) as Label
-	check(bb.text == Ui.good_name(c) and bp_l != null and bp_l.text.contains(str(m.map.planets[1]["base_prices"][c + "_buy"])) and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads the resource name with its icon, row 2 has the buy price")
+	check(bb.tooltip_text.begins_with(Ui.good_name(c)) and bp_l != null and bp_l.text.contains(str(m.map.planets[1]["base_prices"][c + "_buy"])) and not bb.button_pressed and bb.icon != null, "buy toggle: the button shows its icon (the name is the tooltip's bold first line), row 2 has the buy price")
 	m._on_buy_send(c)
 	check(e.local_on(1, c, "buy"), "buy toggle: pressing a third time buys again")
 	m.set_local_order(1, c, "buy", false)
@@ -4153,9 +4193,9 @@ func _test_ships() -> void:
 	m.set_paused(false)
 	check(m.time_speed == 6.0 and m.collect_state()["time_speed"] == 6.0, "T123: speed survives pause and resume, is saved")
 	m.set_speed(7.0)
-	check(m.time_speed == 1.0, "T123: bad speed becomes 1x")
-	m.apply_state({"time_speed": 12.0})
-	check(m.time_speed == 12.0, "T123: speed restored on load")
+	check(m.time_speed == m.SPEED_BASE, "T123: bad speed becomes 1x")
+	m.apply_state({"time_speed": m.SPEEDS[3]})  # the fastest of the four (shown 12x)
+	check(m.time_speed == m.SPEEDS[3], "T123: speed restored on load")
 	await _free_main(m)
 	_wipe_user()
 
@@ -4201,7 +4241,7 @@ func _test_systems() -> void:
 	for p in m.Systems.planets_of(2):
 		names.append(p["name"])
 	check(names == ["Brannock", "Cindrel", "Mossfell", "Quillon", "Greywake"], "sys2: planet names from story ids", str(names))
-	check(m.commodities == ["energy", "food", "ore", "dross", "plate", "powder", "blooms", "rivets", "rounds", "arms", "attar", "gems", "ingot", "alloy", "medicine", "seed", "musk", "spores"], "sys2: system 1 goods at start (silk and chips are system 2 goods since system tiers)", str(m.commodities))
+	check(m.commodities == ["energy", "food", "ore", "dross", "plate", "powder", "blooms", "rivets", "rounds", "arms", "attar", "gems", "ingot", "alloy", "medicine", "seed", "musk"], "sys2: system 1 goods at start (silk, chips and spores are system 2 goods since system tiers)", str(m.commodities))
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs FND_PERMIT")
 	m._refresh()
@@ -4956,11 +4996,13 @@ func _test_route_tag() -> void:
 	m.idle_cycles = {rid0: 2}
 	m.planet_panel.show_planet(0)
 	var texts := _labels(m.planet_panel, []).map(func(l): return l.text)
-	check(texts.has("No stock at source") and not texts.has("Waiting for room") and not texts.has("Waiting for room."), "reason: panel says No stock at source for an empty source, not Waiting for room")
+	var lane_st: Node = _find_named(m.planet_panel, "LaneStatus")  # 2026-11-13: the ship reasons are the lane status tooltip
+	check(lane_st != null and (lane_st as Label).tooltip_text == "No stock at source" and not texts.has("Waiting for room") and not texts.has("Waiting for room."), "reason: panel says No stock at source for an empty source, not Waiting for room", str(texts))
 	m.engine.routes[0]["state"] = "waiting"
 	m.engine.routes[0]["reason"] = "Waiting for room"
 	m.planet_panel.show_planet(0)
-	check(_labels(m.planet_panel, []).any(func(l): return l.text == "Waiting for room"), "reason: a waiting route still reads Waiting for room on the panel")
+	lane_st = _find_named(m.planet_panel, "LaneStatus")
+	check(lane_st != null and (lane_st as Label).tooltip_text == "Waiting for room", "reason: a waiting route still reads Waiting for room on the panel (lane status tooltip)")
 	await _free_main(m)
 
 ## Ship dots read the game's cycle clock: pause holds it, fast forward speeds it, one leg is one cycle.
@@ -5229,6 +5271,7 @@ func _test_stations() -> void:
 	m.planet_panel.visible = false
 	m._on_station_clicked(2)
 	check(m.space_post_open(2) and ssv.visible and ssv.system_id == 2 and not m.planet_panel.visible, "station view: click opens the Space Storage view, not the planet panel")
+	await create_timer(1.0).timeout  # the view slides in; it settles on the panel position
 	check(ssv.get_global_rect().position == m.planet_panel.get_global_rect().position and ssv.get_global_rect().position == Vector2(76, 76), "station view: docked at the planet panel's position", str(ssv.get_global_rect()))
 	check(ssv.get_global_rect().end.x <= root.get_visible_rect().size.x and ssv.get_global_rect().end.y <= root.get_visible_rect().size.y, "station view: fully on screen", str(ssv.get_global_rect()))
 	m._on_planet_clicked(0)
@@ -5421,7 +5464,7 @@ func _test_energy_then_food() -> void:
 	m.begin_buy_and_send("energy")
 	m._on_planet_clicked(1)
 	check(e.routes.size() == 1 and m.pending.is_empty(), "energy then food: energy route made, nothing pending")
-	m.cash = int(m.balance["ship_price"]) - 1  # one credit short of a second ship (start cash alone buys two at ship_price 900)
+	m.cash = m.ship_price() - 1  # one credit short of a second ship (the price steps with the fleet size and ship type)
 	m.selected_planet = 1
 	m.begin_buy_and_send("food")
 	m._on_planet_clicked(0)
@@ -5489,8 +5532,9 @@ func _test_mixed_load() -> void:
 	var key: String = m.storage.planet_key(0)
 	m.storage.ensure(key)
 	var goods: Array = []
+	var need_goods: Array = m.prosperity.needs(0).map(func(nd): return str(nd["good"]))  # a good the world needs is filled from storage first, not sold
 	for c in e.commodities:
-		if e.local_price(0, c, "sell") > 0:
+		if e.local_price(0, c, "sell") > 0 and not need_goods.has(c):
 			goods.append(c)
 	check(goods.size() >= 2, "N3: planet 0 buys at least two goods", str(goods))
 	if goods.size() < 2:
@@ -5601,7 +5645,7 @@ func _test_trade_gate() -> void:
 	m.planet_panel.show_planet(far)
 	var all_off := true
 	var lb = _find_named(m.planet_panel, "BuyButton_" + c)
-	if lb == null or not lb.disabled or not lb.tooltip_text.begins_with(m.trade_locked_reason()):
+	if lb == null or not lb.disabled or not lb.tooltip_text.contains(m.trade_locked_reason()):  # the first tooltip line is now the good name
 		all_off = false
 	var lm := _find_named(m.planet_panel, "ContextMenu_" + c) as PopupMenu
 	for id in [0, 1]:
@@ -5780,9 +5824,10 @@ func _test_asteroid_packs() -> void:
 	var pk_c: Vector3 = Vector3(float(c0["x"]), 0.0, float(c0["y"])) * ap.map_unit_scale
 	var pk_t: Vector3 = ap.tangent_of(c0)
 	var pk_r: float = float(c0["radius"]) * ap.map_unit_scale
-	var pk_in: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * 1.4))
-	var pk_out: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * 2.4))
-	check(pk_in == int(c0["index"]) and pk_out != int(c0["index"]), "Cluster ellipse: click area reaches 1.4 radii along the tangent but not 2.4", "%d %d" % [pk_in, pk_out])
+	var pk_stretch: float = float(c0["stretch"])  # the click area reaches stretch x radius along the tangent
+	var pk_in: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * pk_stretch * 0.7))
+	var pk_out: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * pk_stretch * 1.2))
+	check(pk_in == int(c0["index"]) and pk_out != int(c0["index"]), "Cluster ellipse: click area reaches 0.7 of its stretch along the tangent but not 1.2", "%d %d" % [pk_in, pk_out])
 	# T159: a click on a cluster shows its info card; a planet click hides it
 	m._on_cluster_clicked(int(c0["index"]))
 	var pre_line: Label = m.cluster_info.find_child("ClusterInfoLine", true, false) if m.cluster_info != null else null
@@ -5945,7 +5990,7 @@ func _test_clusters() -> void:
 	var cash0: int = m.cash
 	m._settle_routes()
 	check(m.storage.amount(Storage.planet_key(dst), "ore") == load_units and cl.left(0) == rich - load_units, "T156: one cycle moves one ship load of ore and the cluster loses it", "%d left %d" % [m.storage.amount(Storage.planet_key(dst), "ore"), cl.left(0)])
-	check(m.cash == cash0 - m.engine.fixed_cost(m.engine.routes[0]), "T156: ore is free to load, the lane costs trip and upkeep", "%d" % (cash0 - m.cash))
+	check(m.cash == cash0 - m.engine.fixed_cost(m.engine.routes[0]) - m.engine.idle_ship_cost(), "T156: ore is free to load, the lane costs trip and upkeep (idle ships pay theirs)", "%d" % (cash0 - m.cash))
 	check(cl.visible_count(0) < int(cl.items[0]["count"]) and cl.visible_count(0) >= 1, "T156: the pack thins as ore is taken")
 	# second ship: both together never exceed mining_yield_per_cycle
 	var r2: Dictionary = m.send_from_cluster(node, dst)
@@ -6322,8 +6367,10 @@ func _test_sell_only_idle() -> void:
 	check(m.cash < fixed + pe, "sell-only: the test cash is below trip plus one unit", "%d vs %d" % [m.cash, fixed + pe])
 	check(e.route_reserve(m.cash, amt_now) == 0, "sell-only: an empty Sell order holds no reserve")
 	var f: Dictionary = e.forecast(m.cash)
+	var idle_up: int = e.upkeep_part(e.routes[0]) + e.idle_ship_cost()  # since 2026-11-12 an idle ship still costs its upkeep
+	var stock0: int = m.storage.amount(sk, c) + m.storage.amount(dk, c)
 	var r: Dictionary = e.settle(m.cash)
-	check(int(r["delta"]) == 0 and int(f["delta"]) == 0, "sell-only: nothing moves, forecast equals settle", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
+	check(int(r["delta"]) == -idle_up and int(f["delta"]) == int(r["delta"]) and m.storage.amount(sk, c) + m.storage.amount(dk, c) == stock0, "sell-only: nothing moves (only the idle upkeep is paid), forecast equals settle", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
 	m.set_local_order(src, c, "buy", true)
 	var f2: Dictionary = e.forecast(m.cash)
 	var tot0: int = m.storage.amount(sk, c) + m.storage.amount(dk, c)
@@ -6579,18 +6626,19 @@ func _test_fabric() -> void:
 	# the plate sells
 	m.set_local_order(0, "plate", "sell", true)
 	var before: int = m.cash
-	var n_plates: int = m.storage.amount(key, "plate")
+	m.storage.add(m.storage.planet_key(0), "plate", m.storage.amount(key, "plate"))  # T364: a Sell takes only the planet's own storage, so the plates move there
+	var n_plates: int = m.storage.amount(m.storage.planet_key(0), "plate")
 	var fc2: Dictionary = m.engine.forecast(m.cash)
 	var st2: Dictionary = m.engine.settle(m.cash)
 	var price: int = m.engine.sold_price(0, "plate")
 	check(price > 0 and int(st2["delta"]) == n_plates * price and int(fc2["delta"]) == int(st2["delta"]), "fabric: plates sell at the trading post, forecast equals settle", "%d x %d, delta %s" % [n_plates, price, st2["delta"]])
 	# QA 2026-11-03: dross held in the station sells at Voltara through a Sell order (a route into the station itself pays nothing)
-	m.storage.add(key, "dross", 10)
+	m.storage.add(m.storage.planet_key(0), "dross", 10)  # T364: a Sell takes only the planet's own storage
 	m.set_local_order(0, "dross", "sell", true)
-	var dross_before: int = m.storage.amount(key, "dross")
+	var dross_before: int = m.storage.amount(m.storage.planet_key(0), "dross")
 	var st3: Dictionary = m.engine.settle(m.cash)
 	var dross_price: int = m.engine.sold_price(0, "dross")
-	check(dross_price > 0 and m.storage.amount(key, "dross") < dross_before and int(st3["delta"]) > 0, "chain: a Sell order at Voltara sells dross out of the station", "price %d, delta %s" % [dross_price, st3["delta"]])
+	check(dross_price > 0 and m.storage.amount(m.storage.planet_key(0), "dross") < dross_before and int(st3["delta"]) > 0, "chain: a Sell order at Voltara sells dross out of the planet storage", "price %d, delta %s" % [dross_price, st3["delta"]])
 	# the station panel says which fabric inputs have no route yet
 	var ssv2 = m.space_storage_view
 	m.storage.remove(key, "dross", m.storage.amount(key, "dross"))
@@ -6627,7 +6675,7 @@ func _test_dead_world_mechanics() -> void:
 	check(m.commodities.has("dross"), "dead: dross joins the commodity list")
 	var s2: Array = m.Systems.planets_of(2)
 	var g: Dictionary = s2[s2.size() - 1]
-	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and m.DeadWorlds.mine_good("dead_2", "min") == "nullglass" and m.DeadWorlds.mine_good("dead_2", "mil") == "spyware" and m.DeadWorlds.mine_good("dead_1", "bio") == "spores", "dead: dead_2 Greywake in system 2 carries nullglass (mines_by_branch)")
+	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and m.DeadWorlds.mine_good("dead_2", "min") == "nullglass" and m.DeadWorlds.mine_good("dead_2", "mil") == "spyware" and m.DeadWorlds.mine_good("dead_1", "bio") == "food", "dead: dead_2 Greywake in system 2 carries nullglass (mines_by_branch)")
 	# skills
 	var ST = m.SkillTree
 	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == FND3, "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs the three Foundations")
@@ -6777,6 +6825,8 @@ func _test_dead_unlock_and_core() -> void:
 	check(int(m.collect_state()["fabric"]["core_made"]) == 1, "null core: saved")
 	# fit, trip cost
 	m.ships = 3
+	m.storage.add(m.storage.planet_key(0), "ore", 5)  # a route needs stock at its source world
+	m.storage.add(m.storage.planet_key(1), "energy", 5)
 	var a1: Dictionary = m._connect(0, 1, "ore")
 	var a2: Dictionary = m._connect(1, 0, "energy") if a1["ok"] else {"ok": false}
 	check(m.engine.routes.size() >= 2, "null core: two routes for the test", str(a1) + str(a2))
@@ -6912,8 +6962,10 @@ func _test_workshops_in_cells() -> void:
 	# availability: a hidden workshop shows no Build in any cell
 	m.workshops.setup(m.balance)
 	m.open_systems.erase(2)
+	m._set_run_choice("", "", "lux")  # the Munitions Line shows on a Military run only (no system condition since 2026-11-12)
 	v.open_for(1)
 	check(not Availability.workshop("munitions") and v.box.find_child("WorkshopBuild_munitions", true, false) == null and v.box.find_child("Workshop_munitions", true, false) == null, "cells: hidden workshop is not drawn")
+	m._set_run_choice("", "", "")
 	# a system without a cell shows no workshop block
 	m.open_systems.append(2)
 	m.station_systems.erase(2)
@@ -6928,11 +6980,14 @@ func _test_workshops() -> void:
 	m.cash = 5000
 	# tagging and prices
 	var good_ids: Array = Goods.ids()
-	var tagged := good_ids.size() == 19
+	var market_goods := 0
+	for mk in Markets.ids:
+		market_goods += Markets.goods_of[mk].size()
+	var tagged: bool = good_ids.size() == market_goods + 2  # every market good plus energy and the branch-free cask
 	for g in good_ids:
-		if Markets.market_of(str(g)) != str(Goods.entry(str(g))["market"]) or Markets.value_of(str(g)) <= 0:
+		if Markets.market_of(str(g)) != str(Goods.entry(str(g))["market"]) or (str(g) != "cask" and Markets.value_of(str(g)) <= 0):  # cask is bought only in system 3 and has no share value
 			tagged = false
-	check(tagged, "goods: all 19 goods tagged in markets.json with a base value")
+	check(tagged, "goods: every good tagged in markets.json with a base value (cask has none, no market)")
 	var no_cross := true
 	for g in good_ids:
 		if not Goods.recipe_ok(str(g)):
@@ -6945,8 +7000,8 @@ func _test_workshops() -> void:
 			p1 = i
 		if str(m.map.planets[i].get("id", "")) == "planet_2":
 			p2 = i
-	check(p1 >= 0 and m.trade.price(p1, "cells_buy", false, true) == 78 and m.trade.price(p1, "cells_sell", false, true) == 70, "goods: new good prices reach the trade lookup")
-	check(m.trade.price(p2, "musk_buy", false, true) == 18 and m.commodities.has("rounds") and m.commodities.has("spores"), "goods: planet prices and the commodity list carry the new goods")
+	check(p1 >= 0 and m.trade.price(p1, "rounds_buy", false, true) == int(Goods.entry("rounds")["planet_prices"]["planet_1"]["rounds_buy"]) and m.trade.price(p1, "rounds_sell", false, true) == int(Goods.entry("rounds")["planet_prices"]["planet_1"]["rounds_sell"]), "goods: new good prices reach the trade lookup")
+	check(m.trade.price(p2, "musk_buy", false, true) == 18 and m.commodities.has("rounds") and not m.commodities.has("spores"), "goods: planet prices (spores are priced in system 2 only, so not in the list while it is closed) and the commodity list carry the new goods")
 	check(m.balance.has("event_pct_rounds") and m.events.pct_for("rounds") == float(m.balance["event_pct_rounds"]) if m.events.has_method("pct_for") else m.balance.has("event_pct_rounds"), "goods: event_pct key exists for a new good")
 	# unlock gating
 	var key: String = m.storage.system_key(1)
@@ -6955,7 +7010,7 @@ func _test_workshops() -> void:
 	check(m.can_build_workshop("munitions")["reason"] == "post", "workshop: needs the trading post")
 	m.learned_skills.append("FND_STORAGE")
 	m._ensure_stations()
-	check(m.can_build_workshop("munitions")["reason"] == "closed", "workshop: munitions refused while system 2 is closed")
+	check(m.can_build_workshop("munitions")["ok"] and not m.open_systems.has(2), "workshop: munitions can be built with system 2 closed (owner 2026-11-12: any system with a Space Storage)")
 	m.open_systems.append(2)
 	check(m.can_build_workshop("smelter")["reason"] == "skill" and m.can_build_workshop("munitions")["ok"], "workshop: only the unlocked one can be built")
 	var cost: int = int(m.balance["workshop_build_cost"])
@@ -6996,15 +7051,18 @@ func _test_workshops() -> void:
 	for g in Goods.recipes_of("smelter"):
 		m.set_production(str(g), true)
 	m.storage.add(key, "ore", 20)
+	m.storage.add(key, "nullglass", 20)
+	var ingot_ore: int = int(Goods.recipe("ingot")["ore"])  # ingot = ore + nullglass (data/goods.json)
+	var ingot_glass: int = int(Goods.recipe("ingot")["nullglass"])
 	var ingot_out: int = int(m.balance["ingot_batch_out"])
 	check(m.workshops.batches("smelter") == int(m.balance["workshop_batches_per_cycle"]), "workshop: base batches from balance")
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
-	check(m.storage.amount(key, "ingot") == ingot_out and m.storage.amount(key, "ore") == 18, "workshop: smelter 2 ore -> ingots")
+	check(m.storage.amount(key, "ingot") == ingot_out and m.storage.amount(key, "ore") == 20 - ingot_ore and m.storage.amount(key, "nullglass") == 20 - ingot_glass, "workshop: smelter ore + nullglass -> ingots")
 	Skills.add_learned("MIN_4")
 	check(m.workshops.batches("smelter") == int(m.balance["workshop_batches_per_cycle"]) + int(m.balance["skill_MIN_4_batches"]), "workshop: MIN_4 adds batches")
 	var ing0: int = m.storage.amount(key, "ingot")
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
-	check(m.storage.amount(key, "ingot") == ing0 + 2 * ingot_out and m.storage.amount(key, "ore") == 14, "workshop: two batches in a cycle with MIN_4")
+	check(m.storage.amount(key, "ingot") == ing0 + 2 * ingot_out and m.storage.amount(key, "ore") == 20 - 3 * ingot_ore, "workshop: two batches in a cycle with MIN_4")
 	Skills.add_learned("MIN_6")
 	var bonus: int = int(m.balance["skill_MIN_6_batch_bonus"])
 	check(m.workshops.out_units("ingot") == ingot_out + bonus, "workshop: MIN_6 adds yield per batch")
@@ -7015,6 +7073,7 @@ func _test_workshops() -> void:
 	check(m.fabric.batches() == int(m.balance["fabric_batches_per_cycle"]) + int(m.balance["skill_MIN_4_batches"]), "fabric: MIN_4 batches apply too")
 	# cycle tick runs the workshops
 	m.storage.add(key, "ore", 4)
+	m.storage.add(key, "nullglass", 4)
 	var ing1: int = m.storage.amount(key, "ingot")
 	m.debug_advance_cycle()
 	check(m.storage.amount(key, "ingot") > ing1, "workshop: runs on the cycle tick")
@@ -7091,7 +7150,7 @@ func _test_chains() -> void:
 				if not bal.has(str(e["key"])):
 					keys_ok = false
 	check(count_a == 12 and count_b == 28 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
-	check(data["pool_new"].size() == 62 and Chains.pool_kept.size() == 20 and Chains.retired.size() == 9 and Chains.retired[0] == "EV29", "chains: pool 20 kept + 60 new, EV29 to EV37 retired")
+	check(data["pool_new"].size() == 63 and Chains.pool_kept.size() == 20 and Chains.retired.size() == 9 and Chains.retired[0] == "EV29", "chains: pool 20 kept + 60 new, EV29 to EV37 retired")
 	# every option applies and logs at least one rival change
 	var logs_ok := true
 	for sid in Chains.step_ids():
@@ -7264,7 +7323,7 @@ func _test_chains() -> void:
 	for d in ev.defs:
 		if Chains.in_pool(str(d["id"])):
 			in_pool += 1
-	check(in_pool == 80 and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 20 kept + 60 new, no Minerals chain events", str(in_pool))
+	check(in_pool == Chains.pool_kept.size() + Chains.pool_new.size() and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 20 kept + 60 new, no Minerals chain events", str(in_pool))
 	m.events.debug_off = []
 	var drawn := {}
 	var dup := false
@@ -7364,7 +7423,7 @@ func _test_chains() -> void:
 	Chains.from_dict({}, bal)
 	check(Chains.marks.is_empty() and Chains.mood_of("w_a") == "plain", "moods: an old save has every world plain")
 	Chains.reset(bal, 0)
-	check(SaveGame.VERSION == 22, "save: version 22 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 24, "save: version 24 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -7438,7 +7497,7 @@ func _test_foundations_first() -> void:
 	var branch := []
 	for b in SkillTree.MARKETS:
 		branch.append_array(SkillTree.ids_in(b))
-	check(branch.size() == 62, "foundations: 62 branch nodes")
+	check(branch.size() == 64, "foundations: 64 branch nodes (Minerals has 17, the others 15 or 16)")
 	var all_locked := true
 	var partial_locked := true
 	var chained := true
@@ -7709,6 +7768,8 @@ func _test_t317_hero_card() -> void:
 	check(not m.map.ship_selected and not sp._hero_selected, "T317: a second card click deselects")
 	# T350: the card click opens the Flagship details; the Ships panel no longer owns the controls
 	var fp = m.flagship_panel
+	fp.close_screen()  # a hero card click toggles the details (expand / collapse), so start from collapsed
+	sp._on_hero_input(click)
 	check(fp.visible, "T350: clicking the hero card opens the details panel")
 	check(fp.explore_button != null and fp.explore_button.is_visible_in_tree(), "T350: the details panel holds the explore button")
 	check(not ("explore_button" in sp) and not ("boost_button" in sp) and not ("hold_label" in sp) and not ("pathfinder_label" in sp), "T350: the Ships panel no longer has explore, boost, hold or status nodes")
@@ -7716,7 +7777,7 @@ func _test_t317_hero_card() -> void:
 	fp.explore_button.pressed.emit()
 	check(m.flight.exploring(), "T350: the explore button starts exploring")
 	fp.refresh()
-	check(fp.explore_button.text == StoryText.get_text("BTN_EXPLORE_OFF"), "T350: the button reads Stop exploring")
+	check(fp.explore_button.tooltip_text == StoryText.get_text("BTN_EXPLORE_OFF"), "T350: the button reads Stop exploring (its tooltip: the button is an icon)")
 	fp.explore_button.pressed.emit()
 	check(not m.flight.exploring(), "T350: the explore button stops exploring")
 	fp.close_screen()
@@ -7743,10 +7804,12 @@ func _test_t187_ship_flight() -> void:
 		m._process(5.0)
 	check(m.flight.ship_position() == p0 and m.flight.state() == "flying", "T187: the ship does not move while paused")
 	m.paused = false
+	m._tut_win_close(false)  # the speed card opened while paused: close it without restoring its saved pause
 	m.time_speed = 12.0
 	var guard := 0
 	while m.flight.state() == "flying" and guard < 400:
 		m._process(1.0)
+		m._tut_win_close(true)  # a tip window (the speed card) holds the game paused while it is open; this test is about the flight
 		guard += 1
 	check(m.flight.state() == "idle" and m.flight.docked_at() == "planet_2" and m.flight.discovered("planet_2"), "T187: with time running the ship arrives and the planet is visited", str(guard))
 	check(not m.planet_established(tillam), "T187: a visit alone does not open the planet")
@@ -7755,6 +7818,7 @@ func _test_t187_ship_flight() -> void:
 	guard = 0
 	while m.flight.state() == "building" and guard < 400:
 		m._process(1.0)
+		m._tut_win_close(true)
 		guard += 1
 	check(m.planet_established(tillam), "T187: the post stands after its build time")
 	# (3) second system
@@ -7890,7 +7954,7 @@ func _test_ship_motion() -> void:
 	var y0: float = f._yaw
 	f.advance(0.01)
 	check(absf(f._yaw - y0) <= turn * 0.01 + 0.0001 and absf(f._yaw - y0) > 0.0, "T196: the heading turns at a limited rate, not at once", str(f._yaw))
-	check(f.speed() == 0.0, "T196: the ship does not speed up while the course is far off its heading", str(f.speed()))
+	check(f.speed() > 0.0 and f.speed() < vmax * 0.5, "T196: the Pathfinder steers while moving (no turn in place): it starts at once with a ramped speed, not top speed", str(f.speed()))
 	var p_mid: Vector3 = f.ship_position()
 	var steps := 0
 	while absf(wrapf(f._yaw - PI, -PI, PI)) > 0.05 and steps < 200 and f.state() == "flying":
@@ -8093,7 +8157,7 @@ func _test_t206_explore() -> void:
 	check(m.flight.exploring(), "T228: mode on while paused")
 	m.set_exploring(false)
 	check(not m.flight.exploring(), "T228: mode off while paused")
-	check(m.flagship_panel.explore_button.text == StoryText.get_text("BTN_EXPLORE_ON"), "T228: button label follows while paused")
+	check(m.flagship_panel.explore_button.tooltip_text == StoryText.get_text("BTN_EXPLORE_ON"), "T228: button label follows while paused (its tooltip: the button is an icon)")
 	# cash short: the ship waits at the first planet it cannot pay for
 	m.cash = 0
 	f.set_exploring(true)
@@ -8160,7 +8224,7 @@ func _test_ships_spawn_near_bodies() -> void:
 	for sid in Systems.ids():
 		all_sys.append(int(sid))
 		m._open_system(int(sid))
-	check(all_sys == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "T202: systems 1 to 10 are in play", str(all_sys))
+	check(all_sys == [1, 2, 3], "T202: systems 1 to 3 are in play (owner 2026-11-12: the game has three systems)", str(all_sys))
 	for sid in all_sys:
 		if int(sid) > 1:
 			m.map.add_station(int(sid), false)
@@ -8536,20 +8600,20 @@ func _test_learn_lock_and_permit_card() -> void:
 	m.skill_screen.open_screen()
 	m.skill_screen.select("FND_STORAGE")
 	var ss = m.skill_screen
-	check(ss.learn_button.disabled and _all_text(ss.detail_box).contains("100/" + str(int(m.balance["earn_storage_income"]))), "storage: earn-locked Learn button is disabled and the earn line is shown", _all_text(ss.detail_box))
-	check(ss.learn_button.text.contains("1 point") and not ss.learn_button.text.contains("1 points") and not _all_text(ss.detail_box).contains("Cost:"), "storage: Learn button shows the cost, singular for 1, no Cost line", ss.learn_button.text)
+	check(not ss._can_hold_learn("FND_STORAGE") and _all_text(ss.detail_box).contains("100/" + str(int(m.balance["earn_storage_income"]))), "storage: earn-locked skill cannot be hold-learned and the earn line is shown", _all_text(ss.detail_box))
+	check(not _all_text(ss.detail_box).contains("Cost:"), "storage: no Cost line while locked")
 	_test_skill_window_rework(m)
 	ss.confirm_learn()
 	check(not m.has_skill("FND_STORAGE") and m.skill_points == 1, "storage: earn-locked skill is not learned and keeps the point")
 	m.trade_income_total = int(m.balance["earn_storage_income"])
 	ss.refresh()
-	check(not ss.learn_button.disabled and not _all_text(ss.detail_box).contains("Earn "), "storage: income met, Learn enabled, no lock line")
+	check(ss._can_hold_learn("FND_STORAGE") and not _all_text(ss.detail_box).contains("Earn ") and _all_text(ss.detail_box).contains(StoryText.get_text("SK_HOLD_LEARN", {"amount": 1})), "storage: income met, hold-to-learn offered with the cost, no lock line")
 	m.events.pending_id = "x"
 	ss.refresh()
-	check(not ss.learn_button.disabled, "storage: a pending event does not block the button")
+	check(ss._can_hold_learn("FND_STORAGE"), "storage: a pending event does not block learning")
 	m.events.pending_id = ""
 	m.paused = true
-	ss.learn_button.pressed.emit()
+	ss.confirm_learn()
 	check(m.has_skill("FND_STORAGE") and m.skill_points == 0 and ss.node_buttons["FND_STORAGE"].self_modulate.is_equal_approx(ss.COL_LEARNED), "storage: click learns it, spends the point, node shows learned colour")
 	m.paused = false
 	ss.close_screen()
@@ -8621,7 +8685,7 @@ func _test_skill_window_rework(m: Control) -> void:
 			btn_ok = false
 	check(btn_ok, "skill icons: every node button has an icon and shows only the name")
 	var b0: Button = ss.node_buttons["FND_PERMIT"]
-	check(is_equal_approx(b0.custom_minimum_size.y, 56.0 * 0.9) and is_equal_approx(ss.CELL_W, 144.0 * 0.9), "skills window: node size is 0.9 of before")
+	check(is_equal_approx(b0.custom_minimum_size.y, ss.NODE_BTN_H) and ss._cell_w >= ss.CELL_W and ss._cell_w <= ss.CELL_W_MAX, "skills window: node buttons are NODE_BTN_H tall and a cell is between CELL_W and CELL_W_MAX wide", str([b0.custom_minimum_size.y, ss._cell_w]))
 	check(ss.tree_scroll != null and ss.tree_scroll.is_ancestor_of(b0) and ss.tree_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and not ss.tree_scroll.is_ancestor_of(ss.detail_box), "skills window: the tree sits in a vertical scroll container, the detail strip does not")
 
 func SS_plain(m: Control, id: String) -> Dictionary:
@@ -8636,6 +8700,9 @@ func _av_reset(m: Control) -> void:
 		m.workshops.built[id] = false
 	m.open_systems = [1]
 	m.cycle = 1
+	m.branch = ""  # no run branch (an old save): branch_is is true for every market, branch_chosen false
+	SkillTree.run_branch = ""
+	m.boost.reset()
 	m.flight.reset()  # T179: only the home world has its post
 	m._sync_closed()
 	for key in m.storage.stock.keys():
@@ -8675,6 +8742,18 @@ func _av_atom(m: Control, atom: String, val: bool) -> bool:
 			m.storage.stock[key][arg] = 1 if val else 0
 		"good_visible":
 			return _av_make(m, Availability.rule("good", arg), val)
+		"branch_is":
+			var other := "lux" if arg != "lux" else "mil"
+			m._set_run_choice("", "", arg if val else other)
+		"branch_chosen":
+			if val and m.run_branch() == "":
+				m._set_run_choice("", "", "mil")
+			elif not val:
+				m._set_run_choice("", "", "")
+		"boost_charge":
+			m.boost.grants = ["test"] if val else []
+		"boost_used_any":
+			m.boost.planets = ["planet_1"] if val else []
 		"planet_visited":
 			m.flight.set_flag("visited", arg, val)
 		"post_built":
@@ -8929,6 +9008,8 @@ func _test_availability() -> void:
 	# owned goods never hide (stock_held), and a recipe or notice that appears with a rule shows in the live UI
 	for g in start["hidden_goods"]:
 		_av_reset(m)
+		if Markets.market_of(str(g)) != "":
+			m._set_run_choice("", "", Markets.market_of(str(g)))  # a branch starter shows only on its own branch's run
 		_av_atom(m, "stock_held:" + str(g), true)
 		check(Availability.good(str(g)), "availability stock_held: held '%s' is visible" % g)
 	_av_reset(m)
@@ -9174,8 +9255,8 @@ func _test_lane_net_label() -> void:
 	var local_sum := 0
 	for l in f["local"]:
 		local_sum += int(l["credits"])
-	var rest: int = local_sum - attributed
-	check(lane_sum + rest == int(f["delta"]), "lane net: lane nets + the orders' non-lane part = forecast total", "%d + %d vs %d" % [lane_sum, rest, int(f["delta"])])
+	var rest: int = local_sum - attributed - e.idle_ship_cost()  # ships on no lane pay ship_idle_upkeep: no lane owns it
+	check(lane_sum + rest == int(f["delta"]), "lane net: lane nets + the orders' non-lane part (minus idle ship upkeep) = forecast total", "%d + %d vs %d" % [lane_sum, rest, int(f["delta"])])
 	# fallback text without a projection
 	check(RouteLineScript.tag_text("running", 1, 0, "", false, 72).contains("72") and RouteLineScript.tag_text("running", 1, 0, "", false, 72) != RouteLineScript.tag_text("running", 1, -72, "", true, 72), "lane net: no projection shows a cost label", RouteLineScript.tag_text("running", 1, 0, "", false, 72))
 	check(RouteLineScript.tag_text("running", 2, 310, "", true, 72).begins_with("2 ") and RouteLineScript.tag_text("running", 1, 0, "", true, 0).ends_with("0"), "lane net: ship count kept, zero shows 0")
@@ -9550,7 +9631,7 @@ func _test_placeholder_systems() -> void:
 	check(gm.galaxy_view._sys_ids() == [1, 2, 3], "placeholder systems: 1 to 3 listed in the galaxy overview", str(gm.galaxy_view._sys_ids()))
 	var live_ok := true
 	for sid in [3]:
-		live_ok = live_ok and Systems.name_of(sid).begins_with("TEMPORARY") and Availability.feature("placeholder_system_%d" % sid)
+		live_ok = live_ok and Systems.name_of(sid) != "" and not Systems.name_of(sid).begins_with("WORLD_") and Availability.feature("placeholder_system_%d" % sid)
 		live_ok = live_ok and not gm.go_to_system(sid)  # locked until its permit
 		gm._open_system(sid)
 		live_ok = live_ok and gm.open_systems.has(sid) and gm.go_to_system(sid) and gm.view_system == sid
@@ -9713,6 +9794,41 @@ func _test_gigs() -> void:
 	g.reset()
 	g.on_cycle(30)
 	check(not g.is_open(), "gigs: nothing opens with discovery off")
+	await _free_main(m)
+
+# ---- Flagship without hold or trading (owner 2026-11-13): pods are carried as state, old holds are kept, Boost burns no energy ----
+func _test_flagship_carry() -> void:
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	var g = m.gigs
+	var f = m.flight
+	var home: int = m.planet_index_of(f.docked_at())
+	var key: String = m.storage.planet_key(home)
+	var before: int = m.storage.amount(key, "energy")
+	g.post_salvage("CARRY1", f.system_id(), f.ship_position(), "energy", 3, 1, 5.0)
+	g.on_arrived_point(f.system_id(), f.ship_position())
+	check(g.offer("CARRY1").is_empty() and g.carrying() and int(g.carried["energy"]) == 3, "carry: scooped pods are carried as state, the offer ends")
+	check(not f.has_method("hold_cap") and not f.has_method("unload_to_storage") and not m.has_method("open_dock_sheet"), "carry: the Flagship has no hold and no dock sheet")
+	var saved: Dictionary = g.to_dict()
+	g.from_dict(saved)
+	check(int(g.carried.get("energy", 0)) == 3, "carry: carried pods survive a save")
+	g.deliver_pods(home)
+	check(not g.carrying() and m.storage.amount(key, "energy") == before + 3, "carry: arriving at an established world unloads the pods into its storage", str(m.storage.amount(key, "energy")))
+	var old: Dictionary = f.to_dict()
+	old["hold"] = {"energy": 4, "rivets": 0}
+	f.from_dict(old)
+	g.take_old_hold(f.take_old_hold())
+	check(f.take_old_hold().is_empty(), "carry: an old save's hold is handed over once")
+	check(not g.carrying() or int(g.carried["energy"]) == 4, "carry: an old hold becomes carried pods (or is already unloaded at the dock)")
+	f.set_boost(false)
+	m.balance["flagship_boost_charges"] = 2
+	var others := -1
+	for i in m.map.planets.size():
+		if m.system_of(i) == f.system_id() and i != home:
+			others = i
+			break
+	if others >= 0:
+		check(f.request_fly({"kind": "planet", "index": others}) == "" and f.set_boost(true) == "", "boost: works in flight with no energy anywhere")
 	await _free_main(m)
 
 # ---- T374: an offer that runs out while the Flagship flies to it stops the flight ----
@@ -10158,4 +10274,192 @@ func _test_dead_mine_tile() -> void:
 	check(not bad and pp.box.find_children("MineSendButton_*", "Button", true, false).is_empty() and tile != null and pp.box.find_child("MineHint", true, false) != null, "T367: dead card has no Mine and send button, has the tile and the hint")
 	tile.pressed.emit()
 	check(m.engine.local_on(d1, "dross", "buy"), "T367: pressing the dead world tile sets the Buy order")
+	await _free_main(m)
+
+
+## Tutorial slide numbers: walks every guided card (and the Planet icons window) and returns the [n, total] the player sees,
+## in order, as {"seq": [[n, total]...], "win": window n or -1, "win_text": counter text on the window}.
+func _numbering_walk(m: Node, seen_before: bool, learned_early: bool, points: int = 3, upto: int = 12) -> Dictionary:
+	if m.preface != null:
+		m._dismiss_preface()
+	m._tut_win_close(true)
+	m.tut_seen = []
+	m.tut_win_seen = {"planet_icons": true} if seen_before else {}
+	m.tut_win_slide = false
+	m.tut_flags = {}
+	m.cycle = 1
+	m.skill_points = points
+	m.learned_skills = ["FND_TEST"] if learned_early else []
+	var out := {"seq": [], "win": -1, "win_text": "", "steps": []}
+	var sel: int = m.selected_planet
+	for s in range(upto + 1):
+		m.tut_step = s
+		out["steps"].append(s)
+		if s == 0:
+			if m.PathfinderView.active(m.map.flight if m.map != null else null):
+				continue  # discovery cards depend on the flight state; the walk starts at step 1
+			m.selected_planet = -1
+			out["seq"].append(m._tut_count_nt())
+			m.selected_planet = 0
+			out["seq"].append(m._tut_count_nt())
+			m.selected_planet = sel
+			continue
+		if (m._tut_step_skipped(s) or m._tut_step_done(s)) and s != m.TUT_GUIDE.size() - 1:  # passed over, as _tut_advance does
+			continue
+		if s == m.TUT_GUIDE.size() - 1:
+			m._tut_tick(0.0)  # opens the window when it is due
+			if m.tut_win != null:
+				out["win_text"] = m.tut_win._count_text
+		out["seq"].append(m._tut_count_nt())
+		if s == m.TUT_GUIDE.size() - 1 and m.tut_win != null:
+			out["win"] = int(out["seq"][-1][0]) - 1
+	return out
+
+func _numbering_ok(r: Dictionary, with_window: bool, label: String, strict := true) -> void:
+	var seq: Array = r["seq"]
+	var ns: Array = []
+	for nt in seq:
+		ns.append(int(nt[0]))
+	if with_window:
+		ns.insert(ns.size() - 1, int(r["win"]))  # the window sits right before the last card
+	var gaps := true
+	for i in range(1, ns.size()):
+		if ns[i] != ns[i - 1] + 1:
+			gaps = false
+	var totals_same := true  # strict: constant; otherwise it may only shrink (a skill step passed over for lack of a point is unknowable earlier)
+	for i in seq.size():
+		if (strict and int(seq[i][1]) != int(seq[0][1])) or (i > 0 and int(seq[i][1]) > int(seq[i - 1][1])):
+			totals_same = false
+	check(gaps and ns.size() > 3, label + ": numbers run without gaps or repeats", str(ns))
+	check(totals_same and int(seq[-1][1]) == ns[-1], label + ": total is constant and equals the final number", str(seq) + " " + str(ns) + " steps " + str(r["steps"]))
+	if with_window:
+		check(int(r["win"]) == int(seq[-1][0]) - 1 and r["win_text"] != "", label + ": the window number is the last card's minus one and it shows a counter", str(r))
+	else:
+		check(int(r["win"]) == -1, label + ": no window slide, no window counter", str(r))
+
+func _test_tutorial_numbering(m: Node) -> void:
+	var keep := {"step": m.tut_step, "skills": m.learned_skills.duplicate(), "pts": m.skill_points, "cycle": m.cycle, "flags": m.tut_flags.duplicate(), "seen": m.tut_win_seen.duplicate(), "slide": m.tut_win_slide}
+	# straight walk
+	var r := _numbering_walk(m, false, false)
+	_numbering_ok(r, true, "numbering walk")
+	# passed-over steps (a skill learned early)
+	var r2 := _numbering_walk(m, false, true)
+	_numbering_ok(r2, true, "numbering with skipped steps")
+	# Planet icons already seen (old save): no extra number on the last card
+	var r4 := _numbering_walk(m, false, false, 0)
+	_numbering_ok(r4, true, "numbering without skill points (total only shrinks)", false)
+	var r3 := _numbering_walk(m, true, false)
+	check(m.tut_win == null, "numbering old save: no window opens at the last step")
+	_numbering_ok(r3, false, "numbering old save")
+	# repeated calls for the same card return the same values
+	m._tut_win_close(true)
+	m.tut_step = 6
+	var a1: Array = m._tut_count_nt()
+	var a2: Array = m._tut_count_nt()
+	m._tut_show()
+	var a3: Array = m._tut_count_nt()
+	check(a1 == a2 and a2 == a3, "numbering: the same card gives the same numbers on repeated calls", str([a1, a2, a3]))
+	# save and load mid-tutorial, at the last step with the window closed and open
+	for st in [3, 6, 11, 12]:
+		_numbering_walk(m, false, false, 3, st)  # the cards before were shown in order; at 12 the window is open
+		var before: Array = m._tut_count_nt()
+		var win_open: bool = m.tut_win != null
+		var st_json: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+		m.tut_seen = []
+		m.apply_state(st_json)
+		check(m.tut_step == st and m.tut_win == null, "numbering load: step %d comes back, window closed" % st, str(m.tut_step))
+		var after: Array = m._tut_count_nt()
+		var again: Array = m._tut_count_nt()
+		check(after == again and after == before, "numbering load: step %d (window open %s) keeps its numbers" % [st, str(win_open)], str([before, after]))
+		if st == 12:
+			check(m.tut_win_slide == win_open, "numbering load: the window slide flag survives a save")
+	m._tut_win_close(true)
+	m.tut_step = keep["step"]
+	m.learned_skills = keep["skills"]
+	m.skill_points = keep["pts"]
+	m.cycle = keep["cycle"]
+	m.tut_flags = keep["flags"]
+	m.tut_win_seen = keep["seen"]
+	m.tut_win_slide = keep["slide"]
+	m.tut_seen = []
+
+
+## Slide numbers of the Pathfinder (discovery) step 0 cards: flight, speed, travel, wait, Yay, then the Voltara card; every card
+## its own number, no repeat and no restart when step 0 ends, and the next guided step continues the count. The total never grows.
+func _test_numbering_pathfinder() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var m: Control = await _new_main(true, true)
+	for i in 4:
+		await process_frame
+	var map = m.map
+	var rows: Array = []  # [card id, n, total]
+	var guard := 0
+	var done := false
+	while m.tut_step == 0 and guard < 60 and not done:
+		guard += 1
+		await process_frame
+		await process_frame
+		var nt: Array = m._tut_count_nt()
+		var id: String = m._tut_id(0)
+		if rows.is_empty() or rows[-1][0] != id:
+			rows.append([id, nt[0], nt[1]])
+		var g0: String = m._tut_g0_id()
+		if m._tut_speed_card() or g0 == "TUT_G0_DONE":
+			m.tut_next.pressed.emit()
+		elif g0 == "TUT_G0_FLY":
+			m._on_fly_establish_requested(str(map.planets[m.tut_fly_target()].get("id", "")))
+			m.set_paused(false)
+			for k in 30:
+				if m._tut_g0_id() == "TUT_G0_DONE":
+					break
+				m.debug_advance_cycle()
+				await process_frame
+		elif g0 != "":
+			m.debug_advance_cycle()
+		else:
+			done = true  # the Voltara card is up (recorded above)
+	var ok: bool = not rows.is_empty() and rows[0][1] == 1
+	var detail := ""
+	for k in rows.size():
+		detail += "%s %d/%d; " % [rows[k][0], rows[k][1], rows[k][2]]
+		if k > 0 and (rows[k][1] != rows[k - 1][1] + 1 or rows[k][2] > rows[k - 1][2]):
+			ok = false
+		if rows[k][1] > rows[k][2]:
+			ok = false
+	check(ok and rows.size() >= 4 and rows[-1][0] == m.TUT_GUIDE[0], "numbering Pathfinder: step 0 cards number 1, 2, 3 ... ending on the Voltara card, total never grows", detail)
+	# the next guided step continues the count
+	if done:
+		var last: Array = rows[-1]
+		m.tut_step = 2
+		var nx: Array = m._tut_count_nt()
+		check(nx[0] == last[1] + 1 and nx[1] <= last[2], "numbering Pathfinder: the guided step after step 0 continues the count", str([last, nx]))
+		# the straight walk through the guided steps with the window, from this Pathfinder state
+		var r := _numbering_walk(m, false, false)
+		_numbering_ok(r, true, "numbering Pathfinder walk")
+	await _free_main(m)
+	root.size = old_size
+
+
+## Owner report: TIP_TIER1 ("a world has grown a tier") fired in cycle 2 with only the home post. Tier 1 is any world with a post;
+## real growth is tier 2. Only the home post, a few cycles: no tip, the Grow step is not passed over; tier 2 fires it.
+func _test_tier2_growth() -> void:
+	var m: Control = await _new_main(true, false)
+	for i in 4:
+		await process_frame
+	m.tut_step = 8
+	for i in 3:
+		m._end_cycle()
+	var tip_def: Dictionary = {}
+	for def in m.TIP_DEFS:
+		if str(def["id"]) == "TIP_TIER1":
+			tip_def = def
+	check(not tip_def.is_empty() and str(tip_def["cond"]) == "any_tier:2", "tier growth: TIP_TIER1 waits for tier 2", str(tip_def))
+	check(not m.tip_due(tip_def) and not Conditions.eval("any_tier:2"), "tier growth: with only the home post after three cycles the growth tip has not fired")
+	check(not m._tut_step_done(9) and not m._tut_expect_skip(8) and not m._tut_expect_skip(9), "tier growth: the Needs and Grow steps are not passed over by a bare post")
+	m.prosperity._reached = 2  # a world reached tier 2
+	check(m.tip_due(tip_def) and m._tut_step_done(9) and m._tut_expect_skip(9), "tier growth: reaching tier 2 fires the tip and ends the Grow step")
 	await _free_main(m)

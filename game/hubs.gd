@@ -42,6 +42,8 @@ var records: Array = []              # this cycle's hub delivery records
 var status: Dictionary = {}          # "planet|good" -> status code of the last plan(), see STATUS_*
 var spent_last := 0                  # credits the last plan() paid for goods
 var fee_last := 0                    # credits of fee the last end_settle() charged
+var margin_last := {"value": 0, "cost": 0, "net": 0}  # Star Bazaar hub, last cycle, world deliveries only: value delivered, cost, net after the margin top-up
+var commission_last := 0              # credits of hub commission the last end_settle() earned (all hubs); main adds it to cash
 var delivered_last: Dictionary = {}  # hub planet -> units delivered at the last end_settle()
 
 const STATUS_MET := "met"
@@ -67,6 +69,7 @@ func reset() -> void:
 	site_lines = []
 	spent_last = 0
 	fee_last = 0
+	commission_last = 0
 	delivered_last = {}
 
 func _bal(key: String, fallback: float) -> float:
@@ -112,6 +115,25 @@ func hub_planets() -> Array:
 
 func pool_of(planet: int) -> int:
 	return int(hubs[planet]["pool"]) if hubs.has(planet) else 0
+
+## Worlds the hub is switched on for (the hub world itself always counts); the hub panel alert and the map mark read this.
+func ticked_count(h: int) -> int:
+	var n := 0
+	for w in worlds_in_reach(h):
+		if not is_world_off(h, w):
+			n += 1
+	return n
+
+## True when the hub should deliver (a ticked world) but its ship pool is empty.
+func needs_ship(h: int) -> bool:
+	return hubs.has(h) and pool_of(h) <= 0 and ticked_count(h) > 0
+
+func hubs_needing_ship() -> Array:
+	var out: Array = []
+	for h in hub_planets():
+		if needs_ship(h):
+			out.append(h)
+	return out
 
 func pool_total() -> int:
 	var n := 0
@@ -313,6 +335,42 @@ func _manual_cover(world: int, good: String) -> int:
 		n += engine.planned_units(rec)
 	return n
 
+## Your own lanes and Sell orders that take goods from planet hub `hub`: [{kind "out"|"in"|"sell", good, from, to}] (planet indexes).
+## out: a manual lane takes good G out of the world the hub buys G at. in: a manual lane carries G into a world the hub serves for G.
+## sell: a Sell order for G at a world the hub serves. Lanes from clusters or Space Storages and into a Space Storage are not counted.
+func competing_lanes(hub: int) -> Array:
+	var out: Array = []
+	if hub < 0 or not hubs.has(hub) or prosperity.tier(hub) < int(_bal("hub_tier", 3)):
+		return out
+	var seen := {}
+	for w in worlds_in_reach(hub):
+		if is_world_off(hub, w):
+			continue
+		for g in _need_goods(w):
+			if is_need_off(hub, w, g):
+				continue
+			var src := _best_source(hub, w, g, 1)
+			for rec in engine.routes:
+				if str(rec.get("owner", "")) != "" or int(rec["a"]) < 0 or int(rec["b"]) < 0 or str(rec["c"]) != g:
+					continue
+				var kind := ""
+				if int(rec["b"]) == w:
+					kind = "in"
+				elif not src.is_empty() and int(rec["a"]) == int(src["planet"]):
+					kind = "out"
+				if kind == "":
+					continue
+				var key := "%s|%d|%d|%s" % [kind, int(rec["a"]), int(rec["b"]), g]
+				if not seen.has(key):
+					seen[key] = true
+					out.append({"kind": kind, "good": g, "from": int(rec["a"]), "to": int(rec["b"])})
+			if engine.local_on(w, g, "sell"):
+				var skey := "sell|%d|%s" % [w, g]
+				if not seen.has(skey):
+					seen[skey] = true
+					out.append({"kind": "sell", "good": g, "from": w, "to": w})
+	return out
+
 ## What a hub pays for a unit that costs `price` at the planet: hub_discount_pct below it (never below 1 credit).
 func hub_price(price: int) -> int:
 	if price <= 0:
@@ -353,6 +411,10 @@ func plan(cash: int, cash_floor: int = 0) -> int:
 		if h >= 0 and prosperity.tier(h) < int(_bal("hub_tier", 3)):
 			continue  # the world fell below the hub tier: it keeps its pool but runs nothing
 		var ships := pool_of(h)
+		var hold := 0  # Star Bazaar: a share of the budget is kept for its bill/workshop rows while the bill has short rows
+		if h < 0 and h == -bazaar_site() and _bill_short():
+			hold = clampi(floori(float(maxi(0, left)) * _bal("bazaar_bill_share_pct", 40.0) / 100.0), 0, maxi(0, left))
+			left -= hold
 		for w in worlds_in_reach(h):
 			if is_world_off(h, w):
 				for g in _need_goods(w):
@@ -393,8 +455,12 @@ func plan(cash: int, cash_floor: int = 0) -> int:
 				if not bool(src["free"]):
 					var have_stock := _stock_at(int(src["planet"]), g)
 					buy = maxi(0, qty - have_stock) * int(src["price"])
-				var need_cash: int = buy + int(engine.fixed_cost(rec))
-				if need_cash > left:
+				var fixed_w: int = int(engine.fixed_cost(rec))
+				if buy + fixed_w > left and not bool(src["free"]) and int(src["price"]) > 0:
+					var have_w := _stock_at(int(src["planet"]), g)
+					qty = mini(qty, maxi(0, floori(float(left - fixed_w) / float(src["price"])) + have_w))  # buy what the budget allows
+					buy = maxi(0, qty - have_w) * int(src["price"])
+				if qty <= 0 or buy + fixed_w > left:
 					status[key] = STATUS_NO_CASH
 					continue
 				ships -= 1
@@ -409,11 +475,21 @@ func plan(cash: int, cash_floor: int = 0) -> int:
 				_reserve(rec)
 				status[key] = STATUS_HUB
 				status[key + "|by"] = str(h)
+		left += hold
 		if h < 0 and h == -bazaar_site():  # the Star Bazaar also feeds its own Space Storage
 			_plan_left = left
 			ships = _plan_site(h, ships)
 			left = _plan_left
 	return spent_last
+
+## True while the Star Bazaar's current stage bill has a short row the hub would buy for (Vault Cask rows are carried by Storage Links only).
+func _bill_short() -> bool:
+	if bazaar == null or not bazaar.is_founded() or bazaar.complete():
+		return false
+	for r in bazaar.bill_status():
+		if str(r.get("kind", "")) != "cask" and int(r["have"]) < int(r["need"]):
+			return true
+	return false
 
 ## Space Storage deliveries of the Star Bazaar hub h (key -site): production inputs first, then the stage bill. Returns the pool ships left.
 func _plan_site(h: int, ships: int) -> int:
@@ -434,6 +510,8 @@ func _plan_site(h: int, ships: int) -> int:
 			var short := int(r["need"]) - have
 			if short <= 0:
 				continue
+			if str(r.get("kind", "")) == "cask":
+				continue  # Vault Cask rule: only a Storage Link brings it, the hub never buys or carries it
 			var pick := _bill_good(h, r["goods"]) if r["goods"] != ["ore"] else "ore"  # ore row (own row, or Minerals' tier-1 row): held ore only, never bought
 			if pick == "":
 				continue
@@ -466,7 +544,12 @@ func _plan_site(h: int, ships: int) -> int:
 				var buy := 0
 				if not bool(src["free"]):
 					buy = maxi(0, qty - _stock_at(int(src["planet"]), g)) * int(src["price"])
-				if buy + int(engine.fixed_cost(rec)) > _plan_left:
+				var fixed_c: int = int(engine.fixed_cost(rec))
+				if buy + fixed_c > _plan_left and not bool(src["free"]) and int(src["price"]) > 0:
+					var afford := floori(float(_plan_left - fixed_c) / float(src["price"]))  # buy what the budget allows instead of nothing
+					qty = mini(qty, maxi(0, afford + _stock_at(int(src["planet"]), g)))
+					buy = maxi(0, qty - _stock_at(int(src["planet"]), g)) * int(src["price"])
+				if qty <= 0 or buy + fixed_c > _plan_left:
 					code = STATUS_NO_CASH
 					qty = 0
 				else:
@@ -601,25 +684,35 @@ func begin_settle() -> void:
 ## refunds goods bought but not moved, and returns the credits to add to cash (refund minus the hub fee).
 func end_settle() -> int:
 	fee_last = 0
+	commission_last = 0
 	delivered_last = {}
+	var value_by_hub := {}  # hub -> value of what it delivered (commission base)
+	var world_value := {}   # hub -> value of its world (non-site) deliveries
+	var world_cost := {}    # hub -> goods bought and trips paid for them
 	engine.hub_hold = {}
+	engine.sell_hold = {}
 	var kept: Array = []
 	for rec in engine.routes:
 		if str(rec.get("owner", "")) == "":
 			kept.append(rec)
 	engine.routes = kept
 	var refund := 0
+	margin_last = {"value": 0, "cost": 0, "net": 0}  # no world delivery this cycle: nothing to show
 	for rec in records:
 		var moved := int(rec.get("moved", 0)) if str(rec["state"]) == "running" else 0
 		var w := int(rec["b"])
 		var g := str(rec["c"])
 		if moved > 0 and bool(rec.get("site", false)):  # Space Storage delivery: the goods stay in the storage
 			delivered_last[int(rec["hub"])] = int(delivered_last.get(int(rec["hub"]), 0)) + moved
+			value_by_hub[int(rec["hub"])] = int(value_by_hub.get(int(rec["hub"]), 0)) + moved * int(rec.get("unit_price", 0))
 			fee_last += roundi(float(moved * int(rec.get("unit_price", 0))) * _bal("hub_fee_pct", 0.0) / 100.0)
 		elif moved > 0:
 			var took: int = storage.remove(str(rec["dst"]), g, moved)
 			prosperity.add_fill(w, g, took)
 			delivered_last[int(rec["hub"])] = int(delivered_last.get(int(rec["hub"]), 0)) + took
+			value_by_hub[int(rec["hub"])] = int(value_by_hub.get(int(rec["hub"]), 0)) + took * _delivery_price(w, g, rec)
+			world_value[int(rec["hub"])] = int(world_value.get(int(rec["hub"]), 0)) + took * _delivery_price(w, g, rec)
+			world_cost[int(rec["hub"])] = int(world_cost.get(int(rec["hub"]), 0)) + moved * int(rec.get("unit_price", 0)) + int(engine.fixed_cost(rec))
 			fee_last += roundi(float(took * int(rec.get("unit_price", 0))) * _bal("hub_fee_pct", 0.0) / 100.0)
 		var unmoved := maxi(0, int(rec.get("bought", 0)) - moved)
 		if unmoved > 0:  # bought but not carried: take it back out of the source and return the price
@@ -628,8 +721,32 @@ func end_settle() -> int:
 	for h in hubs:  # Star Bazaar founding asks a planet hub to have worked some cycles and moved some units
 		hubs[h]["age"] = int(hubs[h].get("age", 0)) + 1
 		hubs[h]["moved"] = int(hubs[h].get("moved", 0)) + int(delivered_last.get(int(h), 0))
+		var earn := roundi(float(int(value_by_hub.get(int(h), 0))) * _bal("hub_commission_pct", 0.0) / 100.0)
+		if int(h) < 0 and int(world_value.get(int(h), 0)) > 0:  # the Star Bazaar never loses on its world deliveries: net >= bazaar_hub_margin_pct of their value
+			var wv := int(world_value[int(h)])
+			var base := roundi(float(wv) * _bal("hub_commission_pct", 0.0) / 100.0)
+			var cost := int(world_cost.get(int(h), 0)) + pool_of(int(h)) * maxi(0, roundi(_bal("ship_idle_upkeep", 0.0)))
+			var want := cost + ceili(float(wv) * _bal("bazaar_hub_margin_pct", 10.0) / 100.0)
+			if want > base:
+				earn += want - base
+			margin_last = {"value": wv, "cost": cost, "net": maxi(base, want) - cost}
+		hubs[h]["earned_last"] = earn
+		hubs[h]["earned_total"] = int(hubs[h].get("earned_total", 0)) + earn
+		commission_last += earn
 	records = []
 	return refund - fee_last
+
+## Price per unit the receiving world pays for a good (its sell price, a need's price included); else the source buy price.
+func _delivery_price(world: int, good: String, rec: Dictionary) -> int:
+	var p: int = engine.sold_price(world, good)
+	return p if p > 0 else int(rec.get("unit_price", 0))
+
+## Commission a hub earned last cycle / in the run (Hub earned line).
+func earned_last(h: int) -> int:
+	return int(hubs[h].get("earned_last", 0)) if hubs.has(h) else 0
+
+func earned_total(h: int) -> int:
+	return int(hubs[h].get("earned_total", 0)) if hubs.has(h) else 0
 
 ## ---- Save ----
 func to_array() -> Array:
@@ -638,7 +755,7 @@ func to_array() -> Array:
 		var on: Array = []
 		for w in hubs[h]["on"]:
 			on.append(_pid(int(w)))
-		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "on": on, "skip_needs": hubs[h]["skip_needs"].duplicate(), "age": int(hubs[h].get("age", 0)), "moved": int(hubs[h].get("moved", 0))})
+		out.append({"planet": _pid(h), "pool": int(hubs[h]["pool"]), "on": on, "skip_needs": hubs[h]["skip_needs"].duplicate(), "age": int(hubs[h].get("age", 0)), "moved": int(hubs[h].get("moved", 0)), "earned_last": int(hubs[h].get("earned_last", 0)), "earned_total": int(hubs[h].get("earned_total", 0))})
 	return out
 
 func from_array(saved) -> void:
@@ -660,7 +777,7 @@ func from_array(saved) -> void:
 			h = by_id[str(e["planet"])]
 		else:
 			continue
-		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, pool_max(h)), "on": [], "skip_needs": [], "age": int(e.get("age", 0)), "moved": int(e.get("moved", 0))}
+		hubs[h] = {"pool": clampi(int(e.get("pool", 0)), 0, pool_max(h)), "on": [], "skip_needs": [], "age": int(e.get("age", 0)), "moved": int(e.get("moved", 0)), "earned_last": int(e.get("earned_last", 0)), "earned_total": int(e.get("earned_total", 0))}
 		for pid in e.get("on", []):  # an older save (key "skip") loads with no world ticked, like a new hub
 			if by_id.has(str(pid)):
 				hubs[h]["on"].append(by_id[str(pid)])

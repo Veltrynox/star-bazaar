@@ -106,6 +106,13 @@ func _best() -> Dictionary:
 	var gig := _gig()
 	if not gig.is_empty() and bool(gig["urgent"]):
 		return gig
+	# owner 2026-11-14: a lane or Sell order of yours that takes goods from the hub comes before any lane advice
+	if main.bazaar != null and not main.bazaar.is_founded():
+		var cs: Dictionary = main.bazaar.next_step()
+		if str(cs.get("sub", "")) in ["lane", "sell"]:
+			var cl: String = main.bazaar.step_line(cs)
+			if cl != "":
+				return {"text": cl, "planet": int(cs.get("from", cs.get("hub", -1)))}
 	# a newly hungry lane: a need short for a cycle or more, and a world that sells the good
 	for i in main.map.planets.size():
 		if pr.tier(i) < 1:
@@ -119,6 +126,15 @@ func _best() -> Dictionary:
 			for a in main.map.planets.size():
 				if a != i and pr.tier(a) >= 1 and pr._sells_to_player(a, g):
 					return {"text": StoryText.get_or("NEXTUP_BEST_LANE", "Send goods from {planet_a} to {planet_b}", {"planet_a": main.planet_name(a), "planet_b": main.planet_name(i)}), "planet": a}
+	# before the Star Bazaar stands: the next hub step (top of the list when a lane of yours takes goods from the hub)
+	if main.bazaar != null and not main.bazaar.is_founded():
+		var fs: Dictionary = main.bazaar.next_step()
+		var fl: String = main.bazaar.step_line(fs)
+		if fl != "":
+			var fp := int(fs.get("hub", -1))
+			if fp < 0 and str(fs.get("sub", "")) == "lane":
+				fp = int(fs.get("from", -1))
+			return {"text": fl, "planet": fp}
 	# the cash gap to the next ship, with the forecast ETA
 	if main.ships < main.ship_cap():
 		var need_cash: int = main.ship_price() + main.ship_cash_floor()

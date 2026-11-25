@@ -20,7 +20,7 @@ extends RefCounted
 ##   state(id) -> String                "active" | "dormant" | "collapsed" (a gone link reports "collapsed")
 ##   link_info(id) -> {id, a, b, state, dormant, cycles_left, orders: [{good, from, to, amount}], rate, rate_used, upkeep}
 ##       cycles_left = cycles until collapse while dormant, else -1; rate_used = what the orders would move now (plan), not history
-##   cost() -> {"rivets", "energy"}; stock_of(system, good); pair_link(a, b) -> id or -1; count_at(system) -> int
+##   cost(a, b) -> {"rivets", "energy"} (energy only when system 3 is an end); stock_of(system, good); pair_link(a, b) -> id or -1; count_at(system) -> int
 ##   settle() -> called once per cycle by main.gd _end_cycle
 ## Signals: link_built(id), link_removed(id), link_state_changed(id, state), link_collapsed(a, b), link_orders_changed(id),
 ##   link_transferred(id, moved: Dictionary good -> units), link_notice(text_id, vars).
@@ -58,7 +58,11 @@ func setup(bal: Dictionary, stor: RefCounted, main_node: Object = null) -> void:
 func _i(key: String, d: int) -> int:
 	return int(balance.get(key, d))
 
-func cost() -> Dictionary:
+## Cost of a link between systems a and b (defaults: a generic pair). Vault Cask rule: a link with system 3 at an end costs energy only
+## (link_build_energy, or link_build_energy_s3 when set), for every branch.
+func cost(a: int = -1, b: int = -1) -> Dictionary:
+	if a == 3 or b == 3:
+		return {"rivets": 0, "energy": _i("link_build_energy_s3", _i("link_build_energy", 200))}
 	if not Goods.branch_ok("rivets"):  # T239: rivets belong to Military; other branches pay that part in energy
 		return {"rivets": 0, "energy": _i("link_build_rivets", 120) + _i("link_build_energy", 200)}
 	return {"rivets": _i("link_build_rivets", 120), "energy": _i("link_build_energy", 200)}
@@ -110,13 +114,13 @@ func can_build(a: int, b: int) -> String:
 	var mx := _i("link_max_per_storage", 2)
 	if count_at(a) >= mx or count_at(b) >= mx:
 		return REASON_MAX
-	var c := cost()
+	var c := cost(a, b)
 	if stock_of(a, "rivets") + stock_of(b, "rivets") < int(c["rivets"]) or stock_of(a, "energy") + stock_of(b, "energy") < int(c["energy"]):
 		return REASON_GOODS
 	return ""
 
 func _auto_mix(a: int, b: int) -> Dictionary:
-	var c := cost()
+	var c := cost(a, b)
 	var mix := {a: {"rivets": 0, "energy": 0}, b: {"rivets": 0, "energy": 0}}
 	for g in ["rivets", "energy"]:
 		var need := int(c[g])
@@ -137,7 +141,7 @@ func build_link(a: int, b: int, mix: Dictionary = {}) -> int:
 		return -1
 	if mix.is_empty():
 		mix = _auto_mix(a, b)
-	var c := cost()
+	var c := cost(a, b)
 	for g in ["rivets", "energy"]:  # the mix must pay exactly the cost and every storage must hold its share
 		var sum := 0
 		for s in [a, b]:

@@ -34,6 +34,7 @@ extends RefCounted
 ##   boost_charge                           an unused production charter is held (Main.boost.charges() > 0; game/boost.gd; skill, event or gig grant)
 ##   boost_used:<planet>                    that world is boosted (a charter was spent on it)
 ##   boost_used_any                         some world is boosted
+##   route_exists                           the player has at least one route that starts at a planet (EV_BRB01 needs a world for its worker)
 ##   note_at_least:<key>/<value>            CEO endings: run note <key> (EndingPicker.ALL_KEYS; Main.note_value) is >= value; value is a whole number or a balance key (no "balance." prefix)
 ##   note_at_most:<key>/<value>             the same, <=. Only the picker (EndingPicker.pick) calls these, and never on a save without run_notes
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
@@ -50,7 +51,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "", "boost_charge": "", "boost_used": "planet", "boost_used_any": "", "note_at_least": "note/value", "note_at_most": "note/value",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "", "boost_charge": "", "boost_used": "planet", "boost_used_any": "", "route_exists": "", "note_at_least": "note/value", "note_at_most": "note/value",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -146,6 +147,8 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			return live() and game.boost != null and game.boost.charges() > 0
 		"boost_used":
 			return live() and game.boost != null and game.boost.is_boosted(game.planet_index_of(arg))
+		"route_exists":
+			return live() and game.has_method("bribe_route") and game.bribe_route() >= 0
 		"boost_used_any":
 			return live() and game.boost != null and game.boost.boosted_count() > 0
 		"any_tier", "planet_tier", "bazaar_stage":

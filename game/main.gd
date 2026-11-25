@@ -97,9 +97,6 @@ func systems_in_game() -> int:
 var events: RefCounted = Events.new()  # T12 random events and active price effects
 const ASTEROID_REWARD_POINTS := 1  # T109: EV20_PAID gives one expansion point (no balance key)
 var asteroid_last_hit: int = -1  # T109: planet hit by the last asteroid (-1 none), runtime only
-var dock_sheet: ColorRect  # T270 dock sheet (game/dock_sheet.gd), null when closed
-var _dock_was_paused := false
-var _dock_after := ""  # T270: planet id of a 'Dock and trade' order still in flight
 var event_notice: ColorRect  # T12 event window (opened from an icon), null when none
 var event_icons: HBoxContainer  # strip of event icons (game/event_icons.gd)
 var _event_pause_held := false  # the open event window holds the pause
@@ -217,6 +214,8 @@ const TUT_FALLBACK := {
 }
 var tut_step: int = 0
 var tips_seen: Dictionary = {}  # T316 one-time tips already shown this run (saved)
+var hub_conflict_last := -999  # cycle of the last hub-competition notice (runtime only)
+var tut_win_slide := false  # the Planet icons window was opened as the guided slide before the last card (saved; counts in the numbering)
 var tut_win_seen := {}  # one-time tutorial windows already shown this run (saved as tut_win_seen)
 var tut_win: Control = null  # the open tutorial window, if any
 var _tut_win_prev_paused := false
@@ -571,7 +570,7 @@ func collect_state() -> Dictionary:
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "decisions": decisions.to_dict(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
-			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off, "tut_win_seen": tut_win_seen.keys(),
+			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off, "tut_win_seen": tut_win_seen.keys(), "tut_win_slide": tut_win_slide,
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
@@ -579,6 +578,8 @@ func collect_state() -> Dictionary:
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
+	_hub_ns_primed = false  # the first hub check after a load only records
+	_hub_ns.clear()
 	company_name = str(s.get("company_name", "")).strip_edges().left(CompanyNames.MAX_LEN)  # old saves: no company yet
 	if company_name == "":
 		company_name = CompanyNames.generate()
@@ -606,6 +607,8 @@ func apply_state(s: Dictionary) -> void:
 		tips_seen[str(k)] = true
 	tips_off = bool(s.get("tips_off", false))
 	tut_win_seen = {}
+	tut_seen = []  # rebuilt from the loaded step by _tut_count_nt
+	tut_win_slide = bool(s.get("tut_win_slide", false))
 	for k in (s.get("tut_win_seen", []) if typeof(s.get("tut_win_seen", [])) == TYPE_ARRAY else []):
 		tut_win_seen[str(k)] = true
 	if tut_win != null:
@@ -694,6 +697,7 @@ func apply_state(s: Dictionary) -> void:
 	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	gigs.ensure_opening()  # T298: an Opening still to fly is on the board
+	gigs.take_old_hold(flight.take_old_hold())  # an old save's Flagship hold becomes carried pods (delivered at the next world)
 	if bazaar.wing_pending > 0 and bazaar_panel != null:
 		bazaar_panel.show_wing_choice.call_deferred()  # T299: a wing choice left open when the save was made
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
@@ -859,7 +863,7 @@ func _make_station_marker(id: int) -> void:
 
 ## T352: true while a full-screen or large window covers the map; map-anchored overlays (station markers, pulse rings, the sell offer) hide then.
 func map_overlays_blocked() -> bool:
-	for n in [skill_screen, bazaar_panel, hub_panel, gig_panel, space_storage_view, game_menu, galaxy_view, end_screen, preface, dock_sheet]:
+	for n in [skill_screen, bazaar_panel, hub_panel, gig_panel, space_storage_view, game_menu, galaxy_view, end_screen, preface]:
 		if n != null and is_instance_valid(n) and n.visible:
 			return true
 	return event_notice != null
@@ -1038,6 +1042,20 @@ func skill_lock_reason(id: String) -> String:
 	_sync_earn()
 	return SkillTree.earn_lock_reason(balance, id)
 
+## Skill window: when every learnable skill is learned, trade all held points for credits. Returns credits paid (0 = refused).
+func cash_out_skill_points() -> int:
+	if skill_points <= 0 or not SkillTree.fully_learned(learned_skills, run_branch()):
+		return 0
+	var n := skill_points
+	var gain := n * int(balance.get("skill_point_cash", 250))
+	skill_points = 0
+	cash += gain
+	post_notice(StoryText.get_text("NOT_SK_CASHED_OUT", {"n": n, "cash": gain}))
+	if skill_screen != null:
+		skill_screen.refresh()
+	_after_change()
+	return gain
+
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
 	if not tut_gate("other"):
@@ -1061,6 +1079,11 @@ func learn_skill(id: String) -> Dictionary:
 	if skill_screen != null:
 		skill_screen.refresh()
 	_after_change()
+	if (tut_step == 10 or (tut_step == 11 and id == "FND_PERMIT")) and tut_step < TUT_GUIDE.size():  # the skill the guided step asked for
+		get_tree().create_timer(0.6).timeout.connect(func():  # a short beat so the learn effect is not cut off
+			if skill_screen != null and skill_screen.visible and tut_step < TUT_GUIDE.size():
+				skill_screen.close_screen()
+				_tut_show())
 	return v
 
 ## Effect hook for ids: main.has_skill("FND_STORAGE"). Effect numbers stay in balance.json (see Skills).
@@ -1375,6 +1398,7 @@ func _on_cluster_clicked(index: int) -> void:
 	cluster_info_index = index
 	if cluster_info == null:
 		cluster_info = PanelContainer.new()
+		cluster_info.mouse_filter = Control.MOUSE_FILTER_IGNORE  # text-only card over the map: clicks pass to the map
 		cluster_info.position = Vector2(76, 76)
 		cluster_info.custom_minimum_size = Vector2(320, 0)
 		add_child(cluster_info)
@@ -1789,7 +1813,7 @@ func route_unaffordable() -> Dictionary:
 
 ## Cash that must remain after buying a ship: the fixed cost of every open route.
 func ship_cash_floor() -> int:
-	return engine.routes.size() * engine.fixed_cost()
+	return engine.cash_floor(cash, func(k: String, c: String) -> int: return storage.amount(k, c))  # only routes that run hold their full fixed cost; the others their idle upkeep
 
 ## T58: auto-assignment. One ship type remains (small).
 func pick_ship(_src: int, _dst: int, _c: String) -> String:
@@ -2032,6 +2056,7 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	rec["fresh"] = clampf(1.0 - cycle_elapsed / _cycle_seconds(), 0.0, 1.0)
 	engine.routes.append(rec)
 	decisions.add("route_made", cycle, "%s>%s %s" % [str(rec["src"]), str(rec["dst"]), c])
+	Juice.play_tone(self, "coin", Juice.COIN_DB)  # owner 2026-11-14: a very slight money sound when a route is made
 	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts (a station is no planet)
 		if dst >= 0 and not is_station_src(src):
 			_award_planet(dst)
@@ -2601,7 +2626,9 @@ func _settle_routes() -> Array:
 			kept_results.append(row)
 	r["results"] = kept_results
 	var hub_net := hubs.end_settle()
-	cash += hub_net
+	cash += hub_net + hubs.commission_last  # hub commission: hub_commission_pct of the value its deliveries moved
+	if hubs.commission_last > 0:
+		post_notice(StoryText.get_text("NOT_HUB_COMMISSION", {"amount": hubs.commission_last}))
 	last_local = r["local"]
 	cash += int(r["delta"])
 	trade_income_total += maxi(0, int(r["gross"]))
@@ -2834,6 +2861,13 @@ func _on_make_hub(planet: int) -> void:
 	post_notice(StoryText.get_or("ST_HUB_FIRST_NOTICE", "{planet} is now a hub.", {"planet": planet_name(planet)}))
 	_on_hubs_changed()
 	open_hub_panel(planet)
+	if not tut_win_seen.has("hub_intro"):  # once per run: what a hub does and why your own lanes get in its way
+		_tut_win_open("hub_intro", "HUB_INTRO_WIN_TITLE", "", ["HUB_INTRO_WIN_L1", "HUB_INTRO_WIN_L2", "HUB_INTRO_WIN_L3"], "HUB_INTRO_WIN_BTN", {
+			"HUB_INTRO_WIN_TITLE": "Your first hub",
+			"HUB_INTRO_WIN_L1": "A hub ticks the worlds around it and keeps a pool of ships. Each cycle it buys what those worlds need from a world nearby, at a discount, and carries it in.",
+			"HUB_INTRO_WIN_L2": "To found the Star Bazaar, a hub in its system must work {cycles} cycles and move {units} units.",
+			"HUB_INTRO_WIN_L3": "Your own lanes and Sell orders for the same goods, into those worlds or out of the hub's source world, take the goods from the hub. Remove them and let the hub carry.",
+			"HUB_INTRO_WIN_BTN": "Got it"}, {"cycles": int(balance.get("hub_found_cycles", 0)), "units": int(balance.get("hub_found_trades", 0))})
 
 func open_hub_panel(planet: int) -> void:
 	if preface != null or game_over or not hubs.is_hub(planet):
@@ -2845,9 +2879,53 @@ func open_hub_panel(planet: int) -> void:
 	flagship_panel.close_screen()
 	hub_panel.open_for(planet)
 
+## Cycle end: while the Star Bazaar is not founded and a hub has not met the founding rule, one notice (throttled) names a manual lane or Sell order that takes goods from it.
+func _hub_conflict_notice() -> void:
+	if bazaar.is_founded() or cycle - hub_conflict_last < int(balance.get("hub_conflict_notice_cycles", 4)):
+		return
+	for h in hubs.hub_planets():
+		if int(h) < 0 or bool(bazaar.hub_ready(system_of(int(h)))["ok"]):
+			continue
+		var lanes: Array = hubs.competing_lanes(int(h))
+		if lanes.is_empty():
+			continue
+		var l: Dictionary = lanes[0]
+		var good := Ui.good_name(str(l["good"])).to_lower()
+		if str(l["kind"]) == "sell":
+			post_notice(StoryText.get_or("NOT_HUB_COMPETE_SELL", "Your Sell order for {good} at {to} takes goods from your hub. Remove it so the hub can carry.", {"good": good, "to": planet_name(int(l["to"]))}))
+		else:
+			post_notice(StoryText.get_or("NOT_HUB_COMPETE_LANE", "Your {good} lane {from} to {to} takes goods from your hub. Remove it so the hub can carry.", {"good": good, "from": planet_name(int(l["from"])), "to": planet_name(int(l["to"]))}))
+		hub_conflict_last = cycle
+		return
+
+## A hub that should deliver but has an empty pool: one notice when it enters that state (called on every hub change and at each cycle
+## end), then again every hub_no_ship_notice_cycles while it stays so. The first check after a load (or the first ever) only records
+## the state, and nothing posts while the preface is up.
+var _hub_ns := {}  # hub key -> cycle of its last notice (present = in the state)
+var _hub_ns_primed := false
+func _check_hub_no_ship(on_cycle: bool) -> void:
+	if hubs == null:
+		return
+	var now: Array = hubs.hubs_needing_ship()
+	for k in _hub_ns.keys():
+		if not now.has(k):
+			_hub_ns.erase(k)  # fixed or released: it may warn again later
+	var quiet := _loading_state or not _hub_ns_primed or preface != null
+	var every := maxi(1, int(balance.get("hub_no_ship_notice_cycles", 5)))
+	for h in now:
+		if not _hub_ns.has(h):
+			_hub_ns[h] = cycle
+			if not quiet:
+				post_notice(StoryText.get_or("NOT_HUB_NO_SHIP", "The hub at {planet} has no ship, so it delivers nothing. Open the hub and add a ship with +.", {"planet": hubs.hub_name(int(h), Callable(self, "planet_name"))}))
+		elif on_cycle and not quiet and cycle - int(_hub_ns[h]) >= every:
+			_hub_ns[h] = cycle
+			post_notice(StoryText.get_or("NOT_HUB_NO_SHIP", "The hub at {planet} has no ship, so it delivers nothing. Open the hub and add a ship with +.", {"planet": hubs.hub_name(int(h), Callable(self, "planet_name"))}))
+	_hub_ns_primed = true
+
 ## Hubs changed (made, released, pool, ticks): reach rings and the open card follow.
 func _on_hubs_changed() -> void:
 	sync_hub_rings()
+	_check_hub_no_ship(false)
 	if planet_panel != null and planet_panel.visible:
 		planet_panel.rebuild()
 
@@ -2940,9 +3018,10 @@ func _show_opening_banner() -> void:
 	add_child(l)
 	Juice.enter(l, 0.8, 0.0)
 	var hold := float(balance.get("beat_opening_hold_seconds", 3.4)) * Juice.motion
-	get_tree().create_timer(maxf(0.1, hold - Juice.EXIT_SECONDS)).timeout.connect(func() -> void:
-		if is_instance_valid(l):
-			Juice.leave(l, true))
+	var tw := l.create_tween()  # bound to the banner: freed with it, so no call into a freed capture after a reload
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)  # runs while paused, as the tree timer did
+	tw.tween_interval(maxf(0.1, hold - Juice.EXIT_SECONDS))
+	tw.tween_callback(func() -> void: Juice.leave(l, true))
 
 ## T300: a raid hit a lane: raiders, flash, pods on the map (lane route id, nest planet index, where the pods dropped).
 func _on_raid_hit(lane: int, nest: int, pods_at: Vector3) -> void:
@@ -3044,6 +3123,8 @@ func _end_cycle() -> void:
 	var remind := bazaar.remind_line(cycle)  # T361: gentle main-line reminder, one notice every bazaar_remind_cycles
 	if remind != "":
 		post_notice(StoryText.get_or("NOT_BAZAAR_REMIND", "{line}", {"line": remind}))
+	_hub_conflict_notice()
+	_check_hub_no_ship(true)
 	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()
 	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
@@ -3244,6 +3325,7 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	stats["stages_done"] = bazaar.stage()
 	stats["decisions"] = decisions.summary()  # the end screen tells them as a story (game/end_story.gd)
 	stats["notes"] = {"peak_ships": note_value("peak_ships"), "repossessions": repossessions, "gigs_done": note_value("gigs_done"), "gigs_expired": note_value("gigs_expired"), "restless_cycles": note_value("restless_cycles")}
+	stats["bribe"] = Chains.bribe  # EV_BRB01 choice (FINE | FIRE | HUSH | ""), told by game/end_story.gd
 	stats["company"] = company_name
 	stats["ceo"] = StoryText.get_or(str(Ceos.card(ceo_id).get("name_id", "")), "") if ceo_id != "" and Ceos.has(ceo_id) else ""
 	stats["ending_id"] = ending_id
@@ -3256,8 +3338,11 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	if _end_screen_hold > 0.0 and is_inside_tree():  # T300: let the Opening beat play first
 		var hold := _end_screen_hold
 		_end_screen_hold = 0.0
-		get_tree().create_timer(hold).timeout.connect(func() -> void:
-			if is_instance_valid(self) and is_inside_tree():
+		var tw := create_tween()  # bound to Main: freed with it, so no call into a freed capture after a reload
+		tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)  # runs while paused, as the tree timer did
+		tw.tween_interval(hold)
+		tw.tween_callback(func() -> void:
+			if is_inside_tree():
 				_open_end_screen().show_ending(ending_id, side, stats, stat))
 	else:
 		_open_end_screen().show_ending(ending_id, side, stats, stat)
@@ -3346,6 +3431,10 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 	match str(eff.get("kind", "")):
 		"cash":
 			cash += int(eff["amount"])
+		"trip_cost_route":  # EV_BRB01 FIRE: a timed trip-cost malus on one route (Chains.trip_cost_mult, saved with the chains)
+			var br := bribe_route()
+			if br >= 0:
+				Chains.timed.append({"k": "trip_cost_pct", "m": "", "v": float(eff.get("pct", 0.0)), "until": cycle + int(eff.get("cycles", 1)) - 1, "route": br, "src": id})
 		"debris_pay":
 			cash -= events.debris_fee()
 			events.debris.erase(events.pending_planet)
@@ -3423,6 +3512,10 @@ func fire_event(id: String) -> void:
 	events.pending_planet = events.pick_debris_planet() if id == "EV17" else -1
 	if id == "EV17" and events.pending_planet < 0:
 		return
+	if id == "EV_BRB01":  # the worker is posted at the source world of the busiest route
+		events.pending_planet = bribe_route_planet()
+		if events.pending_planet < 0:
+			return
 	events.record(id, cycle, events.pending_planet)
 	var minor: bool = events.is_minor(id)
 	events.pending_id = "" if minor else id
@@ -3557,7 +3650,7 @@ func _gig_hold_tick(delta: float) -> void:
 	if _gig_hold_left <= 0.0:
 		return
 	_gig_hold_left -= delta
-	var taken := event_notice != null or dock_sheet != null or map_overlays_blocked() or not paused
+	var taken := event_notice != null or map_overlays_blocked() or not paused
 	if not taken and _gig_hold_left > 0.0:
 		return
 	_gig_hold_left = 0.0
@@ -3565,8 +3658,6 @@ func _gig_hold_tick(delta: float) -> void:
 		return
 	if event_notice != null:
 		return  # the event window owns the hold now and restores it
-	if dock_sheet != null:
-		_dock_was_paused = _event_prev_paused  # the sheet saw our hold as the player's pause
 	_event_pause_held = false
 	if paused:
 		paused = _event_prev_paused
@@ -3632,6 +3723,7 @@ func _dismiss_event_notice() -> void:
 
 ## Event beat: the top bar flashes warm and nudges, and the planet an event touches rings once.
 func _event_beat() -> void:
+	Juice.play_event(self)  # a new event or chain step just appeared (not a load or a re-show)
 	if top_bar != null:
 		Juice.flash(top_bar, Ui.col("star_warm").lightened(0.4))
 		Juice.nudge(top_bar)
@@ -3699,6 +3791,30 @@ func _open_chain_notice(id: String) -> void:
 	event_notice.show_event(events.title_of(id), events.body_of(id), "", labels, StoryText.get_text("MENU_CONTINUE"), [], "", Chains.body_id(id))
 	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
 
+## EV_BRB01: the busiest route that starts at a planet (most ships, then level, then the lowest id): its id, -1 when there is none.
+func bribe_route() -> int:
+	var best := -1
+	var key := [-1, -1]
+	for rec in engine.routes:
+		var a := int(rec["a"])
+		if a < 0 or a >= map.planets.size():
+			continue
+		var k := [int(rec.get("ships", 1)), int(rec.get("level", 1))]
+		if best < 0 or k[0] > key[0] or (k[0] == key[0] and k[1] > key[1]) or (k == key and int(rec["id"]) < best):
+			best = int(rec["id"])
+			key = k
+	return best
+
+## EV_BRB01: the source world (planet index) of bribe_route(), -1 when none.
+func bribe_route_planet() -> int:
+	var r := bribe_route()
+	if r < 0:
+		return -1
+	for rec in engine.routes:
+		if int(rec["id"]) == r:
+			return int(rec["a"])
+	return -1
+
 ## The busiest route of a market for trip-cost effects: most ships, then level, then the lowest id. -1 when it has none.
 func _busiest_route(market: String) -> int:
 	var best := -1
@@ -3764,6 +3880,11 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():
 			events.schedule_follow(choices[choice], cycle)  # R1: a choice may schedule a later event
+			if id == "EV_BRB01" and typeof(choices[choice]) == TYPE_DICTIONARY:  # remember it for the end screen; FINE / HUSH lean the ending
+				Chains.bribe = str(choices[choice].get("key", ""))
+				var lean := str(choices[choice].get("lean", ""))
+				if lean != "":
+					Chains.note_lean(id, lean == "dark", cycle, str(map.planets[events.pending_planet].get("id", "")) if events.pending_planet >= 0 and events.pending_planet < map.planets.size() else "", run_branch())
 			if events.is_branch(id) and typeof(choices[choice]) == TYPE_DICTIONARY:
 				Chains.note_branch(id, bool(choices[choice].get("dark", false)), cycle, _mood_world(str(choices[choice].get("market", ""))))  # T284 mood mark
 			if typeof(choices[choice]) == TYPE_DICTIONARY and bool(choices[choice].get("dark", false)):
@@ -3864,6 +3985,7 @@ func debug_restart_tutorial() -> void:
 	tut_step = 0
 	tips_seen = {}
 	tut_win_seen = {}
+	tut_win_slide = false
 	_tut_win_close(false)
 	tips_off = false
 	tip_sig = {}
@@ -3935,10 +4057,6 @@ func set_paused(value: bool) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if preface != null or event_notice != null:
-		return
-	if dock_sheet != null:  # T270: the dock sheet is modal; Esc undocks, Space does not unpause
-		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
-			dock_sheet.close_sheet()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and (not sell_offer.is_empty() or not pending.is_empty()):
 		cancel_chain()
@@ -4207,9 +4325,6 @@ func _build_rail() -> void:
 	rail.add_child(col)
 	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy) 
 	col.add_child(galaxy_button)  # always shown: the galaxy view also lists locked systems as uncharted
-	bazaar_button = _rail_button("mark", "BAZ_PANEL_TITLE", "The Star Bazaar", toggle_bazaar_panel)  # T263: where the share panel button was
-	bazaar_button.tooltip_text += " (M)"
-	col.add_child(bazaar_button)
 	gig_button = _rail_button("gig", "GIG_BOARD_TITLE", "Gig board", toggle_gig_board)  # T273
 	gig_button.tooltip_text += " (J)"
 	col.add_child(gig_button)
@@ -4352,7 +4467,6 @@ func _tut_speed_card() -> bool:
 
 ## T180: map orders go to the flight accessor; its refusal reason becomes a NOT_* notice. No accessor: nothing happens.
 func _on_fly_requested(target: Dictionary) -> void:
-	_dock_after = ""  # T270: a new order cancels a pending dock
 	var f = map.flight
 	if not PathfinderView.active(f):
 		return
@@ -4375,9 +4489,6 @@ func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
 		post_notice_now(tut_lock_text())  # T329: other planets stay refused while the first card is up
 		return
 	var acts: Array = PathfinderView._call(f, "actions_for", [planet_id], [])
-	if PathfinderView.established(f, planet_id):  # T270: an established world offers Dock and trade
-		acts = acts.duplicate()
-		acts.append("dock")
 	if acts.is_empty():
 		return
 	if _action_menu != null:
@@ -4388,68 +4499,19 @@ func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
 		var a := str(acts[k])
 		var txt := StoryText.get_or("BTN_ESTABLISH_PLATFORM" if a == "establish_platform" else "BTN_ESTABLISH_POST",
 			"Establish mining platform" if a == "establish_platform" else "Establish trading post")
-		if a == "dock":
-			txt = StoryText.get_or("BTN_DOCK", "Dock and trade")
 		_action_menu.add_item(txt, k)
 	_action_menu.id_pressed.connect(func(id: int):
 		if id >= 0 and id < acts.size():
-			if str(acts[id]) == "dock":
-				request_dock(planet_id)
-			else:
-				_dock_after = ""
-				_on_fly_establish_requested(planet_id))
+			_on_fly_establish_requested(planet_id))
 	add_child(_action_menu)
 	_action_menu.popup_on_parent(Rect2i(Vector2i(screen_pos), Vector2i.ZERO))
-
-## T270: 'Dock and trade'. Docked there: open the sheet now; otherwise fly there and open it on arrival.
-func request_dock(planet_id: String) -> void:
-	var f = map.flight
-	if not PathfinderView.active(f):
-		return
-	if not PathfinderView.established(f, planet_id):
-		post_notice_now(StoryText.get_or("NOT_DOCK_NO_POST", "Establish a trading post here to dock and trade."))
-		return
-	if flight.state() == "idle" and flight.docked_at() == planet_id:
-		_dock_after = ""
-		open_dock_sheet()
-		return
-	var r = PathfinderView._call(f, "request_fly", [{"kind": "planet", "pos": map.positions[planet_index_of(planet_id)], "index": planet_index_of(planet_id)}], "")
-	_flight_notice(r)
-	_dock_after = planet_id if r == "" else ""
-	on_flight_changed()
-
-## T270: opens the dock sheet at the world the Flagship is docked at; pauses like the event window. False when it cannot.
-func open_dock_sheet() -> bool:
-	if dock_sheet != null or game_over or event_notice != null or preface != null:
-		return dock_sheet != null
-	tip_signal("dock")
-	var i: int = flight.dock_planet()
-	if i < 0:
-		post_notice_now(StoryText.get_or("NOT_DOCK_FAR", "Fly the Flagship here first."))
-		return false
-	dock_sheet = load("res://game/dock_sheet.gd").new()
-	add_child(dock_sheet)
-	_dock_was_paused = paused
-	paused = true
-	dock_sheet.open(self, i)
-	dock_sheet.closed.connect(_on_dock_closed)
-	_refresh()
-	return true
-
-func _on_dock_closed() -> void:
-	dock_sheet = null
-	paused = _dock_was_paused
-	_refresh()
-	save_now()
 
 ## T270: boost on/off (the ship panel button; no key since 2026-11-13). A refusal becomes a notice.
 func set_flagship_boost(on: bool) -> void:
 	var r: String = flight.set_boost(on) if flight != null and flight.is_enabled() else ""
 	if on and r == "" and flight != null and flight.is_enabled():
 		tip_signal("boost")
-	if r == "no_fuel":
-		post_notice_now(StoryText.get_or("NOT_BOOST_NO_ENERGY", "No energy in the hold to boost."))
-	elif r == "no_charges":
+	if r == "no_charges":
 		post_notice_now(StoryText.get_or("NOT_BOOST_EMPTY", "No Boosts left."))
 	elif r == "not_flying":
 		post_notice_now(StoryText.get_or("NOT_BOOST_NOT_FLYING", "Boost works only in flight."))
@@ -4530,10 +4592,7 @@ func on_flight_changed() -> void:
 	_refresh()
 
 func _on_flight_arrived(planet_id: String) -> void:
-	if _dock_after == planet_id:  # T270: the ordered dock opens its sheet on arrival
-		_dock_after = ""
-		if open_dock_sheet():
-			return
+	gigs.deliver_pods(planet_index_of(planet_id))  # salvage pods carried on the Flagship go to this world's storage
 	post_notice(StoryText.get_or("NOT_PATHFINDER_ARRIVED", "The Pathfinder arrived at {planet}.", {"planet": planet_name(planet_index_of(planet_id))}))
 
 func _on_flight_build_done(planet_id: String) -> void:
@@ -4638,7 +4697,7 @@ func _tut_show(_ids: Array = []) -> void:
 	else:
 		_voiced_tut = -1
 		Voice.stop_prefix("TUT_")
-	tutorial_label.visible = t != "" and guided and not game_over
+	tutorial_label.visible = t != "" and guided and not game_over and not (tut_win != null and tut_step == TUT_GUIDE.size() - 1)
 	if tut_card != null:
 		tut_card.visible = tutorial_label.visible
 		tut_count.visible = guided
@@ -4654,12 +4713,18 @@ func _tut_show(_ids: Array = []) -> void:
 		tut_skip_btn.visible = not last_card
 		tut_finish_btn.visible = last_card
 	if tut_next != null:
-		tut_next.visible = guided and (_tut_g0_id() == "TUT_G0_DONE" or _tut_upkeep_next() or _tut_storage_next() or _tut_speed_card())
+		tut_next.visible = guided and (_tut_g0_id() == "TUT_G0_DONE" or _tut_upkeep_next() or _tut_storage_next() or _tut_speed_card() or _tut_wait_next())
 	_tut_update_highlight()
 
 ## T331: the Expenses card waits for Next once the forecast panel has been opened.
 func _tut_upkeep_next() -> bool:
 	return tut_step == 5 and bool(tut_flags.get("expenses", false)) and not bool(tut_flags.get("upkeep_next", false))
+
+## Steps whose goal is an outcome that can take many cycles (a world growing), not one action: they also carry Next, so the
+## card never stays on screen with nothing to press. Next marks the step done (flag "next_<i>").
+const TUT_WAIT_STEPS := [9]
+func _tut_wait_next() -> bool:
+	return tut_step in TUT_WAIT_STEPS and not bool(tut_flags.get("next_%d" % tut_step, false))
 
 ## T344: the Storage card is an explanation: it waits for Next, nothing else.
 func _tut_storage_next() -> bool:
@@ -4673,13 +4738,15 @@ func _tut_count_nt() -> Array:
 	var c0 := _tut_step0_cards()
 	var cur := tut_step - 1 + c0.size()
 	if tut_step == 0:
-		cur = maxi(0, c0.find(_tut_id(0)))
+		var id0 := _tut_id(0)
+		if id0 == "TUT_G0_BUILD":
+			id0 = "TUT_G0_WAIT"  # building the post is one slide: the build card and the wait card share a number
+		cur = maxi(0, c0.find(id0))
 	tut_seen = tut_seen.filter(func(i): return int(i) < cur)  # a slot after the current one was never shown: self-corrects on any jump back
 	if tut_seen.is_empty():  # loaded mid-guide: assume the main slides before this one were shown
 		for i in cur:
 			if i < c0.size():
-				if not (c0[i] in ["TUT_G0_BUILD", "TUT_G0_WAIT"]):
-					tut_seen.append(i)
+				tut_seen.append(i)
 			elif not (_tut_expect_skip(i - c0.size() + 1) or _tut_step_skipped(i - c0.size() + 1)):
 				tut_seen.append(i)
 	tut_seen.append(cur)
@@ -4687,12 +4754,20 @@ func _tut_count_nt() -> Array:
 	for i in range(cur + 1, TUT_GUIDE.size() - 1 + c0.size()):
 		if i < c0.size() or not _tut_expect_skip(i - c0.size() + 1):
 			total += 1
+	# The Planet icons window is one slide just before the last card: counted in every total while still to come.
+	var last := TUT_GUIDE.size() - 1
+	# Counted only when it is shown as that slide: already shown this tutorial (tut_win_slide), or still to come (not seen).
+	var win_counts: bool = tut_win_slide or not tut_win_seen.has("planet_icons")
+	if tut_step < TUT_GUIDE.size() and win_counts:
+		total += 1
+		if tut_step == last:
+			return [tut_seen.size() + 1, total]
 	return [tut_seen.size(), total]
 
 ## The slides of step 0 in the order they appear: the flight cards with discovery, the planet click then the speed card without.
 func _tut_step0_cards() -> Array:
 	if PathfinderView.active(map.flight if map != null else null):
-		return ["TUT_G0_FLY", "TUT_G1C_SPEED", "TUT_G0_TRAVEL", "TUT_G0_BUILD", "TUT_G0_WAIT", "TUT_G0_DONE"]
+		return ["TUT_G0_FLY", "TUT_G1C_SPEED", "TUT_G0_TRAVEL", "TUT_G0_WAIT", "TUT_G0_DONE", TUT_GUIDE[0]]  # ends with the Voltara card; TUT_G0_BUILD shares the WAIT slot
 	return [TUT_GUIDE[0], "TUT_G1C_SPEED"]
 
 ## T342: later step i is expected to be passed over only when that is already certain (state that never reverts), so the total
@@ -4705,7 +4780,7 @@ func _tut_expect_skip(i: int) -> bool:
 		4:
 			return cycle >= 2
 		8, 9:
-			return prosperity.any_tier_reached(1)
+			return prosperity.any_tier_reached(2)
 		10:
 			return not learned_skills.is_empty()
 		11:
@@ -4769,6 +4844,13 @@ func tut_note(key: String) -> void:
 
 ## The last step has no action: it closes by itself after TUT_LAST_SECS real seconds (called from _process).
 func _tut_tick(delta: float) -> void:
+	# The planet icons window comes right before the last guided card; the card is held back while it is up.
+	if tut_step == TUT_GUIDE.size() - 1 and not tut_win_seen.has("planet_icons") and tut_win == null and preface == null and not game_over and tut_card != null:
+		tut_win_slide = true
+		var nt := _tut_count_nt()  # the window is the slide before the last card
+		var cnt := StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": nt[0] - 1, "total": nt[1]})
+		_tut_win_open("planet_icons", "TUT_WIN_PLANET_ICONS_TITLE", "res://art/ui/ui_tut_planet_icons.png", ["TUT_WIN_PLANET_ICONS_TOP", "TUT_WIN_PLANET_ICONS_BOTTOM", "TUT_WIN_PLANET_ICONS_RING"], "BTN_TIP_OK", {}, {}, cnt)
+		_tut_show()
 	if tut_step != TUT_GUIDE.size() - 1 or tut_card == null or not tut_card.visible:
 		tut_goal_t = 0.0
 		return
@@ -4787,6 +4869,8 @@ func _tut_next() -> void:
 		tut_flags["upkeep_next"] = true  # T331: the Expenses card moves on only by Next
 	elif _tut_storage_next():
 		tut_flags["storage_next"] = true  # T344: the Storage card moves on only by Next
+	elif _tut_wait_next():
+		tut_flags["next_%d" % tut_step] = true  # a waiting card: Next moves on without waiting for the outcome
 	else:
 		tut_flags["g0_done"] = true
 	_tut_poll()
@@ -4865,6 +4949,7 @@ func _tut_target_node(key: String) -> Control:
 	var c: Control = null
 	match key:
 		"hero": c = ship_panel.hero_card if ship_panel != null and ship_panel.hero_card != null else null  # T320: the Pathfinder card in the Ships menu
+		"explore": c = flagship_panel.explore_button if flagship_panel != null else null  # the explore on/off button next to the Pathfinder card
 		"buy": c = _tut_first_named(planet_panel, "BuyButton_")
 		"send": c = _tut_first_named(planet_panel, "BuyButton_")  # Send lives on the resource button (right-click menu)
 		"storage":  # the stored/capacity figure (e.g. 0/100) at the right end of the resource button
@@ -4933,8 +5018,10 @@ func _tut_highlight_key() -> String:
 		return "planet"
 	if _tut_speed_card():
 		return "speed"  # T333
-	if tut_step == 0 and (_tut_g0_id() == "TUT_G0_DONE" or _tut_g0_id() == "TUT_G0_TRAVEL"):
-		return ""  # T329: the Yay card points at nothing; the travel card too
+	if tut_step == 0 and _tut_g0_id() == "TUT_G0_DONE":
+		return "explore" if _tut_target_node("explore") != null else ""  # the Yay card points at the explore button next to the Pathfinder card
+	if tut_step == 0 and _tut_g0_id() == "TUT_G0_TRAVEL":
+		return ""  # T329: the travel card points at nothing
 	if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY":
 		return "planet"  # T329: one right-click on the named planet; no Pathfinder card click
 	if tut_step >= TUT_TARGET.size() or TUT_TARGET[tut_step] == "":
@@ -5182,6 +5269,17 @@ func _tut_upkeep_lines_rect() -> Rect2:
 			found = true
 	return r if found else Rect2()
 
+## Where the arrow tip aims: the centre of the outlined target, except on the open forecast, where the outline may span several
+## rows (two Ship upkeep lines with other rows between them): the tip then sits inside the first Ship upkeep line.
+func _tut_arrow_point(key: String, c: Control) -> Vector2:
+	if key == "expenses" and cash_forecast != null and cash_forecast.visible and cash_forecast.box != null:
+		var key_text := StoryText.get_text("LBL_SHIP_UPKEEP")
+		for n in cash_forecast.box.get_children():
+			var row_text := (n as Label).text if n is Label else ((n as RichTextLabel).get_parsed_text() if n is RichTextLabel else "")
+			if (n as Control).visible and row_text.contains(key_text) and (n as Control).get_global_rect().intersects(cash_forecast.get_global_rect()):
+				return (n as Control).get_global_rect().get_center()
+	return _tut_target_rect(key, c).get_center()
+
 func _tut_anchor_rect(key: String, c: Control) -> Rect2:
 	if c != null and key == "expenses" and cash_forecast != null and cash_forecast.visible:
 		return c.get_global_rect().merge(cash_forecast.get_global_rect()).grow(6.0)  # T333: the card sits clear of the open forecast, never over it
@@ -5238,7 +5336,7 @@ func _tut_place_card(key: String, c: Control) -> void:
 	var sc := right_col.get_parent() as Control if right_col != null else null
 	if sc != null and not sc.get_global_rect().intersects(a):
 		avoid.append(sc.get_global_rect().grow(4.0))
-	var tpt: Vector2 = _tut_target_rect(key, c).get_center() if c != null else a.get_center()
+	var tpt: Vector2 = _tut_arrow_point(key, c) if c != null else a.get_center()
 	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 and a.size.y < 120.0 else ["right", "left", "below", "above"]
 	tut_place_beside(tut_card, tut_arrow, a, avoid, tpt, order)
 
@@ -5371,7 +5469,7 @@ func _tut_sig_now() -> Array:
 		engine.routes.size(), buys, sells, tut_flags.size(), learned_skills.size(), skill_points, cycle,
 		planet_panel != null and planet_panel.visible, skill_screen != null and skill_screen.visible,
 		galaxy_view != null and galaxy_view.visible, tut_card != null and tut_card.visible, map != null and map.ship_selected])
-	sig.append(prosperity.any_tier_reached(1))
+	sig.append(prosperity.any_tier_reached(2))
 	if tut_step == 7:  # the only step that reads storage stock
 		var held := 0
 		for k in storage.stock.keys():
@@ -5444,11 +5542,11 @@ func _tut_step_done(i: int) -> bool:
 		7:  # T344: the Storage card is read, Next pressed
 			return bool(tut_flags.get("storage_next", false))
 		8:  # a world card with a Needs list is open (or the first world already grew, so the lesson is past)
-			if prosperity.any_tier_reached(1):
+			if prosperity.any_tier_reached(2):
 				return true
 			return planet_panel != null and planet_panel.visible and selected_planet >= 0 and not prosperity.needs(selected_planet).is_empty()
-		9:  # the first world reached tier 1
-			return Conditions.eval("any_tier:1")
+		9:  # a world has grown (tier 2; tier 1 is any world with a post), or Next was pressed
+			return Conditions.eval("any_tier:2") or bool(tut_flags.get("next_9", false))
 		10:
 			return not learned_skills.is_empty()
 		11:
@@ -5473,7 +5571,7 @@ func _tut_step_skipped(i: int) -> bool:
 ## (tip_signal). A tip never pauses the game, waits while a popup, the event window, the dock sheet, the Skills window, the galaxy
 ## view or a guided step card is up, and is skipped for good once Skip tutorial was pressed.
 const TIP_DEFS := [
-	{"id": "TIP_TIER1", "cond": "any_tier:1"},
+	{"id": "TIP_TIER1", "cond": "any_tier:2"},
 	{"id": "TIP_TAX", "sig": "tax"},
 	{"id": "TIP_RESTLESS", "state": "restless"},
 	{"id": "TIP_HUNGRY", "sig": "hungry"},
@@ -5485,14 +5583,12 @@ const TIP_DEFS := [
 	{"id": "TIP_OPENING", "state": "opening"},
 	{"id": "TIP_PLATFORM", "sig": "platform"},
 	{"id": "TIP_EXPLORE", "state": "explore"},
-	{"id": "TIP_DOCK", "sig": "dock"},
 	{"id": "TIP_BOOST", "sig": "boost"},
 	{"id": "TIP_GIG", "cond": "gig_open"},
 	{"id": "TIP_WEATHER", "state": "convoy"},
 	{"id": "TIP_WEATHER_KINDS", "state": "weather"},
 	{"id": "TIP_PROSPECT", "cond": "skill_learned:FND_PROSPECT"},
 	{"id": "TIP_DEAD", "state": "dead_open"},
-	{"id": "TIP_RECLAIM", "state": "dead_card"},
 	{"id": "TIP_RAID", "state": "raid"},
 	{"id": "TIP_SALVAGE", "sig": "salvage"},
 	{"id": "TIP_WORKSHOP", "state": "workshop"},
@@ -5503,7 +5599,6 @@ const TIP_DEFS := [
 	{"id": "TIP_PERMIT", "cond": "skill_learned:FND_PERMIT"},
 	{"id": "TIP_NEWSYSTEM", "cond": "system_open:2"},
 	{"id": "TIP_POINTS", "state": "points"},
-	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
 ]
 ## T339: order tips are shown in when several wait (goal and capital first); tips not listed follow in TIP_DEFS order.
 const TIP_PRIORITY := ["TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_BILL", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
@@ -5516,7 +5611,7 @@ const TIP_RECENT_MAX := 3
 const TIP_RECENT_FONT := 12
 const TIP_POLL_SECS := 0.5
 
-## A one-time event happened (key: "tax", "hungry", "upgrade", "platform", "dock", "boost", "salvage"). Remembered for this session.
+## A one-time event happened (key: "tax", "hungry", "upgrade", "platform", "boost", "salvage"). Remembered for this session.
 func tip_signal(key: String) -> void:
 	tip_sig[key] = true
 
@@ -5553,8 +5648,6 @@ func _tip_state(key: String) -> bool:
 			return not events.active.is_empty()
 		"dead_open":
 			return has_skill("FND_PROSPECT") and map.planets.any(func(p): return DeadWorlds.is_dead(p))
-		"dead_card":
-			return selected_planet >= 0 and selected_planet < map.planets.size() and DeadWorlds.is_dead(map.planets[selected_planet]) and tips_seen.has("TIP_DEAD")
 		"raid":
 			return not raids.warning().is_empty()
 		"workshop":
@@ -5565,8 +5658,6 @@ func _tip_state(key: String) -> bool:
 			return storage_link.visible_feature()
 		"points":
 			return skill_points > 0 and tut_step >= TUT_GUIDE.size()
-		"foundations":
-			return learned_skills.filter(func(k): return str(k).begins_with("FND_")).size() >= 3
 	return false
 
 ## Is this tip due now? Condition tree first (game/conditions.gd), then the state check, then the signal.
@@ -5583,7 +5674,7 @@ func tip_text(id: String) -> String:
 
 ## True when a tip card may be on screen now: nothing modal, no event window, no guided step card.
 func tip_can_show() -> bool:
-	if game_over or preface != null or event_notice != null or dock_sheet != null or tip_card == null:
+	if game_over or preface != null or event_notice != null or tip_card == null:
 		return false
 	if tut_card != null and tut_card.visible:
 		return false
@@ -5777,7 +5868,7 @@ func _tip_tick(delta: float) -> void:
 			if tip_due(def):
 				tips_seen[str(def["id"])] = true
 		return
-	if not tut_win_seen.has("planet_icons") and tip_active == "" and tip_can_show() and Conditions.eval("any_tier:1"):
+	if not tut_win_seen.has("planet_icons") and tip_active == "" and tip_can_show() and tut_step >= TUT_GUIDE.size() and Conditions.eval("any_tier:2"):
 		_tut_win_open("planet_icons", "TUT_WIN_PLANET_ICONS_TITLE", "res://art/ui/ui_tut_planet_icons.png", ["TUT_WIN_PLANET_ICONS_TOP", "TUT_WIN_PLANET_ICONS_BOTTOM", "TUT_WIN_PLANET_ICONS_RING"])
 		return
 	tip_latch()
@@ -5793,7 +5884,7 @@ func _tip_tick(delta: float) -> void:
 		_tip_show(id)
 
 ## One-time tutorial window (game/tut_window.gd): marks `key` seen, pauses, and restores the paused state on close.
-func _tut_win_open(key: String, title_id: String, image_path: String, line_ids: Array, ok_id: String = "BTN_TIP_OK", fallbacks: Dictionary = {}, vars: Dictionary = {}) -> void:
+func _tut_win_open(key: String, title_id: String, image_path: String, line_ids: Array, ok_id: String = "BTN_TIP_OK", fallbacks: Dictionary = {}, vars: Dictionary = {}, count_text: String = "") -> void:
 	tut_win_seen[key] = true
 	if tut_win != null:  # another window is open: this one replaces it and keeps the paused state saved by the first
 		tut_win.queue_free()
@@ -5801,7 +5892,7 @@ func _tut_win_open(key: String, title_id: String, image_path: String, line_ids: 
 	else:
 		_tut_win_prev_paused = paused
 	paused = true
-	tut_win = TutWindow.make(title_id, image_path, line_ids, ok_id, fallbacks, vars)
+	tut_win = TutWindow.make(title_id, image_path, line_ids, ok_id, fallbacks, vars, count_text)
 	tut_win.closed.connect(func(): _tut_win_close(true))
 	add_child(tut_win)
 
@@ -5812,6 +5903,7 @@ func _tut_win_close(restore: bool) -> void:
 	tut_win = null
 	if restore:
 		paused = _tut_win_prev_paused
+	_tut_show()  # the last guided card was held back while the window was up
 
 func _build_tip_card() -> void:
 	tip_card = PanelContainer.new()

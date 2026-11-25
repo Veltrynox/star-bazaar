@@ -3157,6 +3157,47 @@
       "numbers_source": "story"
     },
     {
+      "id": "EV_BRB01",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "FINE",
+          "lean": "public",
+          "effect": {
+            "type": "cash_cost",
+            "key": "event_bribe_fine"
+          }
+        },
+        {
+          "key": "FIRE",
+          "lean": "",
+          "effect": {
+            "type": "trip_cost_route",
+            "key": "event_bribe_fire_pct",
+            "cycles_key": "event_bribe_fire_cycles"
+          }
+        },
+        {
+          "key": "HUSH",
+          "lean": "dark",
+          "effect": {
+            "type": "cash_cost",
+            "key": "event_bribe_hush"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "cycle_at_least:balance.event_bribe_min_cycle",
+          "route_exists"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
       "id": "EV_PST02",
       "kind": "C",
       "market": null,

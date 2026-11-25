@@ -5,7 +5,7 @@ extends RefCounted
 ## Mine good: each company mines its own tier-2 raw (data/planets.json mines_by_branch: branch -> planet id -> good), bought at
 ## round(base_value x balance dead_mine_price_pct); the mine sells nothing. mine_good / mine_price / apply_mine are the one place for it.
 ## T295: a reclaimed world has type "reclaimed" and is no longer a dead world. Mining stock (design section 3.4): each dead world has a
-## finite stock (balance dead_stock, never refills; routes take from it, see route_engine). UI getters: stock_left(pid), stock_max(),
+## stock that never runs out (owner rule 2026-11-14) but gives at most balance dead_cycle_cap units per cycle (x Deep Cut). UI getters: stock_left(pid), stock_max(),
 ## cycles_left(pid) (-1 when nothing mined last cycle). Saved by main under "dead_mining" (state_to_dict / state_from_dict).
 
 const ID_PREFIX := "dead_"
@@ -75,19 +75,21 @@ func tick() -> void:
 	_rate = _acc
 	_acc = {}
 
+## Owner rule 2026-11-14: dead worlds never run out, but each gives at most stock_max() units per cycle (balance
+## dead_cycle_cap, MIN_5 Deep Cut multiplies it) so endless mining is not a money printer. stock_left is what is left of
+## this cycle's cap; exhausted() is always false (a capped cycle never refuses new orders or routes).
 func stock_max() -> int:
-	return maxi(0, roundi(float(balance.get("dead_stock", 0)) * Skills.dead_stock_mult()))  # MIN_5 raises the cap
+	return maxi(0, roundi(float(balance.get("dead_cycle_cap", 0)) * Skills.dead_stock_mult()))
 
 func stock_left(pid: String) -> int:
-	return clampi(int(stock.get(pid, stock_max())), 0, stock_max())
+	return maxi(0, stock_max() - int(_acc.get(pid, 0)))
 
-func exhausted(pid: String) -> bool:
-	return stock_left(pid) <= 0
+func exhausted(_pid: String) -> bool:
+	return false
 
-## Route engine: a ship took n units out of this world. Returns the units counted (never more than is left).
+## Route engine: a ship took n units out of this world this cycle (never more than is left of the cycle cap).
 func take(pid: String, n: int) -> int:
 	var got := mini(maxi(0, n), stock_left(pid))
-	stock[pid] = stock_left(pid) - got
 	_acc[pid] = int(_acc.get(pid, 0)) + got
 	return got
 

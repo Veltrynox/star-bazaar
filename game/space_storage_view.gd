@@ -115,8 +115,9 @@ func _bazaar_block(is_bz: bool) -> void:
 	if not is_bz:
 		if bz.can_found(system_id):
 			box.add_child(HSeparator.new())
-			var fb := Button.new()
+			var fb := FoundBazaarButton.new()
 			fb.name = "FoundBazaarButton"
+			fb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			fb.text = StoryText.get_or("BAZ_FOUND_BTN", "Found the Bazaar here")
 			fb.tooltip_text = StoryText.get_or("BAZ_FOUND_TIP", "Raise the Star Bazaar in this Space Storage. Once per run, final.")
 			fb.pressed.connect(_ask_found_bazaar)
@@ -125,10 +126,19 @@ func _bazaar_block(is_bz: bool) -> void:
 			fb.text = "%s (%s)" % [fb.text, main.build_price_text(fd)]
 			if not bool(hr["ok"]):
 				fb.disabled = true
-				fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NEED_HUB", "Needs a hub in this system that has worked {cycles} cycles ({age} now) and moved {units} units ({moved} now).", {"cycles": hr["need_age"], "age": hr["age"], "units": hr["need_moved"], "moved": hr["moved"]})
+				# no hub of this system at all (planet hub of the system or its station hub): another tooltip
+				var has_hub := false
+				for hp in main.hubs.hub_planets():
+					if (hp < 0 and -hp == system_id) or (hp >= 0 and main.system_of(hp) == system_id):
+						has_hub = true
+				if has_hub:
+					fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NEED_HUB", "This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Let the hub work at full strength first: {age} of {cycles} cycles, {moved} of {units} units moved.", {"cycles": hr["need_age"], "age": hr["age"], "units": hr["need_moved"], "moved": hr["moved"]})
+				else:
+					fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NO_HUB", "This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Make a hub in this system and let it work at full strength for {cycles} cycles and {units} units.", {"cycles": hr["need_age"], "units": hr["need_moved"]})
 			elif main.cash < int(fd["cash"]):
 				fb.disabled = true
 				fb.tooltip_text = StoryText.get_or("BAZ_FOUND_NEED_CASH", "Not enough credits. Ore in this system's planet storages lowers the price.")
+			fb.add_picture(Ui.ui_texture("ui_header_bazaar"))
 			box.add_child(fb)
 		return
 	box.add_child(HSeparator.new())
@@ -574,9 +584,11 @@ func _build_dialog() -> void:
 		ob.item_selected.connect(func(i): _dlg_partner = int(ps[i]); refresh())
 		panel.add_child(ob)
 		panel.add_child(_wrapped(StoryText.get_or("SS_LINK_DLG_PARTNER", "Join {a} to {b}", {"a": _sname(system_id), "b": _sname(_dlg_partner)})))
-		var c: Dictionary = sl.cost()
+		var c: Dictionary = sl.cost(system_id, _dlg_partner)
 		var missing: Array = []
 		for g in Availability.visible_goods(["rivets", "energy"]):  # visible goods only
+			if int(c[g]) <= 0:
+				continue  # a good this pair does not need is not listed
 			var have: int = sl.stock_of(system_id, str(g)) + sl.stock_of(_dlg_partner, str(g))
 			var cl := _wrapped(StoryText.get_or("SS_LINK_DLG_COST", "{goods}: need {n}, have {m}", {"goods": Ui.good_name(str(g)), "n": int(c[g]), "m": have}))
 			cl.name = "LinkCost_" + str(g)

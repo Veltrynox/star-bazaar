@@ -8,8 +8,8 @@ extends RefCounted
 ## The last stage sets opening_pending and emits opening_ready (T298): the Opening gig (kind "opening", game/gigs.gd) asks the Flagship to fly the
 ## charter cargo to the Star Bazaar station; docking there calls open(), which returns the win outcome {kind: "bazaar"}. end_cycle() itself never wins.
 ## Wings (T298): each stage listed in data/bazaar.json "wings" offers two perks (wing_pending = the stage to choose for; choose_wing(idx)).
-## A wing has an effect (hold_units | hub_reach | tax_pct | workshop_cost_pct) and its amount is the balance key bazaar_wing_<id> (placeholder).
-## wing_bonus(effect) sums the chosen wings (static, so hold, hubs, tax and workshops read it without a Main handle).
+## A wing has an effect (hub_reach | tax_pct | workshop_cost_pct) and its amount is the balance key bazaar_wing_<id> (placeholder).
+## wing_bonus(effect) sums the chosen wings (static, so hubs, tax and workshops read it without a Main handle).
 ## recap() is the end recap data: site system, stages, wings, worlds per tier, reclaimed worlds, decisive moments.
 ## Automatic supply: once founded, the Star Bazaar hub (game/hubs.gd) delivers the short rows of the current stage bill, and the inputs of active
 ## production in the site's Space Storage, from the worlds of the system each cycle before end_cycle(), so a bill it fills counts that same cycle.
@@ -21,6 +21,7 @@ extends RefCounted
 
 const StoryText := preload("res://game/story_text.gd")
 const StorageScript := preload("res://game/storage.gd")
+const Systems := preload("res://game/systems.gd")
 
 signal stage_done(n: int)
 signal founded(sys: int)
@@ -165,6 +166,10 @@ func bill_status() -> Array:
 	if ore_need > 0 and not ore_merged:
 		var ore_have: int = game.storage.amount(site_key(), "ore")
 		out.append({"tier": 0, "kind": "ore", "need": ore_need, "have": ore_have, "goods": Availability.visible_goods(["ore"]), "ok": ore_have >= ore_need})
+	var cask_need := _bal("bazaar_bill_s%d_cask" % n, 0)  # Vault Cask rule: one extra row for every branch (tier 0, kind "cask"); 0 = no row. Held in the Bazaar's storage; only a Storage Link brings it
+	if cask_need > 0:
+		var cask_have: int = game.storage.amount(site_key(), "cask")
+		out.append({"tier": 0, "kind": "cask", "need": cask_need, "have": cask_have, "goods": Availability.visible_goods(["cask"]), "ok": cask_have >= cask_need})
 	return out
 
 func bill_ok() -> bool:
@@ -211,7 +216,7 @@ func end_cycle() -> Dictionary:
 	_consume_bill()
 	_stage += 1
 	stage_done.emit(_stage)
-	if not wing_options(_stage).is_empty():
+	if wing_options(_stage).size() >= 2:  # a stage left with one wing offers no choice
 		wing_pending = _stage
 		wing_offered.emit(_stage)
 	if complete():
@@ -321,7 +326,7 @@ func _bill_record(r: Dictionary) -> Dictionary:
 		"source": -1, "source_price": 0, "fed": false}
 	var best_cost := 1 << 30
 	for g in r["goods"]:  # visible goods only: a hidden good is never named
-		var src := _source_of(str(g)) if str(g) != "ore" else {"planet": -1, "price": 0}  # ore is mined, never bought
+		var src := _source_of(str(g)) if str(g) != "ore" and str(g) != "cask" else {"planet": -1, "price": 0}  # ore is mined, cask comes by Storage Link: never bought for the bill
 		var cost: int = int(src["price"]) if int(src["planet"]) >= 0 and int(src["price"]) > 0 else 1 << 29  # not sold anywhere reachable: last choice
 		var fed := is_fed(str(g))
 		if fed:
@@ -358,6 +363,7 @@ func next_step() -> Dictionary:
 			if can_found(int(sys)):
 				rec["site"] = int(sys)
 				break
+		_found_step(rec)
 		return rec
 	if complete():
 		rec["kind"] = "opening" if opening_pending else "done"
@@ -380,6 +386,56 @@ func next_step() -> Dictionary:
 		rec["kind"] = "reach"
 	return rec
 
+## Fills the pre-founding hint of a "found" record: sub (make_hub|add_ship|lane|sell|progress|ready|""), sys, hub, and the lane or progress fields.
+func _found_step(rec: Dictionary) -> void:
+	rec["sub"] = ""
+	if game == null or game.station_systems.is_empty():
+		return
+	var sys := int(rec["site"])
+	var hub := -1
+	if sys < 0:
+		sys = int(game.station_systems[0])
+		for s in game.station_systems:
+			for p in game.hubs.hub_planets():
+				if int(p) >= 0 and game.system_of(int(p)) == int(s):
+					sys = int(s)
+					hub = int(p)
+					break
+			if hub >= 0:
+				break
+	else:
+		for p in game.hubs.hub_planets():
+			if int(p) >= 0 and game.system_of(int(p)) == sys:
+				hub = int(p)
+				break
+	rec["sys"] = sys
+	rec["hub"] = hub
+	if hub < 0:
+		rec["sub"] = "make_hub"
+		return
+	var hr := hub_ready(sys)
+	if bool(hr["ok"]) and can_found(sys):
+		rec["sub"] = "ready"
+		rec["cost"] = int(found_discount(sys)["cash"])
+		return
+	if game.hubs.pool_of(hub) <= 0:
+		rec["sub"] = "add_ship"
+		return
+	if not bool(hr["ok"]):
+		var lanes: Array = game.hubs.competing_lanes(hub)
+		if not lanes.is_empty():
+			var l: Dictionary = lanes[0]
+			rec["sub"] = "sell" if str(l["kind"]) == "sell" else "lane"
+			rec["good"] = str(l["good"])
+			rec["from"] = int(l["from"])
+			rec["to"] = int(l["to"])
+			return
+	rec["sub"] = "progress"
+	rec["age"] = int(hr["age"])
+	rec["moved"] = int(hr["moved"])
+	rec["need_age"] = int(hr["need_age"])
+	rec["need_moved"] = int(hr["need_moved"])
+
 ## The instruction line of a next_step / bill_lines record (every surface and the reminder use this one helper).
 func step_line(rec: Dictionary) -> String:
 	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % int(rec.get("stage", 0)), "")
@@ -389,6 +445,9 @@ func step_line(rec: Dictionary) -> String:
 			var v := {"stage": stage_name, "amount": int(rec["amount"]), "good": good}
 			if bool(rec["fed"]):
 				return StoryText.get_or("BAZ_STEP_BILL_FED", "{stage}: {amount} {good} still to arrive at the Star Bazaar. Your route is on; wait for the cycles.", v)
+			if str(rec["good"]) == "cask":
+				v["system"] = Systems.name_of(3)
+				return StoryText.get_or("BAZ_STEP_BILL_CASK", "{stage} needs {amount} {good} from {system}. Carry them to its Space Storage, build a Storage Link to the Star Bazaar (energy only) and order the casks across.", v)
 			if str(rec["good"]) == "ore":
 				return StoryText.get_or("BAZ_STEP_BILL_ORE", "{stage} needs {amount} {good} held in the Star Bazaar's storage. Mine it and send it to the Star Bazaar.", v)
 			if int(rec["source"]) >= 0:
@@ -399,8 +458,35 @@ func step_line(rec: Dictionary) -> String:
 		"quorum":
 			return StoryText.get_or("BAZ_STEP_QUORUM", "{stage} needs {n} more worlds at {tier}. Meet their needs each cycle: see Closest growth.",
 				{"stage": stage_name, "n": int(rec.get("n", 0)), "tier": StoryText.get_or("PROS_TIER_%d" % int(rec.get("tier", 0)), "Tier %d" % int(rec.get("tier", 0)))})
+		"found":
+			return _found_line(rec)
 		"reach":
 			return StoryText.get_or("BAZ_STEP_REACH", "{stage} needs a world in another system. Buy a permit (Skills) and establish a post there.", {"stage": stage_name})
+	return ""
+
+func _found_line(rec: Dictionary) -> String:
+	var sub := str(rec.get("sub", ""))
+	if sub == "":
+		return ""
+	var sysn := Systems.name_of(int(rec.get("sys", -1)))
+	var hub := int(rec.get("hub", -1))
+	var hname: String = game.planet_name(hub) if hub >= 0 else ""
+	match sub:
+		"make_hub":
+			return StoryText.get_or("BAZ_STEP_FOUND_HUB", "Make a hub in {system} (a world at hub tier) and tick its worlds.", {"system": sysn})
+		"add_ship":
+			return StoryText.get_or("BAZ_STEP_FOUND_SHIP", "Add a ship to the pool of the hub at {planet}.", {"planet": hname})
+		"lane":
+			return StoryText.get_or("BAZ_STEP_FOUND_LANE", "Remove the {good} lane {from} to {to}: it takes goods from your hub.",
+				{"good": Ui.good_name(str(rec["good"])).to_lower(), "from": game.planet_name(int(rec["from"])), "to": game.planet_name(int(rec["to"]))})
+		"sell":
+			return StoryText.get_or("BAZ_STEP_FOUND_SELL", "Remove the {good} Sell order at {to}: it takes goods from your hub.",
+				{"good": Ui.good_name(str(rec["good"])).to_lower(), "to": game.planet_name(int(rec["to"]))})
+		"progress":
+			return StoryText.get_or("BAZ_STEP_FOUND_PROGRESS", "Hub at {planet}: {age}/{need_age} cycles, {moved}/{need_moved} units moved.",
+				{"planet": hname, "age": int(rec["age"]), "need_age": int(rec["need_age"]), "moved": int(rec["moved"]), "need_moved": int(rec["need_moved"])})
+		"ready":
+			return StoryText.get_or("BAZ_STEP_FOUND_READY", "Found the Star Bazaar in the Space Storage of {system} ({cost} cr).", {"system": sysn, "cost": int(rec["cost"])})
 	return ""
 
 ## Cycle end (called by main): the gentle reminder line, or "". Only for a short bill nothing feeds, at most once every bazaar_remind_cycles; records the cycle.
@@ -441,7 +527,7 @@ func recap() -> Dictionary:
 func _consume_bill() -> void:
 	for r in bill_status():
 		var left := int(r["need"])
-		for g in (["ore"] if str(r.get("kind", "")) == "ore" else _branch_goods(int(r["tier"]))):
+		for g in (["ore"] if str(r.get("kind", "")) == "ore" else (["cask"] if str(r.get("kind", "")) == "cask" else _branch_goods(int(r["tier"])))):
 			if left <= 0:
 				break
 			left -= game.storage.remove(site_key(), g, left)

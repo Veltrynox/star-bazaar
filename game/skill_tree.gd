@@ -34,6 +34,13 @@ static func visible_branches(rb: String) -> Array:
 static func in_run(id: String, rb: String = run_branch) -> bool:
 	return visible_branches(rb).has(market_of(id))
 
+## True when every node this run can learn (Foundations plus the run's market tree) is in `learned`.
+static func fully_learned(learned: Array, rb: String = run_branch) -> bool:
+	for id in all_ids():
+		if in_run(id, rb) and not learned.has(id):
+			return false
+	return true
+
 static func _ensure() -> void:
 	if _loaded:
 		return

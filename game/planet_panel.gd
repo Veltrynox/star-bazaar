@@ -105,6 +105,8 @@ func show_planet(index: int, route_id: int = -1) -> void:
 	if index != planet_index:
 		split_open = ""
 	var was_open := visible and index != planet_index  # another planet while open: a short settle
+	if index != planet_index or not visible:
+		load("res://game/juice.gd").play_hum(self)  # a planet actually opens (not a refresh of the same one)
 	planet_index = index
 	selected_route = route_id
 	visible = true

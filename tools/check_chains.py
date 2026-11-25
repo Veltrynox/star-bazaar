@@ -43,7 +43,7 @@ for s in c['steps']:
     walk(s['trigger'])
 for k in ('dir_nudge_cap','dir_echo_mult','dir_swing_mult','dir_swing_min_abs','win_gate_cycle'):
     key(k, 'rules')
-if len(c['pool_new']) != 60: err.append('pool_new must be 60')
+if len(c['pool_new']) != 63: err.append('pool_new must be 63')
 for e in c['pool_new']:
     if 'effect' in e: eff_keys(e['effect'], e['id'])
     for ch in e.get('choices', []): eff_keys(ch['effect'], e['id'])

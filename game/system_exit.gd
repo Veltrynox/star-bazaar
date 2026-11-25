@@ -162,8 +162,8 @@ func _draw_marker(info: Dictionary) -> void:
 	else:
 		_draw_arrow(m, (m - info["from"]).normalized() if (m - info["from"]).length() > 1.0 else Vector2.RIGHT, tint)
 	var font := get_theme_default_font()
-	var how := StoryText.get_or("LBL_SYSTEM_N", "System {n} · {how}", {"n": sid,
-		"how": StoryText.get_or("LBL_LOCKED_HOW", "permit or skill") if locked else StoryText.get_or("LBL_OPEN_HOW", "click to travel")})
+	var how := StoryText.get_or("LBL_SYSTEM_NUM", "System {n}", {"n": sid}) if locked else StoryText.get_or("LBL_SYSTEM_N", "System {n} · {how}", {"n": sid,
+		"how": StoryText.get_or("LBL_OPEN_HOW", "click to travel")})  # a locked pointer shows only the number (owner 2026-11-13)
 	draw_string(font, m + Vector2(18, -1), Systems.name_of(sid), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, tint)
 	draw_string(font, m + Vector2(18, 14), how, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, tint)
 

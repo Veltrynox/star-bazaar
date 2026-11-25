@@ -157,6 +157,7 @@ var cells: Dictionary = {}  # node id -> the VBox holding the button (and its Us
 var use_rows: Dictionary = {}  # node id -> HBox for bot skills
 var bars: Dictionary = {}  # tech id -> ProgressBar
 var points_label: Label
+var cash_out_btn: Button
 var detail_box: VBoxContainer
 var learn_button: Button
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
@@ -239,6 +240,8 @@ static func plain_args(balance: Dictionary, id: String) -> Dictionary:
 			args["m"] = int(balance.get(str(e["cooldown_key"]), 0))
 		if e.has("duration_key"):
 			args["n"] = int(balance.get(str(e["duration_key"]), 0))
+		if str(e.get("type", "")) == "weather_soften_pct" and e.has("key"):
+			args["pct"] = "%d%%" % roundi(float(balance.get(str(e["key"]), 0.0)) * 100.0)  # {pct} in the PLAIN line: a fraction shown as a percent
 	return args
 
 # ---- build ----
@@ -267,6 +270,11 @@ func setup(main_node: Control) -> void:
 	points_label = Label.new()
 	points_label.theme_type_variation = "LabelReadout"
 	head.add_child(points_label)
+	cash_out_btn = Button.new()
+	cash_out_btn.visible = false
+	cash_out_btn.pressed.connect(func(): main.cash_out_skill_points())
+	_hover_lift(cash_out_btn)
+	head.add_child(cash_out_btn)
 	var close := Button.new()
 	close.text = StoryText.get_text("SK_BTN_CLOSE")
 	close.pressed.connect(close_screen)
@@ -753,6 +761,10 @@ func refresh() -> void:
 	if _last_points >= 0 and _last_points != main.skill_points:
 		Juice.pop(points_label)
 	_last_points = main.skill_points
+	var cash_rate := int(main.balance.get("skill_point_cash", 250))
+	cash_out_btn.visible = main.skill_points > 0 and SkillTree.fully_learned(learned, main.run_branch())
+	cash_out_btn.text = StoryText.get_text("SK_BTN_CASH_OUT", {"n": main.skill_points, "cash": main.skill_points * cash_rate})
+	cash_out_btn.tooltip_text = StoryText.get_text("SK_CASH_OUT_TIP")
 	var fresh: Array = []
 	if _prev_learned != null:
 		for lid in learned:
@@ -788,6 +800,8 @@ func refresh() -> void:
 	_build_detail()
 	_shrink(detail_box, DETAIL_SCALE)
 	_detail_swap()
+	if not fresh.is_empty():
+		Juice.play_learn(self)  # one satisfying chime per learn, lined up with the burst
 	for lid in fresh:
 		_celebrate(str(lid))
 	_tree.queue_redraw()

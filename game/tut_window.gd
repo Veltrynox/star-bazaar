@@ -9,13 +9,15 @@ signal closed
 
 var _fallbacks: Dictionary = {}
 var _vars: Dictionary = {}  # {name} variables of the texts
+var _count_text := ""  # slide counter ("2 of 10") shown in the header; "" = none
 
 const IMAGE_SCALE := 2.0
 const TEXT_W := 300.0
 
 ## image_path may be "" (text only); fallbacks maps a text id to its English fallback (used until the story entry exists).
-static func make(title_id: String, image_path: String, line_ids: Array, ok_id: String = "BTN_TIP_OK", fallbacks: Dictionary = {}, vars: Dictionary = {}) -> TutWindow:
+static func make(title_id: String, image_path: String, line_ids: Array, ok_id: String = "BTN_TIP_OK", fallbacks: Dictionary = {}, vars: Dictionary = {}, count_text: String = "") -> TutWindow:
 	var w := TutWindow.new()
+	w._count_text = count_text
 	w._fallbacks = fallbacks
 	w._vars = vars
 	w._build(title_id, image_path, line_ids, ok_id)
@@ -47,7 +49,18 @@ func _build(title_id: String, image_path: String, line_ids: Array, ok_id: String
 	var title := Label.new()
 	title.text = StoryText.get_or(title_id, str(_fallbacks.get(title_id, "")), _vars).to_upper()
 	title.theme_type_variation = "LabelCaption"
-	box.add_child(title)
+	if _count_text != "":
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 12)
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head.add_child(title)
+		var cnt := Label.new()
+		cnt.theme_type_variation = "LabelNumberMuted"
+		cnt.text = _count_text
+		head.add_child(cnt)
+		box.add_child(head)
+	else:
+		box.add_child(title)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	box.add_child(row)

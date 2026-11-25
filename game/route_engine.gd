@@ -24,6 +24,7 @@ var balance: Dictionary = {}
 var trade: RefCounted
 var storage: RefCounted
 var commodities: Array = []
+var sell_hold: Dictionary = {}  # "storage key|good" -> units a hub delivered to a world this settle; the world's Sell orders leave them for its need fill
 var hub_hold: Dictionary = {}  # "storage key|good" -> units earmarked for hub records this settle; need-fill from storage leaves them
 var routes: Array = []        # Array of route records (Dictionary)
 var mix: Dictionary = {}      # N3: planet -> {goods, bonus, mk} sold so far this cycle (mk: markets seen, common raws left out)
@@ -230,11 +231,24 @@ func local_amount(good: String = "") -> int:
 ## T371: a boosted world (Boost, set by main) takes balance boost_order_pct more on every Buy order. Sell orders are not boosted.
 var boosted_planets: Array = []  # planet indexes
 
+## Owner 2026-11-14: a grown world produces more. Each Prosperity tier above 1 adds balance prosperity_produce_pct (per tier)
+## to its Buy orders; added to the boost share, not multiplied. Rounded so a small order still gains.
 func buy_amount(planet: int, good: String = "") -> int:
 	var n := local_amount(good)
-	if n >= ORE_UNCAPPED or not boosted_planets.has(planet):
+	if n >= ORE_UNCAPPED:
 		return n
-	return floori(float(n) * (1.0 + maxf(0.0, float(balance.get("boost_order_pct", 0.0)))))
+	var bonus := 0.0
+	if boosted_planets.has(planet):
+		bonus += maxf(0.0, float(balance.get("boost_order_pct", 0.0)))
+	var t: int = 1 if prosperity == null else int(prosperity.tier(planet))
+	if t > 1:
+		bonus += float(t - 1) * maxf(0.0, float(balance.get("prosperity_produce_pct", 0.0)))
+	if bonus > 0.0:
+		n = roundi(float(n) * (1.0 + bonus))
+	var mined := _mined_pid(planet)
+	if mined != "" and dead_worlds != null:  # owner 2026-11-14: a dead world gives at most its per-cycle cap (forecasts see it too)
+		n = mini(n, int(dead_worlds.stock_max()))
+	return n
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
@@ -385,10 +399,13 @@ func upkeep_part(rec = null) -> int:
 	upkeep *= offset_maint_mult(rec) * Chains.upkeep_mult()
 	return floori(upkeep / maxf(1.0, float(balance.get("maintenance_interval", 1))))
 
-## A ship is paid for whether or not its lane ran: a route that idles, stalls or is blocked still costs its upkeep part (not the trip cost).
+## A ship is paid for whether or not its lane ran, but a ship that stays put is cheaper to keep: a route that idles, stalls or is
+## blocked costs idle_route_upkeep_mult of its upkeep part (owner 2026-11-14; not the trip cost).
 ## Hub delivery records (owner set) are not ships of their own: the pool ship pays ship_idle_upkeep instead.
 func idle_route_upkeep(rec: Dictionary) -> int:
-	return 0 if str(rec.get("owner", "")) != "" else upkeep_part(rec)
+	if str(rec.get("owner", "")) != "":
+		return 0
+	return floori(float(upkeep_part(rec)) * clampf(float(balance.get("idle_route_upkeep_mult", 1.0)), 0.0, 1.0))
 
 ## Ships on no route and ships in a hub pool pay ship_idle_upkeep each, every cycle.
 func idle_ship_count() -> int:
@@ -611,8 +628,8 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 			if prosperity != null and prosperity.mining_closed(planet):
 				return {"n": 0, "credits": 0, "state": str(prosperity.mining_closed_reason(planet))}
 			if dead_worlds != null:
-				if dead_worlds.exhausted(mined):
-					return {"n": 0, "credits": 0, "state": StoryText.get_or("ST_DEAD_EMPTY", "This world is mined out.")}
+				if dead_worlds.stock_left(mined) <= 0:
+					return {"n": 0, "credits": 0, "state": StoryText.get_or("ST_DEAD_CYCLE_CAP", "Mined to this cycle's limit.")}
 				n = mini(n, int(dead_worlds.stock_left(mined)))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
@@ -790,6 +807,9 @@ static func has_stop(rec) -> bool:
 func stop_on_path(src: int, stop: int, dst: int) -> bool:
 	var n: int = trade.planets.size()
 	if src < 0 or dst < 0 or stop < 0 or src >= n or dst >= n or stop >= n or src == dst or stop == src or stop == dst:
+		return false
+	var sys: int = int(trade.planets[src].get("system", 1))  # planet coordinates are local to their system: a stop must share src's and dst's system
+	if int(trade.planets[dst].get("system", 1)) != sys or int(trade.planets[stop].get("system", 1)) != sys:
 		return false
 	var a := _map_pos(src)
 	var ab := _map_pos(dst) - a
@@ -1017,8 +1037,17 @@ static func fare_for(fixed: int, cash: int, paid_yet: bool) -> int:
 ## order while `cash` still covers it. A route reserves only when its planets are open, its destination has room, and
 ## its source holds stock (`amt` reads stock) or an active Buy order feeds that source. Routes that cannot run reserve 0.
 func route_reserve(cash: int, amt: Callable) -> int:
+	return int(_reserve_split(cash, amt)["run"])
+
+## Ship cash floor: routes that run this cycle at fixed_cost (route_reserve), every other route at its real idle cost (idle_route_upkeep).
+func cash_floor(cash: int, amt: Callable) -> int:
+	var sp := _reserve_split(cash, amt)
+	return int(sp["run"]) + int(sp["idle"])
+
+func _reserve_split(cash: int, amt: Callable) -> Dictionary:
 	var left := cash
 	var total := 0
+	var ran := {}
 	for rec in routes:
 		if not src_open(rec) or not dst_open(rec):
 			continue
@@ -1040,10 +1069,16 @@ func route_reserve(cash: int, amt: Callable) -> int:
 			if total == 0 and left > 0:  # nothing else reserves: this route will run at a part fare (fare_for), keep that cash too
 				total = left
 				left = 0
+				ran[rec["id"]] = true
 			continue
 		left -= fixed
 		total += fixed
-	return total
+		ran[rec["id"]] = true
+	var idle := 0
+	for rec in routes:
+		if not ran.has(rec["id"]):
+			idle += idle_route_upkeep(rec)
+	return {"run": total, "idle": idle}
 
 ## True when an active Buy order at `planet` for `c` could put stock into storage this cycle and can pay for at least
 ## one unit out of `afford` (cash left after the reserve). A Buy that would buy nothing feeds nothing, so reserves nothing.
@@ -1293,6 +1328,7 @@ func settle(cash: int) -> Dictionary:
 	var upkeep_paid := 0
 	var orders: Array = local.values()
 	mix = {}
+	sell_hold = {}
 	sales_units = {}
 	sales_up_units = {}
 	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
@@ -1372,10 +1408,10 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 		if role == "buy":
 			n = storage.add(key, c, n)  # first trade establishes the storage
 			if dead_worlds != null and _mined_pid(planet) != "":
-				dead_worlds.take(_mined_pid(planet), n)  # T295: the world's stock thins and never refills
+				dead_worlds.take(_mined_pid(planet), n)  # T295: counts the mining rate (stock is endless, owner rule 2026-11-14)
 			r["credits"] = -n * local_price(planet, c, role)
 		else:
-			n = storage.remove(key, c, n)  # T364: the planet's own storage only
+			n = storage.remove(key, c, mini(n, maxi(0, storage.amount(key, c) - int(sell_hold.get("%s|%s" % [key, c], 0)))))  # T364: the planet's own storage only; units a hub just delivered stay for the need fill
 			r["credits"] = sale_value(planet, c, n)
 			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0, "mk": []})
 			if n > 0:
@@ -1448,6 +1484,9 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		carried -= raids.strike(rec, carried)
 	var stored: int = storage.add(dst, c, carried)
 	rec["moved"] = stored  # T289: read by hubs after the settle
+	if str(rec.get("owner", "")) != "" and stored > 0:
+		var hk := "%s|%s" % [dst, c]
+		sell_hold[hk] = int(sell_hold.get(hk, 0)) + stored
 	_spend_split(rec, moved)  # N2
 	rec["stop_sale"] = sale  # N11: read by main to spot a first sale in system 2
 	rec["bonus"] = level_bonus(rec, carried) + sale  # T145: credited by settle() on top of the ship cost; N9: stop sale

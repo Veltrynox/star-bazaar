@@ -1,6 +1,6 @@
 extends PanelContainer
 ## T350: Flagship details, an inline section of the Ships menu that expands under the Pathfinder card when it is clicked (no 3D
-## preview, no separate window). Holds the description, status, hold and goods, boost, speed, worlds found, destination. Reads the flight accessors only
+## preview, no separate window). Holds the description, status, boost, speed, worlds found, destination. Reads the flight accessors only
 ## (PathfinderView, main.flight); no mechanics of its own. Explore on/off is the icon button next to the card; the section collapses on a second click or Esc.
 
 const StoryText := preload("res://game/story_text.gd")
@@ -15,7 +15,6 @@ var name_label: Label
 var desc_label: Label
 var status_label: Label
 var explore_button: Button  # hidden while discovery is off
-var hold_label: Label
 var boost_button: Button
 var stats_label: Label
 var _box: VBoxContainer
@@ -73,8 +72,6 @@ func setup(main_node: Control) -> void:
 	explore_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	explore_button.visible = false
 	explore_button.pressed.connect(func(): explore_toggled.emit())
-	hold_label = _label(true)
-	hold_label.name = "HoldReadout"
 	boost_button = Button.new()
 	boost_button.name = "BoostButton"
 	boost_button.toggle_mode = true
@@ -150,31 +147,22 @@ func refresh() -> void:
 	var exploring := bool(PathfinderView._call(f, "exploring", [], false))
 	explore_button.set_pressed_no_signal(exploring)
 	explore_button.tooltip_text = StoryText.get_text("BTN_EXPLORE_OFF" if exploring else "BTN_EXPLORE_ON")
-	_set_hold()
+	_set_boost()
 	var found := 0
 	for p in main.map.planets:
 		if PathfinderView.discovered(f, str(p.get("id", ""))):
 			found += 1
-	var cap: int = main.flight.hold_cap()
 	var lines: Array = [
 		StoryText.get_text("LBL_FLAGSHIP_SPEED").replace("{n}", str(snappedf(float(PathfinderView._call(f, "speed", [], 0.0)), 0.1))),
-		StoryText.get_text("LBL_FLAGSHIP_HOLD_CAP").replace("{m}", str(cap)),
 		StoryText.get_text("LBL_FLAGSHIP_FOUND").replace("{n}", str(found)).replace("{m}", str(main.map.planets.size())),
 		target_text]
 	stats_label.text = "\n".join(lines)
 
-## Hold fill and goods held; the Boost button shows the uses left; the hold and boost rows are hidden while the hold has no room.
-func _set_hold() -> void:
-	var cap: int = main.flight.hold_cap()
-	hold_label.visible = cap > 0
-	boost_button.visible = cap > 0 and main.flight.boost_max_charges() > 0  # only a CEO with Boost uses sees it
-	if cap <= 0:
+## The Boost button shows the uses left; it is hidden unless the CEO has Boost uses.
+func _set_boost() -> void:
+	boost_button.visible = main.flight.boost_max_charges() > 0  # only a CEO with Boost uses sees it
+	if not boost_button.visible:
 		return
-	var goods: Dictionary = main.flight.hold_goods()
-	var lines: Array = [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": main.flight.hold_total(), "m": cap})]
-	for g in goods:
-		lines.append("%s: %d" % [Ui.good_name(str(g)), int(goods[g])])
-	hold_label.text = "\n".join(lines)
 	boost_button.text = StoryText.get_or("BTN_BOOST_LEFT", "Boost ({n} left)", {"n": main.flight.boost_charges()})
 	boost_button.tooltip_text = StoryText.get_or("LBL_BOOST_HINT", "Faster for the rest of this flight. Uses one Boost. Turning stays slow.")
 	if boost_button.button_pressed != main.flight.boost_on():

@@ -53,6 +53,29 @@
    "existing": true
   },
   {
+   "id": "cask",
+   "market": "",
+   "tier": 3,
+   "kind": "trade",
+   "size": "M",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {
+    "s3_p1": {
+     "cask_buy": 81,
+     "cask_sell": 72
+    },
+    "s3_p2": {
+     "cask_buy": 81,
+     "cask_sell": 72
+    }
+   },
+   "note": "2026-11-14 owner design: Vault Cask, bought only in system 3 (Saltwick, Ketterack), branch-free like energy (no market, no tier row, no share). Needed once, in the stage 4 Star Bazaar bill (bazaar_bill_s4_cask); it reaches the Bazaar by a Storage Link. Placeholder price like a tier-3 good. Not a need of any world (game/prosperity.gd skips it)."
+  },
+  {
    "id": "powder",
    "market": "mil",
    "tier": 1,

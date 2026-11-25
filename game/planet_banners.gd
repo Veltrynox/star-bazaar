@@ -6,9 +6,9 @@ extends RefCounted
 const ATLAS_PATH := "res://art/planet/planet_surface_banner_atlas.png"
 const CELL := Vector2i(480, 160)  # 3:1
 const COLUMNS := 3
-const IDS: Array[String] = ["planet_1", "planet_2", "planet_3", "dead_1", "dead_2", "s2_p1", "s2_p2", "s2_p3", "s2_p4"]
+const IDS: Array[String] = ["planet_1", "planet_2", "planet_3", "dead_1", "dead_2", "s2_p1", "s2_p2", "s2_p3", "s2_p4", "planet_4"]
 const NAMES := {"planet_1": "voltara", "planet_2": "tillam", "planet_3": "ashgate", "dead_1": "cinderrest",
-	"dead_2": "greywake", "s2_p1": "brannock", "s2_p2": "cindrel", "s2_p3": "mossfell", "s2_p4": "quillon"}
+	"dead_2": "greywake", "s2_p1": "brannock", "s2_p2": "cindrel", "s2_p3": "mossfell", "s2_p4": "quillon", "planet_4": "flintmoor"}
 const HEIGHT := 120.0  # banner height in the panel (about 3:1 at 320 wide, a little crop at the sides)
 const FADE_FROM := 0.40  # the fade into the panel starts at this fraction of the banner height
 const CORNER := 9.0  # panel corner radius 10 minus its 1 px border

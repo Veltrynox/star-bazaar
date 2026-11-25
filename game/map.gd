@@ -828,7 +828,25 @@ func pick_route(screen_pos: Vector2) -> int:
 		if d < best_d:
 			best_d = d
 			best = id
+	if best < 0:  # a click on the visible route tag counts as a click on its route
+		return pick_route_tag(screen_pos)
 	return best
+
+## Route id whose visible tag is under screen_pos, or -1. The tag is drawn on top of planets and stations, so a click on it
+## picks the route before them (a short lane lies inside its end planets' click circles and could not be clicked otherwise).
+func pick_route_tag(screen_pos: Vector2) -> int:
+	for id in route_lines:
+		var t: RichTextLabel = route_lines[id].tag2d
+		if t != null and t.is_visible_in_tree() and t.get_global_rect().grow(4.0).has_point(screen_pos):
+			return id
+	return -1
+
+## True when a planet is under the cursor and its centre is at least as near as the ship at ship_pos (the ship then does not take the click).
+func _planet_beats_ship(screen_pos: Vector2, ship_pos: Vector2) -> bool:
+	var h := pick_planet(screen_pos)
+	if h < 0:
+		return false
+	return screen_pos.distance_to(planet_screen_pos(h)) <= screen_pos.distance_to(ship_pos)
 
 func _load_planets() -> Array:
 	var f := FileAccess.open(PLANETS_PATH, FileAccess.READ)
@@ -1097,8 +1115,10 @@ func _update_ambient_traffic() -> void:
 			wsum += w
 			lanes.append(["ambient_%d_%d" % [a, b], p0, c, p2, w, planet_radius(a), planet_radius(b)])
 	var spare := maxi(total - min_n * lanes.size(), 0)
+	var div := maxf(float(bal.get("traffic_ambient_div_s%d" % view_system, 1.0)), 1.0)  # owner 2026-11-14: a crowded system shows fewer (system 3: 8x fewer)
 	for l in lanes:
 		var n := min_n + int(floor(float(spare) * float(l[4]) / maxf(wsum, 0.0001)))
+		n = maxi(1, int(round(float(n) / div)))
 		if total <= 0:
 			continue
 		traffic.set_ambient_group(l[0], l[1], l[2], l[3], n, "corvette", l[5], l[6])
@@ -1429,14 +1449,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			if psid >= 0:
 				station_clicked.emit(psid)
 				return
-		if on and not send_pending and pick_ship(event.position):  # T200: click the ship to select it (T245: the ship wins, the planet behind it is not picked)
+		if on and not send_pending and pick_ship(event.position) and not _planet_beats_ship(event.position, ship_screen_pos()):  # T200: click the ship to select it (T245: the ship wins, the planet behind it is not picked)
 			ship_selected = true
 			return
 		var rb: int = int(rivals.pick_bot(event.position)) if rivals != null else 0  # T199: a rival ship under the cursor shows its card
+		if rb > 0:
+			var rsp: Variant = rivals.screen_pos_of(rb)
+			if rsp != null and _planet_beats_ship(event.position, rsp):
+				rb = 0
 		rival_clicked.emit(rb)  # 0 closes the card
 		if rb > 0:
 			return
 		var fly: bool = on and ship_selected  # T200: only a selected ship takes orders; a left click sends it at once
+		if not send_pending and not fly:  # a visible route tag wins over the planet or station under it
+			var tag_rid := pick_route_tag(event.position)
+			if tag_rid >= 0:
+				route_clicked.emit(tag_rid)
+				return
 		var hit := pick_planet(event.position)
 		if hit < 0:
 			var sid := pick_station(event.position)
@@ -1473,6 +1502,11 @@ func _right_click(pos: Vector2) -> void:
 		if not gi.is_empty():
 			good_icon_right_clicked.emit(int(gi["planet"]), str(gi["good"]))
 			return
+	if not ship_mode:  # a visible route tag wins over the planet or station under it
+		var tag_rid := pick_route_tag(pos)
+		if tag_rid >= 0:
+			route_right_clicked.emit(tag_rid, pos)
+			return
 	if hit >= 0 and not ship_mode:
 		planet_right_clicked.emit(hit, pos)
 		return
@@ -1483,9 +1517,9 @@ func _right_click(pos: Vector2) -> void:
 			return
 	if not flight_on:
 		return
-	if hit >= 0:  # ship selected: the ship's action menu (Establish trading post, Dock and trade)
+	if hit >= 0:  # ship selected: the ship's action menu (Establish trading post or platform)
 		var pid := str(planets[hit].get("id", hit))
-		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty() or PathfinderView.established(flight, pid):  # T270: Dock and trade
+		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty():
 			action_menu_requested.emit(pid, pos)
 		return
 	if not ship_mode:

@@ -123,6 +123,9 @@ func _data_choices(id: String, n: Dictionary) -> Array:
 			ch["follow_id"] = str(c["follow_id"])
 		if c.has("extra"):  # T371: more effect rows applied with the same choice (a charter and its fee)
 			ch["data_extra"] = c["extra"]
+		ch["key"] = k
+		if str(c.get("lean", "")) != "":  # EV_BRB01: "dark" | "public" mood and ending lean mark (main applies it)
+			ch["lean"] = str(c["lean"])
 		out.append(ch)
 	return out
 
@@ -132,6 +135,10 @@ func _resolve_effect(pe: Dictionary) -> Dictionary:
 	var typ := str(pe.get("type", ""))
 	if typ == "cash":
 		return {"kind": "cash", "planet": -1, "c": "", "amount": int(balance.get(str(pe.get("key", "")), 0))}
+	if typ == "cash_cost":  # EV_BRB01: the credits paid, from a positive balance key
+		return {"kind": "cash", "planet": -1, "c": "", "amount": -int(balance.get(str(pe.get("key", "")), 0))}
+	if typ == "trip_cost_route":  # EV_BRB01 FIRE: +pct trip cost on the busiest route for some cycles (main applies it)
+		return {"kind": "trip_cost_route", "planet": -1, "c": "", "amount": 0, "pct": float(balance.get(str(pe.get("key", "")), 0.0)), "cycles": int(balance.get(str(pe.get("cycles_key", "")), 1))}
 	if typ == "boost_charge":  # T371: one production charter (Boost.grant)
 		return {"kind": "boost_charge", "planet": -1, "c": "", "amount": 0}
 	var pi := -1
@@ -156,6 +163,8 @@ func is_branch(id: String) -> bool:
 
 ## Text args of a branch choice: {cash_in} the credits it pays (number only) and {market} the display name. {} for other choices.
 func choice_args(ch) -> Dictionary:
+	if typeof(ch) == TYPE_DICTIONARY and ch.has("data_effect") and str(ch["data_effect"].get("type", "")) == "cash_cost":
+		return {"cash_out": int(balance.get(str(ch["data_effect"].get("key", "")), 0))}  # EV_BRB01 FINE / HUSH: credits paid
 	if typeof(ch) != TYPE_DICTIONARY or not ch.has("cash_key"):
 		return {}
 	return {"cash_in": int(balance.get(str(ch["cash_key"]), 0)), "market": Markets.name_of(str(ch.get("market", "")))}

@@ -95,6 +95,8 @@ static func kit_paragraphs(side: String, stats: Dictionary) -> Array:
 	if gigs > 0:
 		counted_beat.call("GIGS_LOST", int(nt.get("gigs_expired", 0)))
 	counted_beat.call("RESTLESS", int(nt.get("restless_cycles", 0)))
+	if str(stats.get("bribe", "")) != "":  # EV_BRB01: what the company did about the suspected worker
+		add.call("BRIBE_" + str(stats["bribe"]))
 	counted_beat.call("RESCUES", int(stats.get("rescues", 0)))
 	counted_beat.call("REPO", int(nt.get("repossessions", 0)))
 	# decisive moments
@@ -177,6 +179,8 @@ static func _company(stats: Dictionary) -> String:
 	if gigs > 0:
 		lines.append(counted("END_STORY_GIGS_LOST", int(nt.get("gigs_expired", 0))))
 	lines.append(counted("END_STORY_RESTLESS", int(nt.get("restless_cycles", 0))))
+	if str(stats.get("bribe", "")) != "" and StoryText.has_text("END_STORY_BRIBE_" + str(stats["bribe"])):  # EV_BRB01
+		lines.append(StoryText.get_text("END_STORY_BRIBE_" + str(stats["bribe"])))
 	lines.append(counted("END_STORY_CHOICES", int(c.get("event_choice", 0)) + int(c.get("gig_choice", 0))))
 	return _join(lines)
 

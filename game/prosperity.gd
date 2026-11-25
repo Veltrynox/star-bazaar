@@ -206,7 +206,10 @@ func _need_goods(i: int) -> Array:
 	for g in Goods.ids():
 		if g != "energy" and (int(Goods.entry(g).get("tier", 1)) > t or not Goods.branch_ok(g)):
 			continue
-		if g == "ore" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
+		if g == "ore" or g == "cask" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
+			continue
+		var nn = data.get("never_needs", {})  # owner 2026-11-14: per-world goods that are never a need (Tillam: no spyware)
+		if typeof(nn) == TYPE_DICTIONARY and typeof(nn.get(pid)) == TYPE_ARRAY and (nn[pid] as Array).has(g):
 			continue
 		cands.append(g)
 	var weights: Dictionary = {}
@@ -243,7 +246,7 @@ func _reclaim_goods(i: int) -> Array:
 	for g in Goods.ids():
 		if g != "energy" and (int(Goods.entry(g).get("tier", 1)) > gt or not Goods.branch_ok(g)):
 			continue
-		if g == "ore" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
+		if g == "ore" or g == "cask" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
 			continue
 		cands.append(g)
 	var order: Dictionary = {}

@@ -93,6 +93,17 @@
     },
     {
       "kind": "good",
+      "id": "cask",
+      "visible_when": {
+        "any": [
+          "system_open:3",
+          "stock_held:cask"
+        ]
+      },
+      "note": "2026-11-14 owner design: Vault Cask, every branch. Bought only in system 3 (Saltwick, Ketterack); needed for the stage 4 Star Bazaar bill. Visible once system 3 is open or cask is held."
+    },
+    {
+      "kind": "good",
       "id": "ore",
       "visible_when": {
         "any": [

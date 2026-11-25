@@ -20,6 +20,18 @@ func setup(main_node: Control) -> void:
 	_box.add_theme_constant_override("separation", 3)
 	add_child(_box)
 
+## Owner 2026-11-14: the Star Bazaar is the main goal, so its card carries a thin, soft orange border over the theme panel
+## (no orange token in the theme; commodity_energy is the nearest but belongs to a good).
+const BORDER_COLOR := Color(0.95, 0.58, 0.24, 0.6)
+
+func _ready() -> void:
+	var sb := get_theme_stylebox("panel")
+	if sb is StyleBoxFlat:
+		var flat := (sb as StyleBoxFlat).duplicate() as StyleBoxFlat
+		flat.set_border_width_all(1)
+		flat.border_color = BORDER_COLOR
+		add_theme_stylebox_override("panel", flat)
+
 func _process(delta: float) -> void:
 	_t += delta
 	if _t < 0.5:
@@ -27,8 +39,17 @@ func _process(delta: float) -> void:
 	_t = 0.0
 	refresh()
 
-func _line(left: String, right: String = "", style: String = "") -> void:
+func _line(left: String, right: String = "", style: String = "", icons: Array = []) -> void:
+	if left == "---":  # thin divider between the heading, the goods rows and the conditions
+		var sep := HSeparator.new()
+		sep.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_box.add_child(sep)
+		return
 	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	row.clip_contents = true
+	for g in icons:
+		row.add_child(Ui.good_icon(str(g), 16))
 	var l := Label.new()
 	l.text = left
 	l.clip_text = true
@@ -52,17 +73,21 @@ func refresh() -> void:
 	lines.append([StoryText.get_or("BAZ_PANEL_TITLE", "The Star Bazaar").to_upper(), main.Systems.name_of(bz.site_system()), "LabelCaption"])
 	var total: int = bz.stages_total()
 	if bz.complete():
-		lines.append([StoryText.get_or("BAZ_NAME", "Star Bazaar"), "", ""])
+		lines.append([StoryText.get_or("BAZ_NAME", "Star Bazaar"), "", "LabelCaption"])
 	else:
 		var cur: int = bz.current_stage()
-		lines.append([StoryText.get_or("BAZ_STAGE_%d_NAME" % cur, "Stage %d" % cur), "%d / %d" % [bz.stage(), total], ""])
+		lines.append([StoryText.get_or("BAZ_STAGE_%d_NAME" % cur, "Stage %d" % cur), "%d / %d" % [bz.stage(), total], "LabelCaption"])
+		lines.append(["---", "", "", []])
 		for r in bz.bill_status():
 			var names := []
+			var gids := []
 			for g in r["goods"]:
 				names.append(Ui.good_name(str(g)))
+				gids.append(str(g))
 			var label := " / ".join(names) if not names.is_empty() else StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
 			var need: int = int(r["need"])
-			lines.append([label, "%d / %d" % [mini(int(r["have"]), need), need], "" if bool(r["ok"]) else "LabelMuted"])
+			lines.append([label, "%d / %d" % [mini(int(r["have"]), need), need], "" if bool(r["ok"]) else "LabelMuted", gids])
+		lines.append(["---", "", "", []])
 		var q: Dictionary = bz.quorum_status()
 		lines.append([StoryText.get_or("BAZ_QUORUM_ROW", "{n} of {m} worlds at {tier}", {"n": mini(int(q["have"]), int(q["need"])), "m": int(q["need"]), "tier": StoryText.get_or("PROS_TIER_%d" % int(q["tier"]), "Tier %d" % int(q["tier"]))}), "" if not bool(q["ok"]) else StoryText.get_or("PROS_NEED_MET", "Met"), ""])
 	if not main.free_play:
@@ -75,5 +100,5 @@ func refresh() -> void:
 			_box.remove_child(c)
 			c.queue_free()
 		for ln in lines:
-			_line(str(ln[0]), str(ln[1]), str(ln[2]))
+			_line(str(ln[0]), str(ln[1]), str(ln[2]), ln[3] if ln.size() > 3 else [])
 	visible = true

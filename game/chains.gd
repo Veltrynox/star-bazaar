@@ -33,6 +33,7 @@ static var now: int = 1               # the cycle under way, set by main
 static var picks: Dictionary = {}     # step id -> {opt, cycle, nudge}
 static var dirv: Dictionary = {}      # market -> int (hidden)
 static var timed: Array = []          # {k, m, v, until, route, src}
+static var bribe: String = ""         # EV_BRB01: the key picked (FINE | FIRE | HUSH), "" = event not met; saved, read by the end screen
 static var rlog: Array = []           # rival log
 static var broken: Dictionary = {}    # market -> bot id whose tier was cut through a chain option
 static var marked: Dictionary = {}    # market -> bot id with the biggest cut of the last option (0 = none)
@@ -87,6 +88,7 @@ static func reset(balance: Dictionary, seed_value: int = 0) -> void:
 	spotted = false
 	suppressed = []
 	marks = []
+	bribe = ""
 	for m in MARKETS:
 		dirv[m] = 0
 		marked[m] = 0
@@ -365,6 +367,15 @@ static func apply_option(step_id: String, opt_id: String, cycle: int, busiest_ro
 static func note_branch(event_id: String, dark: bool, cycle: int, world: String) -> void:
 	_ensure()
 	marks.append({"id": event_id, "opt": "dark" if dark else "public", "cycle": cycle, "w": int(_num("mood_branch_dark" if dark else "mood_branch_public", 0.0)), "world": world})
+
+## EV_BRB01: a lean choice (dark = HUSH, public = FINE). Same mood mark as a branch event, and the ending direction of the run's branch moves by
+## event_bribe_dir (negative for dark), so the GOOD / BAD ending (ending_flag) really shifts.
+static func note_lean(event_id: String, dark: bool, cycle: int, world: String, market: String) -> void:
+	note_branch(event_id, dark, cycle, world)
+	var m := market.to_lower()
+	if dirv.has(m):
+		var d := int(_num("event_bribe_dir", 0.0)) * (-1 if dark else 1)
+		dirv[m] = clampi(dir_of(m) + d, int(_num("dir_min", -100.0)), int(_num("dir_max", 100.0)))
 
 ## 'warm' | 'plain' | 'cold' for a planet id. No thresholds in balance = plain.
 static func mood_of(world: String) -> String:
@@ -681,7 +692,7 @@ static func pool_rivals_line(id: String) -> String:
 
 static func to_dict() -> Dictionary:
 	return {"seed": run_seed, "picks": picks.duplicate(true), "dir": dirv.duplicate(), "timed": timed.duplicate(true), "log": rlog.duplicate(true),
-		"broken": broken.duplicate(), "marked": marked.duplicate(), "spotted": spotted, "suppressed": suppressed.duplicate(), "marks": marks.duplicate(true)}
+		"broken": broken.duplicate(), "marked": marked.duplicate(), "spotted": spotted, "suppressed": suppressed.duplicate(), "marks": marks.duplicate(true), "bribe": bribe}
 
 ## Missing or old data = a fresh chain state (v3 saves).
 static func from_dict(d, balance: Dictionary = {}) -> void:
@@ -717,6 +728,7 @@ static func from_dict(d, balance: Dictionary = {}) -> void:
 	if typeof(d.get("suppressed")) == TYPE_ARRAY:
 		for k in d["suppressed"]:
 			suppressed.append(str(k))
+	bribe = str(d.get("bribe", ""))  # old saves: none
 	if typeof(d.get("marks")) == TYPE_ARRAY:  # T284; old saves have none: every world plain
 		for mk in d["marks"]:
 			if typeof(mk) == TYPE_DICTIONARY:
