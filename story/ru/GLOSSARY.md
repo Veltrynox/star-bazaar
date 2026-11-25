@@ -31,7 +31,7 @@ The interface is Russian too. Every on-screen name (buttons, labels, goods, work
 | Bazaar (short) / Star Bazaar (name) | Базар / Star Bazaar (Latin, uninflected) |
 | Hungry / Surplus / Restless / Needs | Голодает / Избыток / Беспокойство / Нужды |
 | tier | ступень |
-| Flood / Shortage / Congestion | Затоваривание / Дефицит / Затор |
+| Flood / Shortage / Congestion | Избыток товара (verb: заваливает товаром) / Дефицит / Затор. NEVER use «затоваривание» or «затоваривает» (owner rule 2026-11-14) |
 | Boost / Dock and trade / Unload to storage | Ускорение / Причалить и торговать / Выгрузить в хранилище |
 | Upgrade route / Make this a hub | Улучшить маршрут / Сделать узлом |
 | Exploration / Mining intensity / Start reclaiming | Исследование / Интенсивность добычи / Начать восстановление |
