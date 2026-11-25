@@ -118,6 +118,9 @@ ST_NO_CASH_BUY | 80 | Buy order row, an order that could not buy one unit | Not 
 
 ## Skill screen extras
 SK_BTN_CLOSE | 24 | Skill screen, close button | Close
+SK_BTN_CASH_OUT | 40 | Skill screen, button shown only when every skill the player can learn is learned and points are left; {n} points, {cash} credits | Turn {n} points into {cash} cr
+SK_CASH_OUT_TIP | 110 | Skill screen, tooltip of that button | Every skill is learned. Leftover points are traded to the Bureau for credits. All at once.
+NOT_SK_CASHED_OUT | 110 | Notice after the button; {n} points, {cash} credits | {n} skill points traded for {cash} credits.
 SK_HOLD_LEARN | 40 | Skill screen, detail panel hint on a learnable skill | Hold to learn  ·  {amount}
 SK_NONE_SELECTED | 110 | Skill screen, detail panel before a click | Click a skill to see what it does.
 SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned
@@ -295,23 +298,23 @@ TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click Energy, cho
 TUT_G3_PICK | 60 | Guided step 3, after Send to is chosen, until a destination is clicked | Click a world with a post to send Energy there.
 TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a world that wants the good. A route carries your goods there by ship.
 TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Press the lit time button, top right, to run the cycle.
-TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route earns when it sells there. That is where your money comes from.
+TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route's sales add credits at cycle end. Let the cycle finish to see what it earned.
 TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
-TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
-TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open your route's end world. Turn Sell on for Energy.
+TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | Each ship costs credits every cycle, even while idle. Its route needs to earn more than it costs.
+TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open the route's end world. Right-click Energy, choose Sell.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns stock into credits when the cycle ends. Let one finish.
 TUT_G7_STORAGE | 60 | Guided step 7, storage | The lit text shows the stock in Company storage.
 TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | When it is full, Buy waits. Press Next.
 TUT_G7_NEEDS | 60 | Guided step 8 (T315), until a world card with a Needs list has been opened | Open a world and read its Needs.
 TUT_G7_NEEDS_WHY | 110 | Guided step, why it matters (second line of the card) | A world grows when your sales meet its needs. Grown worlds pay tax.
-TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world reaches tier 1 | Sell a world the goods it needs, until it grows.
-TUT_G7_GROW_WHY | 110 | Guided step, why it matters (second line of the card) | Turn Sell on there, or send goods in. Your first tier also earns a skill point.
-TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills and learn a Foundation.
+TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world grows to tier 2 (tier 1 is any world with a post) | Sell a world the goods it needs, until it grows.
+TUT_G7_GROW_WHY | 110 | Guided step, why it matters (second line of the card) | Turn Sell on there, or send goods in. Growing a world also earns skill points.
+TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills. Hold the left mouse button on a Foundation.
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Skill points come from firsts, like your first tier. Three Foundations come before any market skill.
 TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
 TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar is one market hall all worlds trade in.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | You build it, stage by stage, in the Space Storage of one system. Finishing it wins the game.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Build it in stages in Space Storage. Fly the charter cargo to the Bazaar with the Flagship to win.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 
@@ -337,7 +340,6 @@ Trigger table (tip id: trigger in plain words):
 - TIP_WEATHER_KINDS: the first house weather lands on a world.
 - TIP_PROSPECT: Prospecting is learned.
 - TIP_DEAD: the first dead world is open for mining (its skill is learned and dead worlds have opened).
-- TIP_RECLAIM: the first dead world card is opened (show TIP_DEAD first if both are due).
 - TIP_RAID: the first raid warning appears.
 - TIP_SALVAGE: the first salvage payout.
 - TIP_WORKSHOP: the first workshop becomes available to build.
@@ -348,7 +350,6 @@ Trigger table (tip id: trigger in plain words):
 - TIP_PERMIT: Permit Charter is learned.
 - TIP_NEWSYSTEM: the first new system is opened by a permit.
 - TIP_POINTS: the first skill point is earned (skip if the guided step for skills is showing).
-- TIP_FOUNDATIONS: the third required Foundation is learned.
 
 ### Goal and Bazaar
 TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the founding tier | A world has reached the founding tier. Open its system's Space Storage to found the Star Bazaar. It is final.
@@ -389,8 +390,8 @@ TIP_GIG | 110 | Tip card line; trigger: the first gig appears on the board | The
 TIP_GIG_WHY | 110 | Tip card, why line | Compare ETA with the deadline before you accept. You can take one gig at a time.
 
 ### House weather
-TIP_WEATHER | 110 | Tip card line; trigger: the first house convoy appears | A tinted ship is a house convoy. It flies to a world before that house's weather lands.
-TIP_WEATHER_WHY | 110 | Tip card, why line | The houses send weather, not rivals. Click a convoy to see what is due and where.
+TIP_WEATHER | 110 | Tip card line; trigger: the first house convoy appears | A tinted ship belongs to a trading house. Houses cause price drops, shortages or higher trip costs.
+TIP_WEATHER_WHY | 110 | Tip card, why line | Click a tinted ship to see its house's name and the kind of market change it brings.
 TIP_WEATHER_KINDS | 110 | Tip card line; trigger: the first house weather lands on a world | Flood: a sell price dips. Shortage: a world needs more and pays more. Congestion: trip cost rises.
 TIP_WEATHER_KINDS_WHY | 110 | Tip card, why line | Move goods to ride it out, or wait. Forecast skills give more cycles of warning.
 
@@ -398,9 +399,7 @@ TIP_WEATHER_KINDS_WHY | 110 | Tip card, why line | Move goods to ride it out, or
 TIP_PROSPECT | 110 | Tip card line; trigger: Prospecting is learned | Prospecting lets a route start at an asteroid cluster. Clusters move round the sun.
 TIP_PROSPECT_WHY | 110 | Tip card, why line | Goods at a cluster are free, you pay only the lane. A cluster runs empty and never refills.
 TIP_DEAD | 110 | Tip card line; trigger: the first dead world is open for mining | A dead world has no market. You mine it for goods no living world makes.
-TIP_DEAD_WHY | 110 | Tip card, why line | Hard mining gives more and draws more raids. Set Mining intensity on its card.
-TIP_RECLAIM | 110 | Tip card line; trigger: the first dead world card is opened | Start reclaiming turns a dead world into a living one. Mining there stops for good.
-TIP_RECLAIM_WHY | 110 | Tip card, why line | Meet its needs to fill the bar. Raids from it stop, and it can grow like any world.
+TIP_DEAD_WHY | 110 | Tip card, why line | Mining is limited each cycle. The stock never runs out. Use routes to move what you mine.
 TIP_RAID | 110 | Tip card line; trigger: the first raid warning appears | Raiders gather at a dead world you have not reclaimed. They may hit a lane in its system.
 TIP_RAID_WHY | 110 | Tip card, why line | A raid costs part of a trip. Cargo pods may drift near: fly the Flagship to pick them up.
 TIP_SALVAGE | 110 | Tip card line; trigger: the first salvage payout | Salvage is a one-time payout for goods that could not be kept or sold on your lanes.
@@ -427,8 +426,6 @@ TIP_NEWSYSTEM_WHY | 110 | Tip card, why line | Each system has its own Space Sto
 ### Skills
 TIP_POINTS | 110 | Tip card line; trigger: the first skill point is earned | Skill points come from firsts: a new world, route, system or tier. Spend them in Skills (K).
 TIP_POINTS_WHY | 110 | Tip card, why line | Six Foundations come before your market tree. Three of them must be learned first.
-TIP_FOUNDATIONS | 110 | Tip card line; trigger: the third required Foundation is learned | The three required Foundations are done. Your market tree is open now.
-TIP_FOUNDATIONS_WHY | 110 | Tip card, why line | Points are limited, so choose the skills your lanes use. Learn the ones you will use.
 
 ## Map edge arrow (T128, owner item 7)
 MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.
@@ -542,6 +539,8 @@ GOOD_MUSK_NAME | 24 | Commodity name, musk | Musk
 GOOD_MUSK_DESC | 110 | Commodity tooltip, musk | A strong scent, sold by the drop. A luxury trade good.
 GOOD_ATTAR_NAME | 24 | Commodity name, attar | Attar
 GOOD_ATTAR_DESC | 110 | Commodity tooltip, attar | Bottled scent, pressed from blooms. A crafted luxury good.
+GOOD_CASK_NAME | 24 | Commodity name, vault cask | Vault Cask
+GOOD_CASK_DESC | 110 | Commodity tooltip, vault cask | A sealed cask from the far reach. The Star Bazaar's last stage cannot be finished without it.
 GOOD_GEMS_NAME | 24 | Commodity name, gems | Cold Gems
 GOOD_GEMS_DESC | 110 | Commodity tooltip, gems | Cut stones with a cold inner light. A crafted luxury, valued for being looked at.
 GOOD_INGOT_NAME | 24 | Commodity name, ingot | Metal Ingots
@@ -1423,7 +1422,7 @@ TUT_G0_BUILD_WHY | 110 | Guided step, why it matters (second line of the card) |
 TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, and wait for the post.
 TUT_G0_WAIT_WHY | 110 | Guided step, why it matters (second line of the card) | The post is built over cycles. Time stands still while the game is paused.
 TUT_G0_DONE | 60 | Guided step 0, celebration card once the post stands | Yay! We established a trading post on {planet}!
-TUT_G0_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Voltara is next.
+TUT_G0_DONE_WHY | 160 | Guided step, why it matters (second line of the card); the lit button is the explore button next to the Pathfinder card, which the card highlights | A post lets you buy, sell and route there. Voltara is next. Tip: the lit button next to the Pathfinder sends it to explore the galaxy by itself.
 TUT_G0_DONE_NEXT | 24 | Guided step 0, button on the celebration card | Next
 TUT_G1C_SPEED | 60 | Guided card after slide 1, information plus one try-it action; Next button reuses TUT_G0_DONE_NEXT | Top right: 2x, 6x and 12x run the game faster.
 TUT_G1C_SPEED_WHY | 110 | Guided card after slide 1, second line (why); the speed buttons are 1x 2x 6x 12x, the icon beside them is pause/play | Trips and posts take cycles, so waiting is quicker at speed. The pause button stops time.
@@ -1493,19 +1492,19 @@ SS_LINK_UI_LBL_PARTNER | 24 | Build dialog, label of the partner picker | Partne
 SS_LINK_UI_LBL_NO_PARTNER | 110 | Build dialog, no other Space Storage can be picked yet | No other Space Storage to link to yet.
 SS_LINK_UI_LBL_TAKEN | 60 | Build dialog, under the cost lines; {n} {goods} what each storage gives | {goods}: {n}
 
-## Placeholder systems 3 to 10 (T176, T210; temporary names and texts, story-designer replaces them; the systems are off, see data/systems_placeholder.json)
-WORLD_SYS3_NAME | 24 | System 3 name (placeholder) | TEMPORARY A
-WORLD_SYS3_DESC | 110 | System 3 description (placeholder, off) | Temporary text for a far system. It is not open yet.
-PERMIT_S3_NAME | 24 | Permit list, system 3 entry (placeholder) | Permit: TEMPORARY A
-PERMIT_S3_DESC | 110 | Permit list, system 3 description (placeholder) | Temporary text. Opens TEMPORARY A for routes.
-PERMIT_S3_BTN | 24 | Permit list, buy button, system 3 (placeholder) | Buy permit
-NOT_PERMIT_S3 | 110 | Notice, permit for system 3 bought (placeholder) | Permit bought. TEMPORARY A is open: three new planets.
-WORLD_S3P1_NAME | 24 | System 3 planet 1 (placeholder) | Temp A1
-WORLD_S3P1_DESC | 110 | Planet 1 of system 3, tooltip (placeholder) | Temporary planet text.
-WORLD_S3P2_NAME | 24 | System 3 planet 2 (placeholder) | Temp A2
-WORLD_S3P2_DESC | 110 | Planet 2 of system 3, tooltip (placeholder) | Temporary planet text.
-WORLD_S3P3_NAME | 24 | System 3 planet 3 (placeholder) | Temp A3
-WORLD_S3P3_DESC | 110 | Planet 3 of system 3, tooltip (placeholder) | Temporary planet text.
+## System 3 (Varnoch Reach, 2026-11-13; systems 4 to 10 removed, see data/systems_placeholder.json)
+WORLD_SYS3_NAME | 24 | System 3 name, map and system labels | Varnoch Reach
+WORLD_SYS3_DESC | 110 | System 3, permit screen and map tooltip | Three planets, the farthest out. The last piece of the Star Bazaar is found here.
+PERMIT_S3_NAME | 24 | Permit list, system 3 entry | Permit: Varnoch Reach
+PERMIT_S3_DESC | 110 | Permit list, system 3 description | Opens Varnoch Reach for routes. Needs Permit Charter. Costs credits and skill points.
+PERMIT_S3_BTN | 24 | Permit list, buy button, system 3 | Buy permit
+NOT_PERMIT_S3 | 110 | Notice, permit for system 3 bought | Permit bought. Varnoch Reach is open: three planets, and the Bazaar's last piece.
+WORLD_S3P1_NAME | 24 | System 3 planet 1 (ocean, food-rich) | Saltwick
+WORLD_S3P1_DESC | 110 | Planet 1 of system 3, tooltip | A grey sea under cold lamps. Saltwick has food to spare and little power.
+WORLD_S3P2_NAME | 24 | System 3 planet 2 (desert, energy-rich) | Ketterack
+WORLD_S3P2_DESC | 110 | Planet 2 of system 3, tooltip | Dust and wind turbines to the horizon. Ketterack has power to spare and empty tables.
+WORLD_S3P3_NAME | 24 | System 3 planet 3 (urban, wants both) | Vesperlock
+WORLD_S3P3_DESC | 110 | Planet 3 of system 3, tooltip | A walled city at the edge of the map. Vesperlock makes nothing and wants both goods.
 
 ## House convoy card (2026-11-06; re-voiced T287, houses are weather)
 HINT_RIVAL_MARKET | 60 | Card on a clicked house convoy, second line, the kind of weather it brings; {weather} is Flood, Shortage or Congestion | Weather: {weather}
@@ -1795,6 +1794,20 @@ BAZ_BTN_BUY_AT | 24 | Bazaar panel, button under a bill row | Buy at {planet}
 BAZ_BTN_SEND_TO | 24 | Bazaar panel, button under a bill row | Send to {planet}
 BAZ_CARD_TITLE | 40 | Space Storage view block and Bazaar card, title | Star Bazaar: {stage}
 NOT_BAZAAR_REMIND | 110 | Cycle-end notice while a bill item is short and not fed | Star Bazaar: {line}
+HUB_INTRO_WIN_TITLE | 40 | Modal window title, shown once when the first hub is made | Your first hub
+HUB_INTRO_WIN_L1 | 230 | Hub window, line 1 | A hub ticks the worlds around it and keeps a pool of ships. Each cycle it buys what those worlds need from a world nearby, at a discount, and carries it in.
+HUB_INTRO_WIN_L2 | 160 | Hub window, line 2; {cycles}, {units} | To found the Star Bazaar, a hub in its system must work {cycles} cycles and move {units} units.
+HUB_INTRO_WIN_L3 | 230 | Hub window, line 3 | Your own lanes and Sell orders for the same goods, into those worlds or out of the hub's source world, take the goods from the hub. Remove them and let the hub carry.
+HUB_INTRO_WIN_BTN | 24 | Hub window, close button | Got it
+NOT_HUB_COMMISSION | 90 | Cycle-end notice, hub commission paid to cash; {amount} | Hubs earned {amount} cr commission.
+NOT_HUB_COMPETE_LANE | 140 | Cycle-end notice, a manual lane competes with a hub; {good}, {from}, {to} | Your {good} lane {from} to {to} takes goods from your hub. Remove it so the hub can carry.
+NOT_HUB_COMPETE_SELL | 140 | Cycle-end notice, a Sell order competes with a hub; {good}, {to} | Your Sell order for {good} at {to} takes goods from your hub. Remove it so the hub can carry.
+BAZ_STEP_FOUND_HUB | 110 | Top bar Best move and Bazaar panel, no hub yet; {system} | Make a hub in {system} (a world at hub tier) and tick its worlds.
+BAZ_STEP_FOUND_SHIP | 110 | Same, the hub has no pool ship; {planet} | Add a ship to the pool of the hub at {planet}.
+BAZ_STEP_FOUND_LANE | 110 | Same, a manual lane competes with the hub; {good}, {from}, {to} | Remove the {good} lane {from} to {to}: it takes goods from your hub.
+BAZ_STEP_FOUND_SELL | 110 | Same, a Sell order competes with the hub; {good}, {to} | Remove the {good} Sell order at {to}: it takes goods from your hub.
+BAZ_STEP_FOUND_PROGRESS | 110 | Same, hub progress toward founding; {planet}, {age}, {need_age}, {moved}, {need_moved} | Hub at {planet}: {age}/{need_age} cycles, {moved}/{need_moved} units moved.
+BAZ_STEP_FOUND_READY | 110 | Same, ready to found; {system}, {cost} | Found the Star Bazaar in the Space Storage of {system} ({cost} cr).
 
 ### Recap
 RECAP_TITLE | 40 | End screen, heading of the recap | The run in brief
@@ -1934,7 +1947,7 @@ That order is gone.
 GIG_REWARD_OPENING | 40 | gig_board.gd:108
 The Star Bazaar opens
 GIG_REWARD_SALVAGE | 80 | gig_board.gd:110
-Stolen cargo, loaded into the Flagship hold
+Stolen cargo, carried aboard the Flagship
 GIG_REWARD_SIGNAL | 30 | gig_board.gd:113
 Unknown reward
 GIG_ROW_OPENING | 50 | gig_board.gd:92
@@ -2133,6 +2146,28 @@ LBL_SYSTEM_HINT | 60 | main.gd:3684
 System {n} · {count} planets
 LBL_SYSTEM_N | 40 | galaxy_view.gd:815
 System {n} · {how}
+LBL_SYSTEM_NUM | 24 | system_exit.gd, pointer to a locked system: its number only, no unlock hint; {n} the system number
+System {n}
+PB_NO_CHARGE | 60 | boost.gd, production boost refused: no charter held
+No production charter held.
+PB_NO_WORLD | 60 | boost.gd, production boost refused: the target is not a world
+Not a world.
+PB_ALREADY | 60 | boost.gd, production boost refused: this world is already boosted
+Already boosted.
+PB_NO_POST | 60 | boost.gd, production boost refused: no trading post on the world
+Needs a trading post.
+PB_CLOSED | 60 | boost.gd, production boost refused: the planet is closed
+The planet is closed.
+PB_NO_GOODS | 60 | boost.gd, production boost refused: the world sells nothing yet
+Nothing to buy here yet.
+GIG_EFF_BOOST | 60 | gigs.gd, gig reward effect line: the player gets a production charter
+You hold a production charter.
+LBL_RES_POPUP_BUY_FIRST | 60 | main.gd, notice after a right click on a goods icon with no stock and no Buy order; follows "<good>: "
+Buy it from the planet card first.
+RSN_UPGRADE_BY_EVENT | 80 | main.gd, reason why a full lane has no upgrade button
+A full lane earns its bonus from an event, not a button.
+RT_STATE_NEED_FILLED | 40 | route_engine.gd, settle line state: a world need was filled from storage
+Need filled from storage.
 LBL_SYS_FIRST | 40 | galaxy_view.gd:814
 Your first system.
 LBL_SYS_PERMIT | 40 | galaxy_view.gd:814
@@ -2186,7 +2221,7 @@ Raiders are stirring at {planet}. Your lane to {lane} may be hit next cycle.
 NOT_REPOSSESSED | 110 | main.gd:2656
 Cash ran out. The newest ship was repossessed: +{n} credits.
 NOT_SALVAGE_DONE | 90 | gigs.gd:192
-Pods scooped into the Flagship hold: {lines}.
+Pods scooped aboard the Flagship: {lines}.
 NOT_SALVAGE_FULL | 90 | gigs.gd:194
 The Flagship hold is full. Some pods stay adrift.
 NOT_STOP_PICK_AGAIN | 100 | main.gd:1162
@@ -2323,6 +2358,8 @@ SS_FABRIC_BUILD | 50 | space_storage_view.gd:111
 Build fabric ({cost} cr)
 ST_DEAD_EMPTY | 50 | route_engine.gd:175
 This world is mined out.
+ST_DEAD_CYCLE_CAP | 50 | route_engine.gd:_local_calc
+Mined to this cycle's limit.
 ST_HUB_ALREADY | 60 | hubs.gd:91
 This world is already a hub.
 ST_HUB_EXPLAIN | 320 | hub_panel.gd, block under the title, always shown
@@ -2343,6 +2380,10 @@ ST_HUB_NONE_IN_REACH | 50 | hub_panel.gd:131
 No worlds in reach yet.
 ST_HUB_NO_SHIP_ALERT | 90 | hub_panel.gd, red alert under the pool row when worlds are ticked and the pool has no ship
 No ship in the pool. The ticked worlds get nothing. Add a ship with +.
+NOT_HUB_NO_SHIP | 110 | Notice, a hub has ticked worlds but no ship in its pool; {planet} is the hub world or station name
+The hub at {planet} has no ship, so it delivers nothing. Open the hub and add a ship with +.
+TIP_HUB_NO_SHIP_MARKER | 60 | Map tooltip on the blinking hub marker when its pool has no ship
+No ship in this hub. Click to open it.
 ST_HUB_NO_WORLD | 30 | hubs.gd
 No such world.
 ST_HUB_OPEN | 24 | planet_panel.gd:223
@@ -2351,6 +2392,8 @@ ST_HUB_PANEL_TITLE | 30 | hub_panel.gd:87
 Hub: {planet}
 ST_HUB_POOL | 24 | hub_panel.gd _head call
 Pool
+ST_HUB_EARNED | 60 | hub_panel.gd, under the pool row, commission of last cycle; {n} | Hub earned {n}
+ST_HUB_EARNED_TOTAL | 80 | hub_panel.gd, same line with the run total; {n}, {total} | Hub earned {n} last cycle · {total} in all
 ST_HUB_POOL_FREE | 30 | hub_panel.gd:118
 Free ships: {n}
 ST_HUB_POOL_SHIPS | 40 | hub_panel.gd:95
@@ -2365,6 +2408,8 @@ ST_BUILD_ORE_PART | 40 | build buttons and cost lines when ore pays part of the 
 {cost} cr and {ore} ore
 BAZ_STEP_BILL_ORE | 140 | Bazaar guidance, the ore row of a stage bill; {stage} {amount} {good}
 {stage} needs {amount} {good} held in the Star Bazaar's storage. Mine it and send it to the Star Bazaar.
+BAZ_STEP_BILL_CASK | 200 | Bazaar guidance, the vault cask row of the last stage bill; {stage} {amount} {good} {system}
+{stage} needs {amount} {good} from {system}. Carry them to its Space Storage, build a Storage Link to the Star Bazaar (energy only) and order the casks across.
 PL_FATIGUE_LINE | 90 | planet_panel.gd under a good's tile, lane fatigue; {planet} {good} {pct}
 {planet} is well stocked with {good}: sales pay {pct}% less.
 PL_UNREST_LINE | 90 | planet_panel.gd needs block, unrest cut; {system} {n} {pct}
@@ -2429,7 +2474,7 @@ PB_NOTICE_SECOND_BIO | 200 | Notice, a second world is boosted, Biotech | The vi
 
 ## Tutorial window: planet icons
 TUT_WIN_PLANET_ICONS_TITLE | 32 | Tutorial window, title | Planet icons
-TUT_WIN_PLANET_ICONS_TOP | 110 | Tutorial window, line for the icons above a world | Icons above a world are the goods it trades. Right click one to send that good there.
+TUT_WIN_PLANET_ICONS_TOP | 110 | Tutorial window, line for the icons above a world | Icons above a world are its goods. Right click one for a quick Send to. It does not start a Buy order.
 TUT_WIN_PLANET_ICONS_BOTTOM | 120 | Tutorial window, line for the icons below the name | Icons below the name are what the world needs to grow. They light up when your sales meet the need.
 TUT_WIN_PLANET_ICONS_RING | 80 | Tutorial window, line for the ring | The ring fills as the world grows toward its next tier.
 
@@ -2440,8 +2485,10 @@ LBL_BAZAAR_STATION_NAME | 32 | main.gd planet_name, Space Storage view title, hu
 Star Bazaar
 BAZ_FOUND_TIP | 90 | Space Storage view, Found button tooltip
 Raise the Star Bazaar in this Space Storage. Once per run, final.
-BAZ_FOUND_NEED_HUB | 120 | Space Storage view, Found button tooltip while the hub is not ready
-Needs a hub in this system that has worked {cycles} cycles ({age} now) and moved {units} units ({moved} now).
+BAZ_FOUND_NEED_HUB | 220 | Space Storage view, Found button tooltip while this system's hub is not ready yet (a hub exists); friendly, then the progress
+This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Let the hub work at full strength first: {age} of {cycles} cycles, {moved} of {units} units moved.
+BAZ_FOUND_NO_HUB | 220 | Space Storage view, Found button tooltip while this system has no hub at all; friendly, then what to do
+This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Make a hub in this system and let it work at full strength for {cycles} cycles and {units} units.
 BAZ_FOUND_NEED_CASH | 90 | Space Storage view, Found button tooltip while credits are short
 Not enough credits. Ore in this system's planet storages lowers the price.
 BAZ_BTN_PANEL | 24 | Space Storage view, opens the Bazaar panel

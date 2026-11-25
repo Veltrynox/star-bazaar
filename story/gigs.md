@@ -42,37 +42,37 @@ GIG02_EPI | Gig 02, epilogue line | The Bureau's closed-relay form has no space 
 
 ## GIG03 The unused charter (a Bureau pod adrift)
 
-GIG03_TITLE | Gig 03, arrival window title | The blank world line
-GIG03_HOOK | Gig 03, signal hint | A Bureau pod calls for a desk that no longer exists. Clerk Edrin signed its last receipt. Below his name, someone wrote that the charter had not reached its world. The paper shows a cup ring. The pod has kept calling since that desk was cleared.
-GIG03_ARRIVE | Gig 03, arrival window text | Edrin's charter lets a world produce more and store more. Its world line is blank, worn thin by an eraser. Claim it for a world you choose, and the Flagship waits longer. Copy the ledger for a small sum, and it waits a while. The charter stays here.
-GIG03_A_BTN | Gig 03, button A | Keep the charter
-GIG03_B_BTN | Gig 03, button B | Sell a ledger copy
-GIG03_A_OUT_MIL | Gig 03, outcome A, Military | You keep the charter for a world you choose. It will let that world produce more and store more. The Flagship waits while Iven checks the yard seal. Edrin left the world line blank. Your crew holds the pen now.
-GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | The charter is yours to use at a world you choose. It lets that world produce more and store more. The Flagship waits through the claim. Iven puts a cloth under Edrin's page before he lifts it.
-GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | You claim the charter for a world you choose. It lets that world produce more and store more. The Flagship waits through the work. Iven traces the old load stamp. Edrin's blank world line is still yours to fill.
-GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | You keep the charter for a world you choose. It lets that world produce more and store more. The Flagship waits through the claim. A green shelf mark rubs off on Iven's hand. He holds the page by its edges.
-GIG03_B_OUT_MIL | Gig 03, outcome B, Military | The Flagship waits while you copy each drop and handler. A depot clerk pays a small sum. Edrin's signature shows through the thin page. You leave the charter blank and close the pod.
-GIG03_B_OUT_LUX | Gig 03, outcome B, Luxury | A broker pays a small sum for the names of gift senders and those still owed. The Flagship waits while you copy them. Iven flattens a folded corner. Edrin's charter stays blank in the pod.
-GIG03_B_OUT_MIN | Gig 03, outcome B, Minerals | A claim office pays a small sum for the ledger's loads and weights. The Flagship waits while you copy them. Edrin's pencil wore through the last total. You leave the blank charter in the pod.
-GIG03_B_OUT_BIO | Gig 03, outcome B, Biotech | The Flagship waits while you copy each shelf and batch. A clinic pays a small sum. Edrin's hand grew cramped near the end. Iven closes the cover. The blank charter stays in the pod.
-GIG03_EPI | Gig 03, epilogue line | The Bureau thanks you for finding the pod. Edrin's last receipt stays attached to a desk that no longer exists.
+GIG03_TITLE | Gig 03, arrival window title | Lio's missing pod
+GIG03_HOOK | Gig 03, signal hint | An automatic Bureau signal comes from a missing courier pod. Courier Lio's last message says a rescue ship took her crew after debris broke the pod's drive. She left an unused production charter sealed inside. Her coat is tied around its case so the finder will see it.
+GIG03_ARRIVE | Gig 03, arrival window text | The empty pod holds Lio's flight record and sealed charter. Register the charter for a world you choose. It makes that world produce and store more for a while, but the Flagship waits a long time. Send the record for a small sum and leave sooner. The charter stays here.
+GIG03_A_BTN | Gig 03, button A | Register the charter
+GIG03_B_BTN | Gig 03, button B | Send the flight record
+GIG03_A_OUT_MIL | Gig 03, outcome A, Military | After a long wait, the charter is yours. You can use it at a world you choose. A red depot mark is stamped on its metal case. Iven unties Lio's coat and carries the case to the Flagship.
+GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | After a long wait, the charter is yours. You can use it at a world you choose. Bright cloth cushions the case. Iven folds Lio's coat and carries both to the Flagship.
+GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | After a long wait, the charter is yours. You can use it at a world you choose. Grey rock dust fills the case hinge. Iven frees it with a brush, then unties Lio's coat.
+GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | After a long wait, the charter is yours. You can use it at a world you choose. A dried green leaf lies beneath the case strap. Iven places it inside Lio's folded coat.
+GIG03_B_OUT_MIL | Gig 03, outcome B, Military | After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio checking the cargo clamps before she leaves. You close the pod. The charter stays sealed inside.
+GIG03_B_OUT_LUX | Gig 03, outcome B, Luxury | After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio tying bright cloth around a case. You close the pod. The charter stays sealed inside.
+GIG03_B_OUT_MIN | Gig 03, outcome B, Minerals | After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio wiping grey dust from the controls. You close the pod. The charter stays sealed inside.
+GIG03_B_OUT_BIO | Gig 03, outcome B, Biotech | After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio checking the heat in sealed trays. You close the pod. The charter stays sealed inside.
+GIG03_EPI | Gig 03, epilogue line | The Bureau adds your report to Lio's rescue file. The pod's signal stops. Her coat goes back to her.
 
 ## GIG04 The empty berth (a station that kept the lights)
 
-GIG04_TITLE | Gig 04, arrival window title | Sella has set the table
-GIG04_HOOK | Gig 04, signal hint | A voice gives her name as Sella and offers your crew a berth. The station lies off every lane. Her call leaves no gap for an answer. Iven starts to ask whether anyone is there. She tells him the table is ready. He keeps his hand on the radio.
-GIG04_ARRIVE | Gig 04, arrival window text | Sella's voice welcomes you to empty berths. A spoon rests across a bowl at the head of the table. Take the pantry stores and pay a small berth fee. Or stay for the meal and a small sum. The Flagship waits while her voice fills the empty seats.
-GIG04_A_BTN | Gig 04, button A | Take the stores
-GIG04_B_BTN | Gig 04, button B | Eat at the table
-GIG04_A_OUT_MIL | Gig 04, outcome A, Military | You take the sealed depot packs and pay the small berth fee. Sella thanks Iven for each load. He reaches to put away a bowl. Her voice asks him to leave it where it is.
-GIG04_A_OUT_LUX | Gig 04, outcome A, Luxury | You take the wrapped pantry parcels and pay the small berth fee. Sella reads each label aloud. Iven brushes a place card with his sleeve. No guest comes to claim it.
-GIG04_A_OUT_MIN | Gig 04, outcome A, Minerals | You load the stores and tool kits, then pay the small berth fee. Sella thanks the crew by the hatch. Iven folds the grease paper over an empty shelf. The table stays set.
-GIG04_A_OUT_BIO | Gig 04, outcome A, Biotech | You take the sealed jars and pay the small berth fee. Sella reads the shelf labels as you work. Iven finds a thumbprint under a lid. The voice asks whether your crew will stay. You close the hatch.
-GIG04_B_OUT_MIL | Gig 04, outcome B, Military | The Flagship waits while you eat. Sella names the crews on the old patrol line. A drawer holds a small sum for your visit. Iven leaves his chair pulled out when you go. No other chair has moved.
-GIG04_B_OUT_LUX | Gig 04, outcome B, Luxury | You stay for the meal. Sella reads the old guests' orders. A drawer holds a small sum for your visit. The Flagship has waited through the talk. Iven folds his napkin beside an untouched place.
-GIG04_B_OUT_MIN | Gig 04, outcome B, Minerals | The Flagship waits while Sella names the crews who cut the nearby rock. You eat and take the small sum left for your visit. Iven lays his spoon across his bowl. The other spoons have not moved.
-GIG04_B_OUT_BIO | Gig 04, outcome B, Biotech | You stay while Sella tells you which garden beds failed. The Flagship waits through the meal. You take the small sum left for your visit. Iven holds his cup until her voice starts the welcome again.
-GIG04_EPI | Gig 04, epilogue line | Sella calls after you to mind the step. The Bureau's list has no keeper at that station. Iven checks the name again.
+GIG04_TITLE | Gig 04, arrival window title | Sella's closing meal
+GIG04_HOOK | Gig 04, signal hint | A station sends a closure call. Sella says she is its last caretaker. The workers left when the route moved, but their companies never collected the stock. The Bureau has ordered her to clear the rooms and leave. She asks one passing crew to witness the closing.
+GIG04_ARRIVE | Gig 04, arrival window text | Sella meets you at the hatch. Behind her are company stock and a table set for the station's final meal. Load a lot into your company's storage and pay a small berth fee. Or sign the closure record and eat with her for a small sum. The Flagship waits a short while.
+GIG04_A_BTN | Gig 04, button A | Load the company stock
+GIG04_B_BTN | Gig 04, button B | Witness the closing
+GIG04_A_OUT_MIL | Gig 04, outcome A, Military | You load the sealed depot cases and pay the small berth fee. Red inspection marks cover their lids. Sella crosses the cases off her closing list. Iven carries the last one past the table.
+GIG04_A_OUT_LUX | Gig 04, outcome A, Luxury | You load the wrapped parcels and pay the small berth fee. Bright cloth shows through one torn corner. Sella crosses the lot off her closing list. The table stays ready for her final meal.
+GIG04_A_OUT_MIN | Gig 04, outcome A, Minerals | You load the heavy sacks and pay the small berth fee. Grey dust marks the empty floor. Sella crosses the lot off her closing list. Iven closes the bare store room.
+GIG04_A_OUT_BIO | Gig 04, outcome A, Biotech | You load the sealed trays and pay the small berth fee. Each lid is still warm. Sella crosses the lot off her closing list. Iven checks the cold room before she locks it.
+GIG04_B_OUT_MIL | Gig 04, outcome B, Military | The Flagship waits while you eat with Sella. Old depot stamps cover the metal plates. You sign the closure record, and she pays a small sum from the station fund. She clears the table.
+GIG04_B_OUT_LUX | Gig 04, outcome B, Luxury | The Flagship waits while you eat with Sella. She brings out the last clean tablecloth. You sign the closure record, and she pays a small sum from the station fund. She folds the cloth.
+GIG04_B_OUT_MIN | Gig 04, outcome B, Minerals | The Flagship waits while you eat with Sella. Grey dust lies in the workers' names cut into the table. You sign the closure record, and she pays a small sum from the station fund.
+GIG04_B_OUT_BIO | Gig 04, outcome B, Biotech | The Flagship waits while you eat with Sella. One green cutting stands in a cup by her plate. You sign the closure record, and she pays a small sum from the station fund.
+GIG04_EPI | Gig 04, epilogue line | The Bureau records the station as closed. Sella sends one last message: the table is clear, and she has booked passage out.
 
 ## GIG05 The proving range (Military, Minerals)
 

@@ -326,6 +326,24 @@
    "place": "Skill screen, close button"
   },
   {
+   "id": "SK_BTN_CASH_OUT",
+   "text": "Turn {n} points into {cash} cr",
+   "max": 40,
+   "place": "Skill screen, button shown only when every skill the player can learn is learned and points are left; {n} points, {cash} credits"
+  },
+  {
+   "id": "SK_CASH_OUT_TIP",
+   "text": "Every skill is learned. Leftover points are traded to the Bureau for credits. All at once.",
+   "max": 110,
+   "place": "Skill screen, tooltip of that button"
+  },
+  {
+   "id": "NOT_SK_CASHED_OUT",
+   "text": "{n} skill points traded for {cash} credits.",
+   "max": 110,
+   "place": "Notice after the button; {n} points, {cash} credits"
+  },
+  {
    "id": "SK_HOLD_LEARN",
    "text": "Hold to learn  ·  {amount}",
    "max": 40,
@@ -1059,7 +1077,7 @@
   },
   {
    "id": "TUT_G4_ROUTE_PAY_WHY",
-   "text": "The route earns when it sells there. That is where your money comes from.",
+   "text": "The route's sales add credits at cycle end. Let the cycle finish to see what it earned.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1071,13 +1089,13 @@
   },
   {
    "id": "TUT_G5_UPKEEP_WHY",
-   "text": "A ship costs money every cycle, so a route must earn more than it costs.",
+   "text": "Each ship costs credits every cycle, even while idle. Its route needs to earn more than it costs.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
    "id": "TUT_G6_SELL",
-   "text": "Open your route's end world. Turn Sell on for Energy.",
+   "text": "Open the route's end world. Right-click Energy, choose Sell.",
    "max": 60,
    "place": "Guided step 6, until the first Sell order"
   },
@@ -1115,17 +1133,17 @@
    "id": "TUT_G7_GROW",
    "text": "Sell a world the goods it needs, until it grows.",
    "max": 60,
-   "place": "Guided step 9 (T315), until the first world reaches tier 1"
+   "place": "Guided step 9 (T315), until the first world grows to tier 2 (tier 1 is any world with a post)"
   },
   {
    "id": "TUT_G7_GROW_WHY",
-   "text": "Turn Sell on there, or send goods in. Your first tier also earns a skill point.",
+   "text": "Turn Sell on there, or send goods in. Growing a world also earns skill points.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
    "id": "TUT_G8_SKILLS",
-   "text": "Open Skills and learn a Foundation.",
+   "text": "Open Skills. Hold the left mouse button on a Foundation.",
    "max": 60,
    "place": "Guided step 10, until a skill is learned"
   },
@@ -1155,7 +1173,7 @@
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "You build it, stage by stage, in the Space Storage of one system. Finishing it wins the game.",
+   "text": "Build it in stages in Space Storage. Fly the charter cargo to the Bazaar with the Flagship to win.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1353,13 +1371,13 @@
   },
   {
    "id": "TIP_WEATHER",
-   "text": "A tinted ship is a house convoy. It flies to a world before that house's weather lands.",
+   "text": "A tinted ship belongs to a trading house. Houses cause price drops, shortages or higher trip costs.",
    "max": 110,
    "place": "Tip card line; trigger: the first house convoy appears"
   },
   {
    "id": "TIP_WEATHER_WHY",
-   "text": "The houses send weather, not rivals. Click a convoy to see what is due and where.",
+   "text": "Click a tinted ship to see its house's name and the kind of market change it brings.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1395,19 +1413,7 @@
   },
   {
    "id": "TIP_DEAD_WHY",
-   "text": "Hard mining gives more and draws more raids. Set Mining intensity on its card.",
-   "max": 110,
-   "place": "Tip card, why line"
-  },
-  {
-   "id": "TIP_RECLAIM",
-   "text": "Start reclaiming turns a dead world into a living one. Mining there stops for good.",
-   "max": 110,
-   "place": "Tip card line; trigger: the first dead world card is opened"
-  },
-  {
-   "id": "TIP_RECLAIM_WHY",
-   "text": "Meet its needs to fill the bar. Raids from it stop, and it can grow like any world.",
+   "text": "Mining is limited each cycle. The stock never runs out. Use routes to move what you mine.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1528,18 +1534,6 @@
   {
    "id": "TIP_POINTS_WHY",
    "text": "Six Foundations come before your market tree. Three of them must be learned first.",
-   "max": 110,
-   "place": "Tip card, why line"
-  },
-  {
-   "id": "TIP_FOUNDATIONS",
-   "text": "The three required Foundations are done. Your market tree is open now.",
-   "max": 110,
-   "place": "Tip card line; trigger: the third required Foundation is learned"
-  },
-  {
-   "id": "TIP_FOUNDATIONS_WHY",
-   "text": "Points are limited, so choose the skills your lanes use. Learn the ones you will use.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -2112,6 +2106,18 @@
    "text": "Bottled scent, pressed from blooms. A crafted luxury good.",
    "max": 110,
    "place": "Commodity tooltip, attar"
+  },
+  {
+   "id": "GOOD_CASK_NAME",
+   "text": "Vault Cask",
+   "max": 24,
+   "place": "Commodity name, vault cask"
+  },
+  {
+   "id": "GOOD_CASK_DESC",
+   "text": "A sealed cask from the far reach. The Star Bazaar's last stage cannot be finished without it.",
+   "max": 110,
+   "place": "Commodity tooltip, vault cask"
   },
   {
    "id": "GOOD_GEMS_NAME",
@@ -6639,9 +6645,9 @@
   },
   {
    "id": "TUT_G0_DONE_WHY",
-   "text": "A post lets you buy, sell and route there. Voltara is next.",
-   "max": 110,
-   "place": "Guided step, why it matters (second line of the card)"
+   "text": "A post lets you buy, sell and route there. Voltara is next. Tip: the lit button next to the Pathfinder sends it to explore the galaxy by itself.",
+   "max": 160,
+   "place": "Guided step, why it matters (second line of the card); the lit button is the explore button next to the Pathfinder card, which the card highlights"
   },
   {
    "id": "TUT_G0_DONE_NEXT",
@@ -7005,75 +7011,75 @@
   },
   {
    "id": "WORLD_SYS3_NAME",
-   "text": "TEMPORARY A",
+   "text": "Varnoch Reach",
    "max": 24,
-   "place": "System 3 name (placeholder)"
+   "place": "System 3 name, map and system labels"
   },
   {
    "id": "WORLD_SYS3_DESC",
-   "text": "Temporary text for a far system. It is not open yet.",
+   "text": "Three planets, the farthest out. The last piece of the Star Bazaar is found here.",
    "max": 110,
-   "place": "System 3 description (placeholder, off)"
+   "place": "System 3, permit screen and map tooltip"
   },
   {
    "id": "PERMIT_S3_NAME",
-   "text": "Permit: TEMPORARY A",
+   "text": "Permit: Varnoch Reach",
    "max": 24,
-   "place": "Permit list, system 3 entry (placeholder)"
+   "place": "Permit list, system 3 entry"
   },
   {
    "id": "PERMIT_S3_DESC",
-   "text": "Temporary text. Opens TEMPORARY A for routes.",
+   "text": "Opens Varnoch Reach for routes. Needs Permit Charter. Costs credits and skill points.",
    "max": 110,
-   "place": "Permit list, system 3 description (placeholder)"
+   "place": "Permit list, system 3 description"
   },
   {
    "id": "PERMIT_S3_BTN",
    "text": "Buy permit",
    "max": 24,
-   "place": "Permit list, buy button, system 3 (placeholder)"
+   "place": "Permit list, buy button, system 3"
   },
   {
    "id": "NOT_PERMIT_S3",
-   "text": "Permit bought. TEMPORARY A is open: three new planets.",
+   "text": "Permit bought. Varnoch Reach is open: three planets, and the Bazaar's last piece.",
    "max": 110,
-   "place": "Notice, permit for system 3 bought (placeholder)"
+   "place": "Notice, permit for system 3 bought"
   },
   {
    "id": "WORLD_S3P1_NAME",
-   "text": "Temp A1",
+   "text": "Saltwick",
    "max": 24,
-   "place": "System 3 planet 1 (placeholder)"
+   "place": "System 3 planet 1 (ocean, food-rich)"
   },
   {
    "id": "WORLD_S3P1_DESC",
-   "text": "Temporary planet text.",
+   "text": "A grey sea under cold lamps. Saltwick has food to spare and little power.",
    "max": 110,
-   "place": "Planet 1 of system 3, tooltip (placeholder)"
+   "place": "Planet 1 of system 3, tooltip"
   },
   {
    "id": "WORLD_S3P2_NAME",
-   "text": "Temp A2",
+   "text": "Ketterack",
    "max": 24,
-   "place": "System 3 planet 2 (placeholder)"
+   "place": "System 3 planet 2 (desert, energy-rich)"
   },
   {
    "id": "WORLD_S3P2_DESC",
-   "text": "Temporary planet text.",
+   "text": "Dust and wind turbines to the horizon. Ketterack has power to spare and empty tables.",
    "max": 110,
-   "place": "Planet 2 of system 3, tooltip (placeholder)"
+   "place": "Planet 2 of system 3, tooltip"
   },
   {
    "id": "WORLD_S3P3_NAME",
-   "text": "Temp A3",
+   "text": "Vesperlock",
    "max": 24,
-   "place": "System 3 planet 3 (placeholder)"
+   "place": "System 3 planet 3 (urban, wants both)"
   },
   {
    "id": "WORLD_S3P3_DESC",
-   "text": "Temporary planet text.",
+   "text": "A walled city at the edge of the map. Vesperlock makes nothing and wants both goods.",
    "max": 110,
-   "place": "Planet 3 of system 3, tooltip (placeholder)"
+   "place": "Planet 3 of system 3, tooltip"
   },
   {
    "id": "HINT_RIVAL_MARKET",
@@ -8420,6 +8426,90 @@
    "place": "Cycle-end notice while a bill item is short and not fed"
   },
   {
+   "id": "HUB_INTRO_WIN_TITLE",
+   "text": "Your first hub",
+   "max": 40,
+   "place": "Modal window title, shown once when the first hub is made"
+  },
+  {
+   "id": "HUB_INTRO_WIN_L1",
+   "text": "A hub ticks the worlds around it and keeps a pool of ships. Each cycle it buys what those worlds need from a world nearby, at a discount, and carries it in.",
+   "max": 230,
+   "place": "Hub window, line 1"
+  },
+  {
+   "id": "HUB_INTRO_WIN_L2",
+   "text": "To found the Star Bazaar, a hub in its system must work {cycles} cycles and move {units} units.",
+   "max": 160,
+   "place": "Hub window, line 2; {cycles}, {units}"
+  },
+  {
+   "id": "HUB_INTRO_WIN_L3",
+   "text": "Your own lanes and Sell orders for the same goods, into those worlds or out of the hub's source world, take the goods from the hub. Remove them and let the hub carry.",
+   "max": 230,
+   "place": "Hub window, line 3"
+  },
+  {
+   "id": "HUB_INTRO_WIN_BTN",
+   "text": "Got it",
+   "max": 24,
+   "place": "Hub window, close button"
+  },
+  {
+   "id": "NOT_HUB_COMMISSION",
+   "text": "Hubs earned {amount} cr commission.",
+   "max": 90,
+   "place": "Cycle-end notice, hub commission paid to cash; {amount}"
+  },
+  {
+   "id": "NOT_HUB_COMPETE_LANE",
+   "text": "Your {good} lane {from} to {to} takes goods from your hub. Remove it so the hub can carry.",
+   "max": 140,
+   "place": "Cycle-end notice, a manual lane competes with a hub; {good}, {from}, {to}"
+  },
+  {
+   "id": "NOT_HUB_COMPETE_SELL",
+   "text": "Your Sell order for {good} at {to} takes goods from your hub. Remove it so the hub can carry.",
+   "max": 140,
+   "place": "Cycle-end notice, a Sell order competes with a hub; {good}, {to}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_HUB",
+   "text": "Make a hub in {system} (a world at hub tier) and tick its worlds.",
+   "max": 110,
+   "place": "Top bar Best move and Bazaar panel, no hub yet; {system}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_SHIP",
+   "text": "Add a ship to the pool of the hub at {planet}.",
+   "max": 110,
+   "place": "Same, the hub has no pool ship; {planet}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_LANE",
+   "text": "Remove the {good} lane {from} to {to}: it takes goods from your hub.",
+   "max": 110,
+   "place": "Same, a manual lane competes with the hub; {good}, {from}, {to}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_SELL",
+   "text": "Remove the {good} Sell order at {to}: it takes goods from your hub.",
+   "max": 110,
+   "place": "Same, a Sell order competes with the hub; {good}, {to}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_PROGRESS",
+   "text": "Hub at {planet}: {age}/{need_age} cycles, {moved}/{need_moved} units moved.",
+   "max": 110,
+   "place": "Same, hub progress toward founding; {planet}, {age}, {need_age}, {moved}, {need_moved}"
+  },
+  {
+   "id": "BAZ_STEP_FOUND_READY",
+   "text": "Found the Star Bazaar in the Space Storage of {system} ({cost} cr).",
+   "max": 110,
+   "place": "Same, ready to found; {system}, {cost}"
+  },
+  {
    "id": "RECAP_TITLE",
    "text": "The run in brief",
    "max": 40,
@@ -8841,7 +8931,7 @@
   },
   {
    "id": "GIG_REWARD_SALVAGE",
-   "text": "Stolen cargo, loaded into the Flagship hold",
+   "text": "Stolen cargo, carried aboard the Flagship",
    "max": 80,
    "place": "gig_board.gd:110"
   },
@@ -9440,6 +9530,72 @@
    "place": "galaxy_view.gd:815"
   },
   {
+   "id": "LBL_SYSTEM_NUM",
+   "text": "System {n}",
+   "max": 24,
+   "place": "system_exit.gd, pointer to a locked system: its number only, no unlock hint; {n} the system number"
+  },
+  {
+   "id": "PB_NO_CHARGE",
+   "text": "No production charter held.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: no charter held"
+  },
+  {
+   "id": "PB_NO_WORLD",
+   "text": "Not a world.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: the target is not a world"
+  },
+  {
+   "id": "PB_ALREADY",
+   "text": "Already boosted.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: this world is already boosted"
+  },
+  {
+   "id": "PB_NO_POST",
+   "text": "Needs a trading post.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: no trading post on the world"
+  },
+  {
+   "id": "PB_CLOSED",
+   "text": "The planet is closed.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: the planet is closed"
+  },
+  {
+   "id": "PB_NO_GOODS",
+   "text": "Nothing to buy here yet.",
+   "max": 60,
+   "place": "boost.gd, production boost refused: the world sells nothing yet"
+  },
+  {
+   "id": "GIG_EFF_BOOST",
+   "text": "You hold a production charter.",
+   "max": 60,
+   "place": "gigs.gd, gig reward effect line: the player gets a production charter"
+  },
+  {
+   "id": "LBL_RES_POPUP_BUY_FIRST",
+   "text": "Buy it from the planet card first.",
+   "max": 60,
+   "place": "main.gd, notice after a right click on a goods icon with no stock and no Buy order; follows \"<good>: \""
+  },
+  {
+   "id": "RSN_UPGRADE_BY_EVENT",
+   "text": "A full lane earns its bonus from an event, not a button.",
+   "max": 80,
+   "place": "main.gd, reason why a full lane has no upgrade button"
+  },
+  {
+   "id": "RT_STATE_NEED_FILLED",
+   "text": "Need filled from storage.",
+   "max": 40,
+   "place": "route_engine.gd, settle line state: a world need was filled from storage"
+  },
+  {
    "id": "LBL_SYS_FIRST",
    "text": "Your first system.",
    "max": 40,
@@ -9597,7 +9753,7 @@
   },
   {
    "id": "NOT_SALVAGE_DONE",
-   "text": "Pods scooped into the Flagship hold: {lines}.",
+   "text": "Pods scooped aboard the Flagship: {lines}.",
    "max": 90,
    "place": "gigs.gd:192"
   },
@@ -10010,6 +10166,12 @@
    "place": "route_engine.gd:175"
   },
   {
+   "id": "ST_DEAD_CYCLE_CAP",
+   "text": "Mined to this cycle's limit.",
+   "max": 50,
+   "place": "route_engine.gd:_local_calc"
+  },
+  {
    "id": "ST_HUB_ALREADY",
    "text": "This world is already a hub.",
    "max": 60,
@@ -10070,6 +10232,18 @@
    "place": "hub_panel.gd, red alert under the pool row when worlds are ticked and the pool has no ship"
   },
   {
+   "id": "NOT_HUB_NO_SHIP",
+   "text": "The hub at {planet} has no ship, so it delivers nothing. Open the hub and add a ship with +.",
+   "max": 110,
+   "place": "Notice, a hub has ticked worlds but no ship in its pool; {planet} is the hub world or station name"
+  },
+  {
+   "id": "TIP_HUB_NO_SHIP_MARKER",
+   "text": "No ship in this hub. Click to open it.",
+   "max": 60,
+   "place": "Map tooltip on the blinking hub marker when its pool has no ship"
+  },
+  {
    "id": "ST_HUB_NO_WORLD",
    "text": "No such world.",
    "max": 30,
@@ -10092,6 +10266,18 @@
    "text": "Pool",
    "max": 24,
    "place": "hub_panel.gd _head call"
+  },
+  {
+   "id": "ST_HUB_EARNED",
+   "text": "Hub earned {n}",
+   "max": 60,
+   "place": "hub_panel.gd, under the pool row, commission of last cycle; {n}"
+  },
+  {
+   "id": "ST_HUB_EARNED_TOTAL",
+   "text": "Hub earned {n} last cycle · {total} in all",
+   "max": 80,
+   "place": "hub_panel.gd, same line with the run total; {n}, {total}"
   },
   {
    "id": "ST_HUB_POOL_FREE",
@@ -10134,6 +10320,12 @@
    "text": "{stage} needs {amount} {good} held in the Star Bazaar's storage. Mine it and send it to the Star Bazaar.",
    "max": 140,
    "place": "Bazaar guidance, the ore row of a stage bill; {stage} {amount} {good}"
+  },
+  {
+   "id": "BAZ_STEP_BILL_CASK",
+   "text": "{stage} needs {amount} {good} from {system}. Carry them to its Space Storage, build a Storage Link to the Star Bazaar (energy only) and order the casks across.",
+   "max": 200,
+   "place": "Bazaar guidance, the vault cask row of the last stage bill; {stage} {amount} {good} {system}"
   },
   {
    "id": "PL_FATIGUE_LINE",
@@ -10359,7 +10551,7 @@
   },
   {
    "id": "TUT_WIN_PLANET_ICONS_TOP",
-   "text": "Icons above a world are the goods it trades. Right click one to send that good there.",
+   "text": "Icons above a world are its goods. Right click one for a quick Send to. It does not start a Buy order.",
    "max": 110,
    "place": "Tutorial window, line for the icons above a world"
   },
@@ -10395,9 +10587,15 @@
   },
   {
    "id": "BAZ_FOUND_NEED_HUB",
-   "text": "Needs a hub in this system that has worked {cycles} cycles ({age} now) and moved {units} units ({moved} now).",
-   "max": 120,
-   "place": "Space Storage view, Found button tooltip while the hub is not ready"
+   "text": "This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Let the hub work at full strength first: {age} of {cycles} cycles, {moved} of {units} units moved.",
+   "max": 220,
+   "place": "Space Storage view, Found button tooltip while this system's hub is not ready yet (a hub exists); friendly, then the progress"
+  },
+  {
+   "id": "BAZ_FOUND_NO_HUB",
+   "text": "This system is not ready for a Star Bazaar yet. Supply and demand here have not settled. Make a hub in this system and let it work at full strength for {cycles} cycles and {units} units.",
+   "max": 220,
+   "place": "Space Storage view, Found button tooltip while this system has no hub at all; friendly, then what to do"
   },
   {
    "id": "BAZ_FOUND_NEED_CASH",
@@ -10575,13 +10773,13 @@
   },
   {
    "id": "SK_FND_STORAGE_FLAVOUR",
-   "text": "But keep an eye on it. It's valuable.",
+   "text": "The crew checks each seal twice. Those crates hold the next shift's pay.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_FND_STORAGE_PLAIN",
-   "text": "You may now claim your own piece of space! Keep resources there and craft unique ones.",
+   "text": "Unlock a Space Storage in each open system. Send goods there and store them.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -10719,8 +10917,8 @@
   },
   {
    "id": "SK_MIL_5_PLAIN",
-   "text": "Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles.",
-   "max": 110,
+   "text": "Every {m} cycles, pick one of the three trading houses whose convoys fly across your map. For {n} cycles, its market shocks (price drops, demand jumps, jammed lanes) hit you {pct} softer.",
+   "max": 200,
    "place": "Skill screen, detail panel"
   },
   {
@@ -11007,7 +11205,7 @@
   },
   {
    "id": "SK_MIN_5_PLAIN",
-   "text": "Dead worlds hold more for your company. Needs Cold Survey.",
+   "text": "Dead worlds give your company more each cycle. Needs Cold Survey.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -14444,6 +14642,96 @@
    "place": "End screen beat, cold worlds, just before scene close on a win; no placeholders"
   },
   {
+   "id": "ENDB_MIL_BRIBE_FINE",
+   "text": "Sela kept the Bureau's penalty beside the depot records. Bram Hale stayed at his post, and the company ledger stayed clean.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders"
+  },
+  {
+   "id": "ENDB_MIL_BRIBE_FIRE",
+   "text": "Sela dismissed Bram Hale and signed the new depot contracts herself. The route cost more for a while, but no fine was hidden in its loads.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders"
+  },
+  {
+   "id": "ENDB_MIL_BRIBE_HUSH",
+   "text": "Sela found the payment to Bram Hale's accuser between two clean depot reports. She closes the book, but the thin edge of the receipt still shows.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders"
+  },
+  {
+   "id": "ENDB_LUX_BRIBE_FINE",
+   "text": "Idris paid the Bureau's penalty where every clerk could see. He kept Bram Hale at the counter and gave the clean record no extra polish.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders"
+  },
+  {
+   "id": "ENDB_LUX_BRIBE_FIRE",
+   "text": "Idris dismissed Bram Hale and welcomed the new worker himself. The new contracts cost more for a while, and he did not bargain them down with a secret.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders"
+  },
+  {
+   "id": "ENDB_LUX_BRIBE_HUSH",
+   "text": "Idris paid Bram Hale's accuser to leave the complaint outside. At the end, one corner of that receipt still shows beneath the company guest book.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders"
+  },
+  {
+   "id": "ENDB_MIN_BRIBE_FINE",
+   "text": "Marek paid the Bureau's penalty and kept the stamped receipt with the depot sheet. Bram Hale stayed on the shift, under a clean company record.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders"
+  },
+  {
+   "id": "ENDB_MIN_BRIBE_FIRE",
+   "text": "Marek dismissed Bram Hale and put the new contracts on the work board. The route cost more for a while, but every hand could trace why.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders"
+  },
+  {
+   "id": "ENDB_MIN_BRIBE_HUSH",
+   "text": "The payment to Bram Hale's accuser is not on Marek's work sheet. He still knows which blank line it belongs on.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders"
+  },
+  {
+   "id": "ENDB_BIO_BRIBE_FINE",
+   "text": "Tamsin paid the Bureau's penalty and kept Bram Hale's name on the depot card. The company record stayed clean enough to send back without a covering note.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders"
+  },
+  {
+   "id": "ENDB_BIO_BRIBE_FIRE",
+   "text": "Tamsin dismissed Bram Hale and wrote the new worker's name on a fresh card. The route cost more for a while; she kept Bram's old card behind it.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders"
+  },
+  {
+   "id": "ENDB_BIO_BRIBE_HUSH",
+   "text": "Tamsin paid Bram Hale's accuser, and the complaint came back blank. She reads the clean card twice, then keeps it with the notes no clerk will see.",
+   "max": 420,
+   "place": "End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders"
+  },
+  {
+   "id": "END_STORY_BRIBE_FINE",
+   "text": "After Bram Hale was accused of taking a bribe, you paid the Bureau's penalty and kept him at work; the company record stayed clean.",
+   "max": 220,
+   "place": "Chronicle beat, Bram Hale bribery charge, Bureau fine paid; no placeholders"
+  },
+  {
+   "id": "END_STORY_BRIBE_FIRE",
+   "text": "You dismissed Bram Hale without paying a fine, and the route cost more while a new worker signed its contracts again.",
+   "max": 220,
+   "place": "Chronicle beat, Bram Hale dismissed, route costs rose for a while; no placeholders"
+  },
+  {
+   "id": "END_STORY_BRIBE_HUSH",
+   "text": "You paid Bram Hale's accuser to withdraw the complaint; no mark went on the record, but the payment remained.",
+   "max": 220,
+   "place": "Chronicle beat, Bram Hale's accuser paid to withdraw complaint; no placeholders"
+  },
+  {
    "id": "GIG01_TITLE",
    "text": "Mera's sealed hold",
    "max": 32,
@@ -14613,169 +14901,169 @@
   },
   {
    "id": "GIG03_TITLE",
-   "text": "The blank world line",
+   "text": "Lio's missing pod",
    "max": 32,
    "place": "Gig 03, arrival window title"
   },
   {
    "id": "GIG03_HOOK",
-   "text": "A Bureau pod calls for a desk that no longer exists. Clerk Edrin signed its last receipt. Below his name, someone wrote that the charter had not reached its world. The paper shows a cup ring. The pod has kept calling since that desk was cleared.",
+   "text": "An automatic Bureau signal comes from a missing courier pod. Courier Lio's last message says a rescue ship took her crew after debris broke the pod's drive. She left an unused production charter sealed inside. Her coat is tied around its case so the finder will see it.",
    "max": 420,
    "place": "Gig 03, signal hint"
   },
   {
    "id": "GIG03_ARRIVE",
-   "text": "Edrin's charter lets a world produce more and store more. Its world line is blank, worn thin by an eraser. Claim it for a world you choose, and the Flagship waits longer. Copy the ledger for a small sum, and it waits a while. The charter stays here.",
+   "text": "The empty pod holds Lio's flight record and sealed charter. Register the charter for a world you choose. It makes that world produce and store more for a while, but the Flagship waits a long time. Send the record for a small sum and leave sooner. The charter stays here.",
    "max": 280,
    "place": "Gig 03, arrival window text"
   },
   {
    "id": "GIG03_A_BTN",
-   "text": "Keep the charter",
+   "text": "Register the charter",
    "max": 28,
    "place": "Gig 03, button A"
   },
   {
    "id": "GIG03_B_BTN",
-   "text": "Sell a ledger copy",
+   "text": "Send the flight record",
    "max": 28,
    "place": "Gig 03, button B"
   },
   {
    "id": "GIG03_A_OUT_MIL",
-   "text": "You keep the charter for a world you choose. It will let that world produce more and store more. The Flagship waits while Iven checks the yard seal. Edrin left the world line blank. Your crew holds the pen now.",
+   "text": "After a long wait, the charter is yours. You can use it at a world you choose. A red depot mark is stamped on its metal case. Iven unties Lio's coat and carries the case to the Flagship.",
    "max": 280,
    "place": "Gig 03, outcome A, Military"
   },
   {
    "id": "GIG03_A_OUT_LUX",
-   "text": "The charter is yours to use at a world you choose. It lets that world produce more and store more. The Flagship waits through the claim. Iven puts a cloth under Edrin's page before he lifts it.",
+   "text": "After a long wait, the charter is yours. You can use it at a world you choose. Bright cloth cushions the case. Iven folds Lio's coat and carries both to the Flagship.",
    "max": 280,
    "place": "Gig 03, outcome A, Luxury"
   },
   {
    "id": "GIG03_A_OUT_MIN",
-   "text": "You claim the charter for a world you choose. It lets that world produce more and store more. The Flagship waits through the work. Iven traces the old load stamp. Edrin's blank world line is still yours to fill.",
+   "text": "After a long wait, the charter is yours. You can use it at a world you choose. Grey rock dust fills the case hinge. Iven frees it with a brush, then unties Lio's coat.",
    "max": 280,
    "place": "Gig 03, outcome A, Minerals"
   },
   {
    "id": "GIG03_A_OUT_BIO",
-   "text": "You keep the charter for a world you choose. It lets that world produce more and store more. The Flagship waits through the claim. A green shelf mark rubs off on Iven's hand. He holds the page by its edges.",
+   "text": "After a long wait, the charter is yours. You can use it at a world you choose. A dried green leaf lies beneath the case strap. Iven places it inside Lio's folded coat.",
    "max": 280,
    "place": "Gig 03, outcome A, Biotech"
   },
   {
    "id": "GIG03_B_OUT_MIL",
-   "text": "The Flagship waits while you copy each drop and handler. A depot clerk pays a small sum. Edrin's signature shows through the thin page. You leave the charter blank and close the pod.",
+   "text": "After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio checking the cargo clamps before she leaves. You close the pod. The charter stays sealed inside.",
    "max": 280,
    "place": "Gig 03, outcome B, Military"
   },
   {
    "id": "GIG03_B_OUT_LUX",
-   "text": "A broker pays a small sum for the names of gift senders and those still owed. The Flagship waits while you copy them. Iven flattens a folded corner. Edrin's charter stays blank in the pod.",
+   "text": "After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio tying bright cloth around a case. You close the pod. The charter stays sealed inside.",
    "max": 280,
    "place": "Gig 03, outcome B, Luxury"
   },
   {
    "id": "GIG03_B_OUT_MIN",
-   "text": "A claim office pays a small sum for the ledger's loads and weights. The Flagship waits while you copy them. Edrin's pencil wore through the last total. You leave the blank charter in the pod.",
+   "text": "After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio wiping grey dust from the controls. You close the pod. The charter stays sealed inside.",
    "max": 280,
    "place": "Gig 03, outcome B, Minerals"
   },
   {
    "id": "GIG03_B_OUT_BIO",
-   "text": "The Flagship waits while you copy each shelf and batch. A clinic pays a small sum. Edrin's hand grew cramped near the end. Iven closes the cover. The blank charter stays in the pod.",
+   "text": "After the shorter wait, the Bureau pays a small sum for the flight record. Its last image shows Lio checking the heat in sealed trays. You close the pod. The charter stays sealed inside.",
    "max": 280,
    "place": "Gig 03, outcome B, Biotech"
   },
   {
    "id": "GIG03_EPI",
-   "text": "The Bureau thanks you for finding the pod. Edrin's last receipt stays attached to a desk that no longer exists.",
+   "text": "The Bureau adds your report to Lio's rescue file. The pod's signal stops. Her coat goes back to her.",
    "max": 140,
    "place": "Gig 03, epilogue line"
   },
   {
    "id": "GIG04_TITLE",
-   "text": "Sella has set the table",
+   "text": "Sella's closing meal",
    "max": 32,
    "place": "Gig 04, arrival window title"
   },
   {
    "id": "GIG04_HOOK",
-   "text": "A voice gives her name as Sella and offers your crew a berth. The station lies off every lane. Her call leaves no gap for an answer. Iven starts to ask whether anyone is there. She tells him the table is ready. He keeps his hand on the radio.",
+   "text": "A station sends a closure call. Sella says she is its last caretaker. The workers left when the route moved, but their companies never collected the stock. The Bureau has ordered her to clear the rooms and leave. She asks one passing crew to witness the closing.",
    "max": 420,
    "place": "Gig 04, signal hint"
   },
   {
    "id": "GIG04_ARRIVE",
-   "text": "Sella's voice welcomes you to empty berths. A spoon rests across a bowl at the head of the table. Take the pantry stores and pay a small berth fee. Or stay for the meal and a small sum. The Flagship waits while her voice fills the empty seats.",
+   "text": "Sella meets you at the hatch. Behind her are company stock and a table set for the station's final meal. Load a lot into your company's storage and pay a small berth fee. Or sign the closure record and eat with her for a small sum. The Flagship waits a short while.",
    "max": 280,
    "place": "Gig 04, arrival window text"
   },
   {
    "id": "GIG04_A_BTN",
-   "text": "Take the stores",
+   "text": "Load the company stock",
    "max": 28,
    "place": "Gig 04, button A"
   },
   {
    "id": "GIG04_B_BTN",
-   "text": "Eat at the table",
+   "text": "Witness the closing",
    "max": 28,
    "place": "Gig 04, button B"
   },
   {
    "id": "GIG04_A_OUT_MIL",
-   "text": "You take the sealed depot packs and pay the small berth fee. Sella thanks Iven for each load. He reaches to put away a bowl. Her voice asks him to leave it where it is.",
+   "text": "You load the sealed depot cases and pay the small berth fee. Red inspection marks cover their lids. Sella crosses the cases off her closing list. Iven carries the last one past the table.",
    "max": 280,
    "place": "Gig 04, outcome A, Military"
   },
   {
    "id": "GIG04_A_OUT_LUX",
-   "text": "You take the wrapped pantry parcels and pay the small berth fee. Sella reads each label aloud. Iven brushes a place card with his sleeve. No guest comes to claim it.",
+   "text": "You load the wrapped parcels and pay the small berth fee. Bright cloth shows through one torn corner. Sella crosses the lot off her closing list. The table stays ready for her final meal.",
    "max": 280,
    "place": "Gig 04, outcome A, Luxury"
   },
   {
    "id": "GIG04_A_OUT_MIN",
-   "text": "You load the stores and tool kits, then pay the small berth fee. Sella thanks the crew by the hatch. Iven folds the grease paper over an empty shelf. The table stays set.",
+   "text": "You load the heavy sacks and pay the small berth fee. Grey dust marks the empty floor. Sella crosses the lot off her closing list. Iven closes the bare store room.",
    "max": 280,
    "place": "Gig 04, outcome A, Minerals"
   },
   {
    "id": "GIG04_A_OUT_BIO",
-   "text": "You take the sealed jars and pay the small berth fee. Sella reads the shelf labels as you work. Iven finds a thumbprint under a lid. The voice asks whether your crew will stay. You close the hatch.",
+   "text": "You load the sealed trays and pay the small berth fee. Each lid is still warm. Sella crosses the lot off her closing list. Iven checks the cold room before she locks it.",
    "max": 280,
    "place": "Gig 04, outcome A, Biotech"
   },
   {
    "id": "GIG04_B_OUT_MIL",
-   "text": "The Flagship waits while you eat. Sella names the crews on the old patrol line. A drawer holds a small sum for your visit. Iven leaves his chair pulled out when you go. No other chair has moved.",
+   "text": "The Flagship waits while you eat with Sella. Old depot stamps cover the metal plates. You sign the closure record, and she pays a small sum from the station fund. She clears the table.",
    "max": 280,
    "place": "Gig 04, outcome B, Military"
   },
   {
    "id": "GIG04_B_OUT_LUX",
-   "text": "You stay for the meal. Sella reads the old guests' orders. A drawer holds a small sum for your visit. The Flagship has waited through the talk. Iven folds his napkin beside an untouched place.",
+   "text": "The Flagship waits while you eat with Sella. She brings out the last clean tablecloth. You sign the closure record, and she pays a small sum from the station fund. She folds the cloth.",
    "max": 280,
    "place": "Gig 04, outcome B, Luxury"
   },
   {
    "id": "GIG04_B_OUT_MIN",
-   "text": "The Flagship waits while Sella names the crews who cut the nearby rock. You eat and take the small sum left for your visit. Iven lays his spoon across his bowl. The other spoons have not moved.",
+   "text": "The Flagship waits while you eat with Sella. Grey dust lies in the workers' names cut into the table. You sign the closure record, and she pays a small sum from the station fund.",
    "max": 280,
    "place": "Gig 04, outcome B, Minerals"
   },
   {
    "id": "GIG04_B_OUT_BIO",
-   "text": "You stay while Sella tells you which garden beds failed. The Flagship waits through the meal. You take the small sum left for your visit. Iven holds his cup until her voice starts the welcome again.",
+   "text": "The Flagship waits while you eat with Sella. One green cutting stands in a cup by her plate. You sign the closure record, and she pays a small sum from the station fund.",
    "max": 280,
    "place": "Gig 04, outcome B, Biotech"
   },
   {
    "id": "GIG04_EPI",
-   "text": "Sella calls after you to mind the step. The Bureau's list has no keeper at that station. Iven checks the name again.",
+   "text": "The Bureau records the station as closed. Sella sends one last message: the table is clear, and she has booked passage out.",
    "max": 140,
    "place": "Gig 04, epilogue line"
   },
@@ -18664,6 +18952,90 @@
   {
    "id": "EV98_DECLINE",
    "text": "You gain a small sum. You receive no production charter. Dema takes the form back and leaves the payment slip. Your clerk slides it toward you. The dent from her ring is pressed into the copy beneath.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_BRB01_TITLE",
+   "text": "A bribe at {planet}",
+   "max": 32,
+   "place": "choice title"
+  },
+  {
+   "id": "EV_BRB01_BODY",
+   "text": "The Bureau accuses depot worker Bram Hale of taking a bribe at {planet}. Pay the fine and keep him. Fire him, pay no fine, and trips from {planet} cost more for a while. Or quietly pay the accuser a smaller sum to drop the complaint.",
+   "max": 280,
+   "place": "choice body"
+  },
+  {
+   "id": "EV_BRB01_FINE_BTN",
+   "text": "Pay the fine",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_BRB01_FINE_EFF",
+   "text": "Pay {cash_out} credits. Bram Hale stays. The company record stays clean.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_BRB01_FINE_TITLE",
+   "text": "The penalty is recorded",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_BRB01_FINE",
+   "text": "The Bureau records the payment and closes the case. Bram Hale keeps his job. He removes a folded note from his desk and begins the next route sheet.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_BRB01_FIRE_BTN",
+   "text": "Fire Bram Hale",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_BRB01_FIRE_EFF",
+   "text": "No fine. Trips from {planet} cost more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_BRB01_FIRE_TITLE",
+   "text": "Bram leaves the depot",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_BRB01_FIRE",
+   "text": "Bram Hale is dismissed. A new worker signs the contracts again, and trips from {planet} cost more for a while. Bram carries his mug out in both hands.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_BRB01_HUSH_BTN",
+   "text": "Pay the accuser",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_BRB01_HUSH_EFF",
+   "text": "Pay {cash_out} credits to the accuser. Nothing goes on the record.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_BRB01_HUSH_TITLE",
+   "text": "The complaint is withdrawn",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_BRB01_HUSH",
+   "text": "The accuser takes the payment and withdraws the complaint. Bram Hale stays. He puts the clean Bureau form over the first payment note and locks both in the same drawer.",
    "max": 280,
    "place": "popup"
   }

@@ -15,8 +15,8 @@ SK_BOT_COOLDOWN | 40 | Skill screen, note on a house skill that is recharging; {
 Sizes in words: a little (S), clearly (M), sharply (L). Prerequisites and costs are shown by the game.
 
 SK_FND_STORAGE_NAME | 24 | Skill screen, node name | Space Storage
-SK_FND_STORAGE_FLAVOUR | 90 | Skill screen, detail panel | But keep an eye on it. It's valuable.
-SK_FND_STORAGE_PLAIN | 110 | Skill screen, detail panel | You may now claim your own piece of space! Keep resources there and craft unique ones.
+SK_FND_STORAGE_FLAVOUR | 90 | Skill screen, detail panel | The crew checks each seal twice. Those crates hold the next shift's pay.
+SK_FND_STORAGE_PLAIN | 110 | Skill screen, detail panel | Unlock a Space Storage in each open system. Send goods there and store them.
 
 SK_FND_PERMIT_NAME | 24 | Skill screen, node name | Permit Charter
 SK_FND_PERMIT_FLAVOUR | 90 | Skill screen, detail panel | A stamped page lets the ship leave. The crew waits by the door for it.
@@ -46,7 +46,7 @@ SK_MIL_4_CRAFT | 60 | Skill screen, tech node progress line | Military workshop 
 
 SK_MIL_5_NAME | 24 | Skill screen, node name | Embargo Desk
 SK_MIL_5_FLAVOUR | 90 | Skill screen, detail panel | One call and a house's convoys wait at the gate. A clerk thanks you for your patience.
-SK_MIL_5_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles.
+SK_MIL_5_PLAIN | 200 | Skill screen, detail panel | Every {m} cycles, pick one of the three trading houses whose convoys fly across your map. For {n} cycles, its market shocks (price drops, demand jumps, jammed lanes) hit you {pct} softer.
 
 SK_MIL_6_NAME | 24 | Skill screen, node name | The Long Contract
 SK_MIL_6_FLAVOUR | 90 | Skill screen, detail panel | The buyer sends a card of thanks. You know what the cargo is for.
@@ -108,7 +108,7 @@ SK_MIN_4_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop 
 
 SK_MIN_5_NAME | 24 | Skill screen, node name | Deep Cut
 SK_MIN_5_FLAVOUR | 90 | Skill screen, detail panel | Under the dust, glass that hums. It hums when you cut. It does not stop when you leave.
-SK_MIN_5_PLAIN | 110 | Skill screen, detail panel | Dead worlds hold more for your company. Needs Cold Survey.
+SK_MIN_5_PLAIN | 110 | Skill screen, detail panel | Dead worlds give your company more each cycle. Needs Cold Survey.
 
 SK_MIN_6_NAME | 24 | Skill screen, node name | Lattice Works
 SK_MIN_6_FLAVOUR | 90 | Skill screen, detail panel | Every piece leans on the next. Pull one out and the rest remember.

@@ -1440,3 +1440,50 @@ When Marek asks about the work, the crews make room on their bench. The stone be
 
 ENDB_MIN_LEAN_BAD | 420 | End screen beat, cold worlds, just before scene close on a win; no placeholders
 The halls are loud, and the cut seams lie bare. Crews give Marek the weights he asks for. Their hands stay on the work. Nobody asks him to sit.
+
+## Bribery choice in the ending (EV_BRB01, 2026-11-14; written by Codex)
+
+ENDB_MIL_BRIBE_FINE | 420 | End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders
+Sela kept the Bureau's penalty beside the depot records. Bram Hale stayed at his post, and the company ledger stayed clean.
+
+ENDB_MIL_BRIBE_FIRE | 420 | End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders
+Sela dismissed Bram Hale and signed the new depot contracts herself. The route cost more for a while, but no fine was hidden in its loads.
+
+ENDB_MIL_BRIBE_HUSH | 420 | End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders
+Sela found the payment to Bram Hale's accuser between two clean depot reports. She closes the book, but the thin edge of the receipt still shows.
+
+ENDB_LUX_BRIBE_FINE | 420 | End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders
+Idris paid the Bureau's penalty where every clerk could see. He kept Bram Hale at the counter and gave the clean record no extra polish.
+
+ENDB_LUX_BRIBE_FIRE | 420 | End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders
+Idris dismissed Bram Hale and welcomed the new worker himself. The new contracts cost more for a while, and he did not bargain them down with a secret.
+
+ENDB_LUX_BRIBE_HUSH | 420 | End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders
+Idris paid Bram Hale's accuser to leave the complaint outside. At the end, one corner of that receipt still shows beneath the company guest book.
+
+ENDB_MIN_BRIBE_FINE | 420 | End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders
+Marek paid the Bureau's penalty and kept the stamped receipt with the depot sheet. Bram Hale stayed on the shift, under a clean company record.
+
+ENDB_MIN_BRIBE_FIRE | 420 | End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders
+Marek dismissed Bram Hale and put the new contracts on the work board. The route cost more for a while, but every hand could trace why.
+
+ENDB_MIN_BRIBE_HUSH | 420 | End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders
+The payment to Bram Hale's accuser is not on Marek's work sheet. He still knows which blank line it belongs on.
+
+ENDB_BIO_BRIBE_FINE | 420 | End screen beat, Bram Hale bribery charge, Bureau fine paid; no placeholders
+Tamsin paid the Bureau's penalty and kept Bram Hale's name on the depot card. The company record stayed clean enough to send back without a covering note.
+
+ENDB_BIO_BRIBE_FIRE | 420 | End screen beat, Bram Hale dismissed, route costs rose for a while; no placeholders
+Tamsin dismissed Bram Hale and wrote the new worker's name on a fresh card. The route cost more for a while; she kept Bram's old card behind it.
+
+ENDB_BIO_BRIBE_HUSH | 420 | End screen beat, Bram Hale's accuser paid to withdraw complaint; no placeholders
+Tamsin paid Bram Hale's accuser, and the complaint came back blank. She reads the clean card twice, then keeps it with the notes no clerk will see.
+
+END_STORY_BRIBE_FINE | 220 | Chronicle beat, Bram Hale bribery charge, Bureau fine paid; no placeholders
+After Bram Hale was accused of taking a bribe, you paid the Bureau's penalty and kept him at work; the company record stayed clean.
+
+END_STORY_BRIBE_FIRE | 220 | Chronicle beat, Bram Hale dismissed, route costs rose for a while; no placeholders
+You dismissed Bram Hale without paying a fine, and the route cost more while a new worker signed its contracts again.
+
+END_STORY_BRIBE_HUSH | 220 | Chronicle beat, Bram Hale's accuser paid to withdraw complaint; no placeholders
+You paid Bram Hale's accuser to withdraw the complaint; no mark went on the record, but the payment remained.

@@ -890,3 +890,20 @@ EV98_DECLINE_BTN | button | Decline the charter
 EV98_DECLINE_EFF | effect line | You gain a small sum.
 EV98_DECLINE_TITLE | popup title | Dema takes the form back
 EV98_DECLINE | popup | You gain a small sum. You receive no production charter. Dema takes the form back and leaves the payment slip. Your clerk slides it toward you. The dent from her ring is pressed into the copy beneath.
+
+## Bribery at the depot (EV_BRB01, all branches, 2026-11-14 owner request; written by Codex)
+
+EV_BRB01_TITLE | choice title | A bribe at {planet}
+EV_BRB01_BODY | choice body | The Bureau accuses depot worker Bram Hale of taking a bribe at {planet}. Pay the fine and keep him. Fire him, pay no fine, and trips from {planet} cost more for a while. Or quietly pay the accuser a smaller sum to drop the complaint.
+EV_BRB01_FINE_BTN | button | Pay the fine
+EV_BRB01_FINE_EFF | effect line | Pay {cash_out} credits. Bram Hale stays. The company record stays clean.
+EV_BRB01_FINE_TITLE | popup title | The penalty is recorded
+EV_BRB01_FINE | popup | The Bureau records the payment and closes the case. Bram Hale keeps his job. He removes a folded note from his desk and begins the next route sheet.
+EV_BRB01_FIRE_BTN | button | Fire Bram Hale
+EV_BRB01_FIRE_EFF | effect line | No fine. Trips from {planet} cost more for a while.
+EV_BRB01_FIRE_TITLE | popup title | Bram leaves the depot
+EV_BRB01_FIRE | popup | Bram Hale is dismissed. A new worker signs the contracts again, and trips from {planet} cost more for a while. Bram carries his mug out in both hands.
+EV_BRB01_HUSH_BTN | button | Pay the accuser
+EV_BRB01_HUSH_EFF | effect line | Pay {cash_out} credits to the accuser. Nothing goes on the record.
+EV_BRB01_HUSH_TITLE | popup title | The complaint is withdrawn
+EV_BRB01_HUSH | popup | The accuser takes the payment and withdraws the complaint. Bram Hale stays. He puts the clean Bureau form over the first payment note and locks both in the same drawer.
