@@ -353,13 +353,6 @@
    "note": ""
   },
   {
-   "id": "link.remove",
-   "title": "Remove a link",
-   "group": "systems",
-   "entry": "storage_link.remove_link",
-   "note": ""
-  },
-  {
    "id": "link.exists",
    "title": "A link stood at a cycle end",
    "group": "systems",
@@ -392,27 +385,6 @@
    "title": "Boost the Flagship",
    "group": "flagship",
    "entry": "flagship_panel.boost_toggled",
-   "note": ""
-  },
-  {
-   "id": "flag.dock_open",
-   "title": "Dock at a world",
-   "group": "flagship",
-   "entry": "main.request_dock",
-   "note": ""
-  },
-  {
-   "id": "flag.dock_load",
-   "title": "Load from storage at the dock sheet",
-   "group": "flagship",
-   "entry": "dock_sheet buttons (_do)",
-   "note": ""
-  },
-  {
-   "id": "flag.dock_unload",
-   "title": "Unload to storage at the dock sheet",
-   "group": "flagship",
-   "entry": "dock_sheet buttons (_do)",
    "note": ""
   },
   {
@@ -483,6 +455,13 @@
    "title": "Make a hub",
    "group": "hubs",
    "entry": "planet_panel.make_hub_requested",
+   "note": ""
+  },
+  {
+   "id": "hub.intro_window",
+   "title": "First-hub tutorial window shown",
+   "group": "hubs",
+   "entry": "engine (automatic)",
    "note": ""
   },
   {

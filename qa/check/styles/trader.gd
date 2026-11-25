@@ -235,10 +235,9 @@ func _storage_links() -> void:
 	_link_tried = true
 	var r: Dictionary = a.link_build(int(cand[0][0]), int(cand[0][1]))
 	if bool(r["ok"]):
-		var lid: int = int(main.storage_link.links()[0]["id"])
+		var lid: int = int(main.storage_link.links()[0])  # links() is a list of link ids
 		a.link_order(lid, "energy", int(cand[0][0]), 5)
-		a.link_order_remove(lid, 0)
-		a.link_remove(lid)
+		a.link_order_remove(lid, 0)  # the link itself stays (links are permanent)
 
 
 # ---- Bazaar and hubs ------------------------------------------------------------------------------------------------------

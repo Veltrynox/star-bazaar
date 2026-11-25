@@ -409,9 +409,15 @@ func _bazaar() -> void:
 	ensure_prospect()
 	if bill_ore_unmet() and mine_ore_into(cap):
 		made += 1
+	_drop_met_bill_lanes(cap)
 	for row in b.bill_status():
 		if bool(row["ok"]):
 			continue
+		if str(row.get("kind", "")) == "cask":
+			_cask_step(cap, int(row["need"]) - int(row["have"]))
+			continue
+		if (row["goods"] as Array).is_empty() and str(row.get("kind", "")) != "ore":
+			_open_other_system(int(b.site_system()))  # the row's good is still hidden (e.g. Bio spores: shown once system 2 is open)
 		for g in row["goods"]:
 			if made >= 2:
 				break
@@ -427,6 +433,8 @@ func _bazaar() -> void:
 						break
 				continue
 			var s: Dictionary = a.best_source(str(g), cap)
+			if (int(s["src"]) >= 0 or main.can_mine()) and not free_a_ship("the %s bill" % str(g)):  # at the ship cap a bill lane still gets a ship
+				continue
 			if int(s["src"]) < 0:
 				if main.can_mine() and _mine_need(cap, str(g)):
 					made += 1
@@ -440,6 +448,70 @@ func _bazaar() -> void:
 	# the quorum: worlds below the needed tier get their needs first (lanes above do that); the reach world is in system 2
 	if b.reach_needed() and not b.reach_ok():
 		_open_other_system(int(b.site_system()))
+		grow_reach()
+
+
+## Lanes into the Star Bazaar's storage whose bill row is met (held stock covers it) are removed, so their ships serve
+## the rows still short, the reach world or income (a lane kept carrying 349 of 40 while other rows waited for a ship).
+func _drop_met_bill_lanes(cap: int) -> void:
+	var short := {}
+	var met := {}  # goods of met rows only: workshop input lanes into the same storage are left alone
+	for row in main.bazaar.bill_status():
+		for g in row["goods"]:
+			if bool(row["ok"]):
+				met[str(g)] = true
+			else:
+				short[str(g)] = true
+	for r in main.engine.routes.duplicate():
+		if int(r["b"]) == cap and met.has(str(r["c"])) and not short.has(str(r["c"])):
+			a.remove_route(int(r["id"]), "panel")
+			note("bill lane %s -> Star Bazaar removed: its row is met" % str(r["c"]))
+
+
+## Vault Cask rule (stage 4): system 3 open, a cask lane from a system-3 world into system 3's Space Storage, energy held for
+## the link (energy only when system 3 is an end), a Storage Link 3 <-> the site, and a link order moving the casks across.
+func _cask_step(cap: int, short: int) -> void:
+	const S3 := 3
+	var site := int(main.bazaar.site_system())
+	if not main.open_systems.has(S3):
+		_open_other_system(site)
+		return
+	# 1. casks into system 3's Space Storage
+	if int(main.storage_link.stock_of(S3, "cask")) < short and not _lane_into(-S3, "cask"):
+		for i in main.map.planets.size():
+			if int(main.system_of(i)) != S3 or not main.planet_established(i) or int(main.trade.price(i, "cask_buy")) < 0:
+				continue
+			if not free_a_ship("the vault casks", i):
+				return
+			if bool(a.send(i, -S3, "cask", "buy")["ok"]):
+				a.set_order(i, "cask", "buy", true)
+				note("cask lane %s -> Space Storage of system 3" % a.world_name(i))
+			break
+	# 2. the link (energy only), then the order
+	var lid := int(main.storage_link.pair_link(S3, site))
+	if lid < 0:
+		var why := str(main.storage_link.can_build(S3, site))
+		if why == "":
+			if bool(a.link_build(S3, site)["ok"]):
+				note("storage link system 3 <-> Star Bazaar built")
+				lid = int(main.storage_link.pair_link(S3, site))
+		elif why == "LNK_NEED_GOODS" and not _lane_into(cap, "energy") and not _lane_into(-S3, "energy"):
+			var s: Dictionary = a.best_source("energy", -S3)  # into system 3's storage: no workshop there eats it
+			if int(s["src"]) >= 0 and free_a_ship("energy for the link", -1) and bool(a.send(int(s["src"]), -S3, "energy", "buy")["ok"]):
+				a.set_order(int(s["src"]), "energy", "buy", true)
+				note("energy lane -> Space Storage of system 3 (for the storage link)")
+			return
+		else:
+			if int(main.cycle) % 10 == 0:
+				note("storage link 3 <-> %d not buildable: %s" % [site, why])
+			return
+	if lid >= 0:
+		var has_order := false
+		for o in main.storage_link.link_info(lid).get("orders", []):
+			if str(o["good"]) == "cask":
+				has_order = true
+		if not has_order and bool(a.link_order(lid, "cask", S3, 10)["ok"]):
+			note("link order: vault casks system 3 -> Star Bazaar")
 
 
 func _open_other_system(site_sys: int) -> void:

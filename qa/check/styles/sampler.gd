@@ -42,13 +42,6 @@ func each_cycle(c: int) -> void:
 	if c == 5 and not a.fs_busy():
 		a.set_boost(true)
 		a.set_boost(false)
-	if c >= 6 and not _done.has("dock") and not a.fs_busy() and worlds.size() >= 2:
-		var w := int(worlds[worlds.size() - 1])
-		for g in a.goods_visible():
-			if int(main.trade.price(w, str(g) + "_buy")) > 0:
-				a.fs_queue({"op": "dock", "planet": w, "todo": [["unload", str(g), 5], ["load", str(g), 5]]})
-				_done["dock"] = true
-				break
 	if main.can_mine() and not _done.has("cluster") and not a.cluster_list().is_empty() and worlds.size() >= 1:
 		var r2: Dictionary = a.send_cluster(int(a.cluster_list()[0]["index"]), int(worlds[0]))
 		if bool(r2["ok"]):

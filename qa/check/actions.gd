@@ -36,16 +36,16 @@ extends RefCounted
 ## SYSTEMS  buy_permit(sid)                            system.permit       main.buy_permit (galaxy card button)
 ##          go_system(sid)                             system.go           galaxy_view.system_chosen
 ##          open_station(sid)                          storage.view        map.station_clicked
-##          link_build(a, b) link_order(id, good, from_sys, amount) link_order_remove(id, i) link_remove(id)
-##                                                     link.build / link.order / link.order_remove / link.remove  (station view dialogs call storage_link.*)
+##          link_build(a, b) link_order(id, good, from_sys, amount) link_order_remove(id, i)
+##                                                     link.build / link.order / link.order_remove  (station view dialogs call storage_link.*;
+##                                                     owner 2026-11-13: a link is permanent, the player has no Remove link entry)
 ## FLAGSHIP fly_to(planet) (map.fly_requested)         flag.fly
 ##          fly_establish(planet) (map.fly_establish_requested, the right-click "Establish" menu)   flag.establish_post / flag.establish_platform
 ##          establish_here() (map.establish_requested)  flag.establish_post / flag.establish_platform
 ##          set_exploring(on)                          flag.explore       flagship_panel.explore_toggled
 ##          set_boost(on)                              flag.boost         flagship_panel.boost_toggled
-##          request_dock(planet) / dock_do(kind, good, units) / dock_close()   flag.dock_open, flag.dock_load/unload  (dock sheet buttons)
 ##          fs_queue(step...) / fs_busy() / fs_pump()  queue of Flagship steps: {"op":"fly","planet":i} {"op":"establish"}
-##                {"op":"fly_establish","planet":i} {"op":"dock","planet":i,"todo":[[kind,good,units],...]} {"op":"gig","uid":s}
+##                {"op":"fly_establish","planet":i} {"op":"gig","uid":s}
 ## GIGS     accept_gig(uid)                            gig.accept          gig_board accept button (main.gig_panel._on_accept)
 ## HUBS     make_hub(planet) hub_pool(hub, n) hub_world(hub, world, on) hub_need(hub, world, good, on) release_hub(hub)
 ##                                                     hub.designate / hub.pool / hub.world / hub.need / hub.release  (planet panel + hub panel)
@@ -267,6 +267,8 @@ func hub_candidates() -> Array:
 
 func link_candidates() -> Array:
 	var out: Array = []
+	if not bool(main.storage_link.visible_feature()):
+		return out
 	var sts: Array = main.station_systems
 	for x in sts:
 		for y in sts:
@@ -599,6 +601,8 @@ func open_station(sid: int) -> Dictionary:
 
 
 func link_build(a: int, b: int) -> Dictionary:
+	if not bool(main.storage_link.visible_feature()):
+		return _res("link.build", false, "Storage Link not unlocked yet", false)  # hidden: the station view shows no build button
 	var why := str(main.storage_link.can_build(a, b))
 	if why != "":
 		return _res("link.build", false, why)
@@ -614,11 +618,6 @@ func link_order(id: int, good: String, from_sys: int, amount: int) -> Dictionary
 func link_order_remove(id: int, index: int) -> Dictionary:
 	var ok: bool = bool(main.storage_link.remove_order(id, index))
 	return _res("link.order_remove", ok, "" if ok else "no such order")
-
-
-func link_remove(id: int) -> Dictionary:
-	var ok: bool = bool(main.storage_link.remove_link(id))
-	return _res("link.remove", ok, "" if ok else "no such link")
 
 
 # ---- Flagship -----------------------------------------------------------------------------------------------------------
@@ -688,34 +687,6 @@ func set_boost(on: bool) -> Dictionary:
 	return _res("flag.boost", bool(main.flight.boost_on()) == on or not on, _notice(), false)
 
 
-func request_dock(planet: int) -> Dictionary:
-	var pid := str(main.map.planets[planet].get("id", ""))
-	if not bool(main.flight.established(pid)):
-		return _res("flag.dock_open", false, "no post here", false)
-	main.request_dock(pid)
-	return _res("flag.dock_open", main.dock_sheet != null or main.flight.state() == "flying", _notice(), false)
-
-
-## One hand trade on the open dock sheet: kind load | unload (the sheet buttons). units: lot count.
-func dock_do(kind: String, good: String, units: int) -> Dictionary:
-	if kind != "load" and kind != "unload":
-		return {"ok": false, "reason": "no hand trade: " + kind}
-	var fid := "flag.dock_" + kind
-	if main.dock_sheet == null:
-		return _res(fid, false, "dock sheet closed", false)
-	var f = main.flight
-	var h0: int = int(f.hold_total())
-	var st0: int = int(main.storage.amount(main.storage.planet_key(int(main.dock_sheet.planet)), good))
-	main.dock_sheet._do(kind, good, units)
-	var moved: bool = int(f.hold_total()) != h0 or int(main.storage.amount(main.storage.planet_key(int(main.dock_sheet.planet)), good)) != st0
-	return _res(fid, moved, "" if moved else _notice())
-
-
-func dock_close() -> void:
-	if main.dock_sheet != null:
-		main.dock_sheet.close_sheet()
-
-
 func accept_gig(uid: String) -> Dictionary:
 	if main.gigs.offer(uid).is_empty():
 		return _res("gig.accept", false, "no such offer", false)
@@ -743,7 +714,7 @@ func fs_busy() -> bool:
 
 ## Called by the bot between clock chunks. Runs the next queued step when the Flagship is idle.
 func fs_pump() -> void:
-	if fs.is_empty() or main.flight.state() != "idle" or main.dock_sheet != null or main.event_notice != null:
+	if fs.is_empty() or main.flight.state() != "idle" or main.event_notice != null:
 		return
 	var step: Dictionary = fs[0]
 	var op := str(step.get("op", ""))
@@ -798,22 +769,6 @@ func fs_pump() -> void:
 			fs_note = "establish did not start: " + str(r["reason"])
 			fs.pop_front()
 			return
-		"dock":
-			var p := int(step["planet"])
-			var pid3 := str(main.map.planets[p].get("id", ""))
-			if str(main.flight.docked_at()) == pid3:
-				if main.open_dock_sheet():
-					bot.dock_todo = step.get("todo", [])
-					fs.pop_front()
-					return
-				r = {"ok": false, "reason": "sheet did not open"}
-			else:
-				r = request_dock(p)
-				if bool(r["ok"]):
-					step["armed"] = true
-					bot.dock_todo = step.get("todo", [])
-					fs.pop_front()  # the sheet opens by itself on arrival (main._on_flight_arrived)
-					return
 		"gig":
 			r = accept_gig(str(step["uid"]))
 			if bool(r["ok"]):
@@ -836,6 +791,10 @@ func make_hub(planet: int) -> Dictionary:
 		return _res("hub.designate", false, "needs %d credits" % int(main.hubs.build_cost()))
 	select(planet)
 	main.planet_panel.make_hub_requested.emit(planet)
+	var hint_seen: bool = main.tut_win != null  # the first hub opens the "hub_intro" tutorial window (pauses the game)
+	close_tut_win()
+	if hint_seen:
+		bot.record_feature("hub.intro_window", true, "", false)
 	return _res("hub.designate", bool(main.hubs.is_hub(planet)), _notice())
 
 

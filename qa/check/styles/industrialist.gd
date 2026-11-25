@@ -402,11 +402,7 @@ func _link(c: int) -> void:
 			note("link order not possible")
 	elif _link_state == 2 and c - _link_cycle >= 10:
 		a.link_order_remove(_link_id, 0)
-		_link_state = 3
-	elif _link_state == 3:
-		if bool(a.link_remove(_link_id)["ok"]):
-			note("storage link removed")
-		_link_state = 4
+		_link_state = 4  # the link itself stays (links are permanent, owner 2026-11-13)
 
 
 # ---- upkeep and measure -------------------------------------------------------------------------------------------------------

@@ -52,9 +52,9 @@ func on_chunk(_k: int) -> void:
 	_all_chunks += 1
 	if not a.fs_busy():
 		_idle_chunks += 1
-	# boost whenever flying with energy in the hold
+	# boost whenever flying
 	var f = main.flight
-	if f.state() == "flying" and not bool(f.boost_on()) and f.hold_units("energy") > 0 and int(f.boost_charges()) > 0:
+	if f.state() == "flying" and not bool(f.boost_on()) and int(f.boost_charges()) > 0:
 		a.set_boost(true)
 
 
@@ -178,7 +178,7 @@ func _flagship(c: int) -> void:
 		return
 	if bool(main.flight.exploring()):
 		a.set_exploring(false)
-	# 0. unload what the hold carries (scooped pods) at the nearest established world
+	# 0. deliver the scooped pods the Flagship carries at the nearest established world
 	if _unload_hold():
 		return
 	# 1. every gig on the board
@@ -223,10 +223,10 @@ func _flagship(c: int) -> void:
 		return
 
 
-## Dock at the nearest established world and unload every good in the hold.
+## Fly to the nearest established world: it unloads the carried pods on arrival.
 func _unload_hold() -> bool:
 	var f = main.flight
-	if int(f.hold_total()) <= 0:
+	if not main.gigs.carrying():
 		return false
 	var best := -1
 	var best_eta := 1e9
@@ -240,14 +240,9 @@ func _unload_hold() -> bool:
 			best = int(w)
 	if best < 0:
 		return false
-	var todo: Array = []
-	for g in a.goods_visible():
-		var n: int = int(f.hold_units(str(g)))
-		if n > 0:
-			todo.append(["unload", str(g), n])
-	if todo.is_empty():
+	if str(f.docked_at()) == str(main.map.planets[best].get("id", "")):
 		return false
-	a.fs_queue({"op": "dock", "planet": best, "todo": todo})
+	a.fs_queue({"op": "fly", "planet": best})
 	_unloads += 1
 	note("unload hold at %s" % a.world_name(best))
 	return true

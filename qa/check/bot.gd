@@ -48,7 +48,6 @@ var issues: Array = []
 var events_seen: Array = []
 var goods_sold := {}      # good -> units sold by local orders
 var goods_bought := {}
-var dock_todo: Array = []
 var ended_count := 0
 var first_end := {}       # {side, ending, cycle, cash}
 var end_screen_ok := true
@@ -402,10 +401,9 @@ func _advance_cycle() -> void:
 			elif dc < 0:
 				add_flow("posts" if building or str(main.flight.build_target()) != "" else "flight_costs", -dc)
 		act.fs_pump()
-		_serve_dock()
 		style.on_chunk(chunks)
 	if chunks >= MAX_CHUNKS:
-		issue("softlock", "cycle %d did not end in %d chunks (paused %s, notice %s, dock %s)" % [start, MAX_CHUNKS, str(main.paused), str(main.event_notice != null), str(main.dock_sheet != null)])
+		issue("softlock", "cycle %d did not end in %d chunks (paused %s, notice %s)" % [start, MAX_CHUNKS, str(main.paused), str(main.event_notice != null)])
 		finished = true
 	main.set_paused(true)
 
@@ -416,29 +414,13 @@ func _unpause() -> bool:
 		act.close_tut_win()
 		if main.event_notice != null:
 			act.answer_events(event_policy())
-		if main.dock_sheet != null:
-			_serve_dock(true)
-		if not bool(main.paused) and main.event_notice == null and main.dock_sheet == null:
+		if not bool(main.paused) and main.event_notice == null:
 			return true
 		main.set_paused(false)
 		if not bool(main.paused):
 			return true
-	issue("stuck_pause", "game stays paused: notice %s dock %s" % [str(main.event_notice != null), str(main.dock_sheet != null)])
+	issue("stuck_pause", "game stays paused: notice %s" % str(main.event_notice != null))
 	return false
-
-
-## A dock sheet is open (the Flagship arrived with a dock order): run the style's hand-trade list, then close it.
-func _serve_dock(force: bool = false) -> void:
-	if main.dock_sheet == null:
-		return
-	if dock_todo.is_empty() and not force:
-		pass
-	for t in dock_todo:
-		act.dock_do(str(t[0]), str(t[1]), int(t[2]))
-	dock_todo = []
-	act.dock_close()
-	if bool(main.paused):
-		main.set_paused(false)
 
 
 # ---- checks and metrics ---------------------------------------------------------------------------------------------------
@@ -477,8 +459,8 @@ func _health(c: int) -> void:
 		for g in main.storage.stock[key]:
 			if int(main.storage.stock[key][g]) < 0:
 				issue("negative_stock", "%s %s %d" % [str(key), str(g), int(main.storage.stock[key][g])])
-	for g in main.flight.hold_goods():
-		if int(main.flight.hold_goods()[g]) < 0:
+	for g in main.gigs.carried:
+		if int(main.gigs.carried[g]) < 0:
 			issue("negative_hold", str(g))
 
 
@@ -694,7 +676,7 @@ func _check_save_load(c: int) -> void:
 
 
 func _do_save_load() -> void:
-	if main.event_notice != null or main.dock_sheet != null or main.game_over:
+	if main.event_notice != null or main.game_over:
 		return
 	saveload["done"] = true
 	saveload["cycle"] = int(main.cycle)
