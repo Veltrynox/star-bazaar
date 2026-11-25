@@ -31,7 +31,7 @@ The web build is a Godot 4.7.2 HTML5 export hosted on Vercel. Its source is the 
 
 **Pipeline repository:** https://github.com/Veltrynox/star-bazaar
 
-**Pipeline run video:** _(to be added)_
+**Pipeline run video:** https://youtu.be/YBdCzB4Mqtw
 
 ### Integration breakdown
 
