@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Star Bazaar · Assignment #7</title>
+<style>
+@font-face { font-family: "Inter"; src: url("fonts/Inter.ttf"); font-weight: 400; }
+@font-face { font-family: "Inter"; src: url("fonts/InterBold.ttf"); font-weight: 600; }
+@font-face { font-family: "Inter Display"; src: url("fonts/InterDisplayLight.ttf"); font-weight: 300; }
+@font-face { font-family: "DejaVu Sans Mono"; src: url("fonts/DejaVuSansMono.ttf"); }
+
+:root {
+  --paper: #FFFFFF; --ink: #14161B; --body: #22252C; --muted: #8A8F9A;
+  --rule: #E3E0DA; --panel: #FAF8F4; --gold: #D4A35F; --amber: #8A5D27;
+  --tint: #F3EDE2; --cover: #07080B; --sonnet-ink: #E8C48E; --haiku-ink: #2E4E72; --haiku-bg: #E8EEF5;
+  --card-border: #DEDAD3; --card-fill: #FDFCFA;
+}
+
+@page {
+  size: A4;
+  margin: 22mm 20mm 24mm 20mm;
+  @bottom-left {
+    content: "STAR BAZAAR  ·  ASSIGNMENT #7  ·  COMPLETE AI DEV PIPELINE";
+    font-family: "Inter"; font-weight: 600; font-size: 6.2pt; letter-spacing: 0.16em; color: var(--muted);
+    vertical-align: top; padding-top: 6mm;
+  }
+  @bottom-right {
+    content: counter(page, decimal-leading-zero);
+    font-family: "Inter"; font-weight: 600; font-size: 8pt; color: var(--amber);
+    vertical-align: top; padding-top: 5.6mm;
+  }
+}
+@page cover {
+  margin: 0;
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--paper); }
+body {
+  font-family: "Inter"; font-size: 9.4pt; line-height: 1.55; color: var(--body);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+p { margin: 0 0 3.2mm; }
+strong { font-weight: 600; color: var(--ink); }
+a { color: var(--amber); text-decoration: none; }
+code {
+  font-family: "DejaVu Sans Mono"; font-size: 7.4pt; color: var(--amber); background: var(--tint);
+  padding: 0.3mm 1.2mm; border-radius: 2px; white-space: nowrap;
+}
+
+/* ---------- Cover ---------- */
+.cover {
+  page: cover; break-after: page;
+  width: 210mm; height: 297mm; background: var(--cover); color: #F4F2EE;
+  position: relative; padding: 34mm 22mm 0 22mm;
+}
+.eyebrow { font-weight: 600; font-size: 7pt; letter-spacing: 0.32em; color: var(--gold); text-transform: uppercase; }
+.cover h1 {
+  font-family: "Inter Display"; font-weight: 300; font-size: 46pt; line-height: 1.05; margin: 7mm 0 5mm; color: #FFFFFF;
+  letter-spacing: -0.01em;
+}
+.cover .subtitle { font-size: 12pt; color: #B9BCC4; max-width: 140mm; line-height: 1.45; }
+.cover .play {
+  position: absolute; left: 22mm; right: 22mm; bottom: 72mm;
+  border-top: 1px solid #2A2D34; padding-top: 7mm;
+}
+.cover .play .label { font-weight: 600; font-size: 6.4pt; letter-spacing: 0.26em; color: #8A8F9A; text-transform: uppercase; }
+.cover .play a { display: block; margin-top: 2.5mm; font-family: "Inter Display"; font-weight: 300; font-size: 20pt; color: var(--gold); }
+.cover .play .note { margin-top: 2mm; font-size: 8.4pt; color: #9A9EA8; }
+.cover .meta {
+  position: absolute; left: 22mm; right: 22mm; bottom: 26mm;
+  display: flex; gap: 11mm; border-top: 1px solid #2A2D34; padding-top: 6mm;
+}
+.cover .meta div { font-size: 8.2pt; color: #D9DADF; }
+.cover .meta span { display: block; font-weight: 600; font-size: 5.8pt; letter-spacing: 0.24em; color: #6E7380; margin-bottom: 1.6mm; }
+
+/* ---------- Sections ---------- */
+.section { break-before: page; }
+.secnum {
+  font-family: "Inter Display"; font-weight: 300; font-size: 44pt; line-height: 1; color: var(--gold);
+  margin: 0 0 4mm;
+}
+h2 {
+  font-family: "Inter Display"; font-weight: 300; font-size: 19pt; line-height: 1.2; color: var(--ink);
+  margin: 0 0 2.5mm; display: inline-block; border-bottom: 1px solid var(--ink); padding-bottom: 1.6mm;
+}
+.lede { font-size: 10.2pt; color: #4A4E57; margin: 3mm 0 6mm; max-width: 150mm; }
+h3 {
+  font-weight: 600; font-size: 7.2pt; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+  margin: 7mm 0 3mm; display: flex; align-items: center; break-after: avoid;
+}
+h3::before { content: ""; display: inline-block; width: 4mm; height: 1.4px; background: var(--gold); margin-right: 2.6mm; }
+h4 { font-weight: 600; font-size: 9.4pt; color: var(--ink); margin: 4mm 0 1mm; break-after: avoid; }
+
+/* Key/value block */
+.kv { border-top: 1px solid var(--rule); margin: 0 0 4mm; }
+.kv .row { display: flex; border-bottom: 1px solid var(--rule); padding: 1.8mm 0; break-inside: avoid; }
+.kv .k {
+  flex: 0 0 40mm; font-weight: 600; font-size: 6.2pt; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); padding-top: 0.9mm;
+}
+.kv .v { flex: 1; font-size: 9.2pt; color: var(--body); }
+.kv .v.big { font-family: "Inter Display"; font-weight: 300; font-size: 15pt; color: var(--ink); line-height: 1.2; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 1mm 0 5mm; font-size: 8.8pt; }
+tr { break-inside: avoid; }
+.keep { break-inside: avoid; }
+th {
+  text-align: left; font-weight: 600; font-size: 6.2pt; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); padding: 2mm 3mm 2mm 0; border-bottom: 1px solid var(--rule);
+}
+td { padding: 2.2mm 3mm 2.2mm 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.num, th.num { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.lab { font-weight: 600; font-size: 6.2pt; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); padding-top: 3mm; width: 30mm; }
+tr.total td { font-weight: 600; color: var(--ink); }
+
+/* Lists */
+ol, ul { margin: 0 0 4mm; padding-left: 5mm; }
+li { margin-bottom: 1.8mm; padding-left: 1mm; }
+ol.steps { list-style: none; counter-reset: s; padding-left: 0; }
+ol.steps li { counter-increment: s; display: flex; gap: 3.5mm; padding-left: 0; margin-bottom: 2.4mm; }
+ol.steps li::before {
+  content: counter(s, decimal-leading-zero); font-weight: 600; font-size: 7.6pt; color: var(--amber);
+  flex: 0 0 6mm; padding-top: 0.5mm;
+}
+
+/* Badges and cards */
+.badge {
+  display: inline-block; font-weight: 600; font-size: 5.6pt; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 0.7mm 2.2mm; border-radius: 9px; white-space: nowrap; vertical-align: 1px;
+}
+.badge.sonnet { background: var(--ink); color: var(--sonnet-ink); }
+.badge.haiku { background: var(--haiku-bg); color: var(--haiku-ink); }
+.badge.plain { background: var(--panel); color: var(--muted); border: 1px solid var(--rule); }
+.cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; margin: 2mm 0 5mm; }
+.card {
+  border: 1px solid var(--card-border); border-radius: 4px; background: var(--card-fill); padding: 3.6mm 3.8mm;
+  break-inside: avoid;
+}
+.card .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 2mm; }
+.card .name { font-weight: 600; font-size: 9.6pt; color: var(--ink); line-height: 1.25; }
+.card .lbl { font-weight: 600; font-size: 5.6pt; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-top: 2.6mm; }
+.card .txt { font-size: 8.2pt; color: var(--body); line-height: 1.4; }
+.card .foot { border-top: 1px dotted var(--card-border); margin-top: 3mm; padding-top: 2mm; font-weight: 600; font-size: 5.8pt; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+.card .foot b { color: var(--amber); font-size: 8.6pt; letter-spacing: 0; margin-left: 1.5mm; }
+
+/* Panels */
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 4mm 5mm; margin: 2mm 0 5mm; break-inside: avoid; }
+.panel p:last-child { margin-bottom: 0; }
+
+/* Two-up numbers */
+.figures { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); margin: 4mm 0 6mm; }
+.figures div { padding: 4mm 4mm 4mm 0; }
+.figures div + div { padding-left: 4mm; border-left: 1px solid var(--rule); }
+.figures .lbl { font-weight: 600; font-size: 6pt; line-height: 1.5; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); min-height: 3em; }
+.figures .n { font-family: "Inter Display"; font-weight: 300; font-size: 26pt; color: var(--ink); line-height: 1.15; margin-top: 1.5mm; }
+.figures .n.gold { color: var(--amber); }
+.figures .s { font-size: 7.8pt; color: var(--muted); }
+
+/* Share bar */
+.bar { display: flex; height: 5mm; border-radius: 2px; overflow: hidden; margin: 2mm 0 2mm; }
+.bar div { height: 100%; }
+.barkey { display: flex; gap: 6mm; font-size: 7.6pt; color: var(--muted); margin-bottom: 5mm; }
+.barkey i { display: inline-block; width: 2.6mm; height: 2.6mm; border-radius: 1px; margin-right: 1.5mm; vertical-align: -0.3mm; }
+
+/* TOC */
+.toc { border-top: 1px solid var(--ink); margin-top: 8mm; }
+.toc .row { display: flex; align-items: baseline; border-bottom: 1px solid var(--rule); padding: 3.4mm 0; }
+.toc .i { flex: 0 0 11mm; font-weight: 600; font-size: 8.4pt; color: var(--amber); }
+.toc .t { flex: 1; font-size: 11pt; color: var(--ink); }
+.toc .t small { display: block; font-size: 8pt; color: var(--muted); margin-top: 0.6mm; }
+.toc .p { font-weight: 600; font-size: 8pt; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Diagram */
+.diagram { margin: 3mm 0 2mm; }
+.diagram svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 2mm 6mm; font-size: 7.2pt; color: var(--body); margin: 2mm 0 6mm; }
+.legend span { display: inline-flex; align-items: center; gap: 1.8mm; }
+.legend i { display: inline-block; width: 4.2mm; height: 2.8mm; border-radius: 1px; }
+.legend .ln { width: 7mm; height: 0; border-top: 1px solid var(--body); border-radius: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 8pt; }
+.note { font-size: 7.8pt; color: var(--muted); margin-top: -2mm; }
+</style>
+</head>
+<body>
+
+<!-- ======================= COVER ======================= -->
+<section class="cover">
+  <div class="eyebrow">Assignment #7 · Complete AI Dev Pipeline</div>
+  <h1>Star Bazaar</h1>
+  <div class="subtitle">Pipeline audit, engine integration and cost analysis for a single-player space trading game built by a crew of Claude Code agents.</div>
+
+  <div class="play">
+    <div class="label">Play now · no install, no account</div>
+    <a href="https://star-bazaar-beta.vercel.app">star-bazaar-beta.vercel.app</a>
+    <div class="note">Open in a desktop browser, wait 10 to 30 seconds for the first load, click New Game.</div>
+  </div>
+
+  <div class="meta">
+    <div><span>STUDENT</span>Ivan Larinin</div>
+    <div><span>ENGINE</span>Godot 4.7 · WebGL 2</div>
+    <div><span>DUE</span>29 November 2026</div>
+    <div><span>SOURCE</span>github.com/Veltrynox/star-bazaar</div>
+  </div>
+</section>
+
+<!-- ======================= CONTENTS ======================= -->
+<section>
+  <div class="eyebrow" style="color: var(--amber)">Contents</div>
+  <div class="toc">
+    <div class="row"><div class="i">01</div><div class="t">Overview &amp; Playable Link<small>Student, game concept, link and how to play</small></div><div class="p" data-toc="Overview &amp; Playable Link">00</div></div>
+    <div class="row"><div class="i">02</div><div class="t">Pipeline &amp; Engine Integration<small>Repository, run video, how agent output lands in Godot</small></div><div class="p" data-toc="Pipeline &amp; Engine Integration">00</div></div>
+    <div class="row"><div class="i">03</div><div class="t">Pipeline Audit<small>What the pipeline produced, manual steps left, how to remove them</small></div><div class="p" data-toc="Pipeline Audit">00</div></div>
+    <div class="row"><div class="i">04</div><div class="t">Architectural Reflection<small>One decision to change and the exact alternative</small></div><div class="p" data-toc="Architectural Reflection">00</div></div>
+    <div class="row"><div class="i">05</div><div class="t">Cost Analysis<small>Measured run cost, most expensive step, sustainability</small></div><div class="p" data-toc="Cost Analysis">00</div></div>
+    <div class="row"><div class="i">06</div><div class="t">Mid-Project Cost Reduction<small>Translation moved from Sonnet to Haiku: before and after</small></div><div class="p" data-toc="Mid-Project Cost Reduction">00</div></div>
+  </div>
+</section>
+
+<!-- ======================= 01 ======================= -->
+<section class="section">
+  <div class="secnum">01</div>
+  <h2>Overview &amp; Playable Link</h2>
+  <p class="lede">A single-player space trading game made in Godot 4. You run a trading company, not a single freighter: ships fly automated routes and you decide where to invest.</p>
+
+  <div class="kv">
+    <div class="row"><div class="k">Student</div><div class="v">Ivan Larinin</div></div>
+    <div class="row"><div class="k">Capstone game</div><div class="v">Star Bazaar</div></div>
+    <div class="row"><div class="k">Playable link</div><div class="v"><a href="https://star-bazaar-beta.vercel.app">https://star-bazaar-beta.vercel.app</a></div></div>
+    <div class="row"><div class="k">Pipeline repository</div><div class="v"><a href="https://github.com/Veltrynox/star-bazaar">https://github.com/Veltrynox/star-bazaar</a></div></div>
+    <div class="row"><div class="k">Pipeline run video</div><div class="v"><a href="https://youtu.be/YBdCzB4Mqtw">https://youtu.be/YBdCzB4Mqtw</a></div></div>
+    <div class="row"><div class="k">Engine</div><div class="v">Godot 4.7 (GDScript), HTML5 export on Vercel</div></div>
+  </div>
+
+  <h3>Game concept</h3>
+  <p>Ships fly automated routes between worlds; the player chooses what to invest in: routes, ships, workshops, permits for new solar systems and skills. Worlds the player keeps supplied grow through Prosperity tiers.</p>
+  <p>The goal is to found the <strong>Star Bazaar</strong> in a system's Space Storage, build it stage by stage and open it with a final charter delivery before the term ends. Three trading houses act as “weather” (floods, shortages, congestion), never as rivals.</p>
+
+  <h3>How to play in two minutes</h3>
+  <ol class="steps">
+    <li><div>Open <a href="https://star-bazaar-beta.vercel.app">star-bazaar-beta.vercel.app</a> in a desktop browser (Chrome, Edge, Firefox or Safari with WebGL 2). The first load downloads about 90 MB and takes 10 to 30 seconds.</div></li>
+    <li><div>On the main menu click <strong>New Game</strong>. Type a company name (or press <strong>Random</strong>), pick one of the four CEO portraits and press <strong>Start</strong>.</div></li>
+    <li><div>Read the short preface. The game starts paused and a guided tutorial walks you through the first steps: pick a world, place a <strong>Buy</strong> order, <strong>Send to…</strong> another world, run a cycle.</div></li>
+    <li><div>Controls are mouse only. <strong>P</strong> pauses; the speed buttons (1x, 2x, 6x, 12x) set how fast cycles run. Saves are kept in your browser.</div></li>
+  </ol>
+  <p class="note">The web build is a Godot 4.7.2 HTML5 export (no threads, so it needs no special server headers). Its source is the <code>web-build</code> branch, folder <code>web/</code>.</p>
+</section>
+
+<!-- ======================= 02 ======================= -->
+<section class="section">
+  <div class="secnum">02</div>
+  <h2>Pipeline &amp; Engine Integration</h2>
+  <p class="lede">A team of Claude Code role agents builds the game. Every agent writes to a fixed file format that the engine or a build script reads directly, so no output is reformatted by hand.</p>
+
+  <div class="diagram" style="width: 90%; margin-left: auto; margin-right: auto;">
+    <svg viewBox="0 0 640 392" xmlns="http://www.w3.org/2000/svg" font-family="Inter">
+      <defs>
+        <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#22252C"/></marker>
+        <marker id="ag" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8A8F9A"/></marker>
+      </defs>
+
+      <!-- control (thick) -->
+      <g stroke="#22252C" stroke-width="2" fill="none">
+        <line x1="155" y1="32" x2="250" y2="32" marker-end="url(#a)"/>
+        <line x1="387" y1="32" x2="483" y2="32" marker-end="url(#a)"/>
+        <polyline points="552,54 552,82"/>
+        <line x1="87" y1="82" x2="552" y2="82"/>
+        <line x1="87" y1="82" x2="87" y2="108" marker-end="url(#a)"/>
+        <line x1="242" y1="82" x2="242" y2="108" marker-end="url(#a)"/>
+        <line x1="397" y1="82" x2="397" y2="108" marker-end="url(#a)"/>
+        <line x1="552" y1="82" x2="552" y2="108" marker-end="url(#a)"/>
+      </g>
+      <!-- file handoff (thin) -->
+      <g stroke="#22252C" stroke-width="1" fill="none">
+        <line x1="87" y1="160" x2="87" y2="188" marker-end="url(#a)"/>
+        <line x1="242" y1="160" x2="242" y2="188" marker-end="url(#a)"/>
+        <line x1="397" y1="160" x2="397" y2="188" marker-end="url(#a)"/>
+        <line x1="552" y1="160" x2="552" y2="188" marker-end="url(#a)"/>
+        <line x1="87" y1="222" x2="87" y2="258" marker-end="url(#a)"/>
+        <line x1="242" y1="222" x2="242" y2="258" marker-end="url(#a)"/>
+        <line x1="397" y1="222" x2="397" y2="258" marker-end="url(#a)"/>
+        <line x1="552" y1="222" x2="552" y2="258" marker-end="url(#a)"/>
+        <line x1="310" y1="281" x2="328" y2="281" marker-end="url(#a)"/>
+        <line x1="475" y1="304" x2="475" y2="328" marker-end="url(#a)"/>
+      </g>
+      <!-- feedback (dotted) -->
+      <polyline points="330,352 7,352 7,32 18,32" fill="none" stroke="#8A8F9A" stroke-width="1" stroke-dasharray="2,3" marker-end="url(#ag)"/>
+      <text x="20" y="346" font-size="8" fill="#8A8F9A">owner plays the build · feedback becomes a new task</text>
+
+      <!-- row 0 -->
+      <rect x="20" y="10" width="135" height="44" rx="4" fill="#14161B" stroke="#D4A35F" stroke-width="1.4"/>
+      <text x="87.5" y="29" font-size="10.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">Owner</text>
+      <text x="87.5" y="43" font-size="7.5" fill="#B9BCC4" text-anchor="middle">decides, approves, reviews</text>
+
+      <rect x="252" y="10" width="135" height="44" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/>
+      <text x="319.5" y="29" font-size="9" font-family="DejaVu Sans Mono" fill="#8A5D27" text-anchor="middle">schedule.json</text>
+      <text x="319.5" y="43" font-size="7.5" fill="#8A8F9A" text-anchor="middle">task queue · 264 tasks</text>
+
+      <rect x="485" y="10" width="135" height="44" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/>
+      <text x="552.5" y="29" font-size="9" font-family="DejaVu Sans Mono" fill="#8A5D27" text-anchor="middle">orchestrator.py</text>
+      <text x="552.5" y="43" font-size="7.5" fill="#8A8F9A" text-anchor="middle">or main session</text>
+
+      <!-- row 1: agents -->
+      <rect x="20" y="110" width="135" height="50" rx="4" fill="#14161B" stroke="#8A5D27" stroke-width="1.4"/>
+      <text x="87.5" y="131" font-size="9.5" font-weight="600" fill="#E8C48E" text-anchor="middle">story-designer</text>
+      <text x="87.5" y="146" font-size="7" fill="#E8C48E" fill-opacity="0.7" text-anchor="middle">SONNET · text &amp; events</text>
+
+      <rect x="175" y="110" width="135" height="50" rx="4" fill="#FFFFFF" stroke="#2E4E72" stroke-width="1.4"/>
+      <text x="242.5" y="131" font-size="9.5" font-weight="600" fill="#2E4E72" text-anchor="middle">translators</text>
+      <text x="242.5" y="146" font-size="7" fill="#2E4E72" fill-opacity="0.8" text-anchor="middle">HAIKU · Russian</text>
+
+      <rect x="330" y="110" width="135" height="50" rx="4" fill="#14161B" stroke="#8A5D27" stroke-width="1.4"/>
+      <text x="397.5" y="131" font-size="9.5" font-weight="600" fill="#E8C48E" text-anchor="middle">programmers</text>
+      <text x="397.5" y="146" font-size="7" fill="#E8C48E" fill-opacity="0.7" text-anchor="middle">SONNET · gameplay, UI, FX</text>
+
+      <rect x="485" y="110" width="135" height="50" rx="4" fill="#14161B" stroke="#8A5D27" stroke-width="1.4"/>
+      <text x="552.5" y="131" font-size="9.5" font-weight="600" fill="#E8C48E" text-anchor="middle">economy-designer</text>
+      <text x="552.5" y="146" font-size="7" fill="#E8C48E" fill-opacity="0.7" text-anchor="middle">SONNET · numbers</text>
+
+      <!-- row 2: files -->
+      <g font-family="DejaVu Sans Mono" font-size="8.5" fill="#8A5D27" text-anchor="middle">
+        <rect x="20" y="190" width="135" height="32" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/><text x="87.5" y="209">story/*.md</text>
+        <rect x="175" y="190" width="135" height="32" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/><text x="242.5" y="209">story/ru/*.json</text>
+        <rect x="330" y="190" width="135" height="32" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/><text x="397.5" y="209">game/*.gd</text>
+        <rect x="485" y="190" width="135" height="32" rx="4" fill="#FAF8F4" stroke="#E3E0DA"/><text x="552.5" y="209">data/*.json</text>
+      </g>
+
+      <!-- row 3: build -->
+      <rect x="20" y="260" width="290" height="44" rx="4" fill="#FFFFFF" stroke="#22252C"/>
+      <text x="165" y="279" font-size="9" font-family="DejaVu Sans Mono" fill="#8A5D27" text-anchor="middle">tools/build_story.py</text>
+      <text x="165" y="293" font-size="7.5" fill="#8A8F9A" text-anchor="middle">story_text.json · events.json · story_text_ru.json</text>
+
+      <rect x="330" y="260" width="290" height="44" rx="4" fill="#FFFFFF" stroke="#22252C"/>
+      <text x="475" y="279" font-size="9.5" font-weight="600" fill="#14161B" text-anchor="middle">Godot 4.7 · loads JSON at runtime</text>
+      <text x="475" y="293" font-size="7.5" fill="#8A8F9A" text-anchor="middle">tests + GDD hook gate every commit</text>
+
+      <!-- row 4: deploy -->
+      <rect x="330" y="330" width="290" height="40" rx="4" fill="#FFFFFF" stroke="#22252C"/>
+      <text x="475" y="348" font-size="9.5" font-weight="600" fill="#14161B" text-anchor="middle">Headless web export → Vercel</text>
+      <text x="475" y="361" font-size="7.5" fill="#8A8F9A" text-anchor="middle">star-bazaar-beta.vercel.app</text>
+    </svg>
+  </div>
+  <div class="legend">
+    <span><i style="background:#14161B;border:1px solid #8A5D27"></i>Sonnet agent</span>
+    <span><i style="background:#FFFFFF;border:1px solid #2E4E72"></i>Haiku agent</span>
+    <span><i style="background:#14161B;border:1px solid #D4A35F"></i>Owner</span>
+    <span><i class="ln" style="border-top-width:2px"></i>scheduling / control</span>
+    <span><i class="ln"></i>file handoff</span>
+    <span><i class="ln" style="border-top-style:dotted;border-color:#8A8F9A"></i>feedback → new task</span>
+  </div>
+
+  <h3>Automated flow</h3>
+  <p>The agents are defined in <code>.claude/agents/*.md</code> and work is queued as tasks in <code>schedule.json</code>. Agents hand work to each other through files (<code>handoffs/</code>, <code>blackboard.md</code>, <code>design/proposals/</code>), and their output lands in the engine through fixed formats:</p>
+
+  <table>
+    <tr><td class="lab">Story &amp; UI text</td><td>The story-designer writes plain Markdown blocks in <code>story/*.md</code> (<code>ID | max length | place</code>, then the text). <code>tools/build_story.py</code> is the only writer of the three generated JSON files; it checks ids and length limits and stamps each file with a <code>generated</code> marker. The game loads them at runtime, so a new event shows up with no code change.</td></tr>
+    <tr><td class="lab">Translation</td><td>Haiku agents write <code>story/ru/*.json</code> by hand under <code>story/ru/GLOSSARY.md</code>; the same build step merges them into <code>data/story_text_ru.json</code> for the in-game language switch.</td></tr>
+    <tr><td class="lab">Data &amp; code</td><td>The economy-designer edits <code>data/*.json</code>; game code reads every number from these files. Programmer agents write GDScript in <code>game/</code>. A commit hook (<code>tools/gdd_sync.py</code>) blocks any commit that changes <code>game/</code>, <code>data/</code> or <code>story/</code> without updating <code>gdd.md</code>.</td></tr>
+    <tr><td class="lab">Art &amp; audio</td><td>Tool scripts write engine-ready files: texture atlases (<code>tools/make_*_atlas.gd</code>, headless Godot), planet textures, icons and UI (<code>tools/make_icons.py</code>, <code>tools/make_ui.py</code>) and the space ambience (<code>tools/make_ambient.py</code>).</td></tr>
+    <tr><td class="lab">Unattended runs &amp; release</td><td><code>tools/orchestrator.py run</code> starts one headless <code>claude -p "/overnight-worker &lt;id&gt;"</code> per ready task in its own git worktree, then rebases, runs the tests and fast-forward merges each finished task; conflicts go to a <code>merge-resolver</code> agent. A headless Godot export builds the web version and <code>vercel --prod</code> publishes it.</td></tr>
+  </table>
+</section>
+
+<!-- ======================= 03 ======================= -->
+<section class="section">
+  <div class="secnum">03</div>
+  <h2>Pipeline Audit</h2>
+  <p class="lede">Everything listed here ships in the playable build. Counts are taken from the repository on 25 November 2026.</p>
+
+  <h3>What the pipeline produced</h3>
+  <div class="kv">
+    <div class="row"><div class="k">Text</div><div class="v">3,172 English and 2,961 Russian text ids: events, choices, gig stories, endings, skills, tutorial, tips and every UI label</div></div>
+    <div class="row"><div class="k">Narrative</div><div class="v">25 base events, 63 chain events and 40 chain steps, 7 gigs (story missions), a 70-node skill tree and end-of-run scenes told as a story</div></div>
+    <div class="row"><div class="k">Economy</div><div class="v">22 goods, 5 workshops and the balance tables for prices, upkeep, Prosperity growth and the Star Bazaar stage bills</div></div>
+    <div class="row"><div class="k">Game code</div><div class="v">89 GDScript files, about 32,000 lines: trading loop, automated routes, Prosperity, the Star Bazaar, events, tutorial, UI panels, planet shaders and FX, juice animations</div></div>
+    <div class="row"><div class="k">Generated assets</div><div class="v">Planet banner, portrait and skill-icon atlases, UI icons, the space ambience track</div></div>
+    <div class="row"><div class="k">Process</div><div class="v">264 scheduled tasks (261 done), 1,014 commits; 84 tasks ran through the unattended orchestrator (73 merged automatically, 11 blocked for a human)</div></div>
+  </div>
+
+  <h3>Manual steps that remain</h3>
+  <ol class="steps">
+    <li><div><strong>Owner approval of designs.</strong> By project rule, design and proposal tasks produce a proposal only; the owner approves it before any agent builds it.</div></li>
+    <li><div><strong>Visual review.</strong> The owner looks at every visual result in the running game. Agents only take one screenshot to catch objective breakage (blank, clipped or overlapping text).</div></li>
+    <li><div><strong>QA and balance runs are started by hand.</strong> The QA bots (<code>qa/check</code>) and economy retunes are started only by the owner.</div></li>
+    <li><div><strong>Blocked merges.</strong> 11 of 84 orchestrator tasks stopped on a test failure or a rebase conflict the resolver could not settle.</div></li>
+    <li><div><strong>Release.</strong> Commit, push, web export and the Vercel deploy are still started by hand.</div></li>
+  </ol>
+
+  <h3>What it would take to remove them</h3>
+  <table>
+    <tr><td class="lab">Approvals &amp; review</td><td>A scored acceptance gate: an evaluator agent with a written rubric, plus screenshot diffs against approved reference images. The owner samples results instead of reviewing each one.</td></tr>
+    <tr><td class="lab">QA &amp; balance</td><td>Run <code>qa/check</code> in CI on every merge to <code>main</code> with fixed thresholds (win time, dominant strategy, softlocks); a breach opens a task for the economy designer.</td></tr>
+    <tr><td class="lab">Blocked merges</td><td>Smaller tasks with non-overlapping <code>touches</code> globs, and a retry that rebuilds the task on fresh <code>main</code> before handing it to a human.</td></tr>
+    <tr><td class="lab">Release</td><td>A CI job (GitHub Actions with headless Godot) that exports the web build and deploys it to Vercel on every push to <code>main</code>.</td></tr>
+  </table>
+</section>
+
+<!-- ======================= 04 ======================= -->
+<section class="section">
+  <div class="secnum">04</div>
+  <h2>Architectural Reflection</h2>
+  <p class="lede">One decision I would make differently, backed by the measured cost split of the run.</p>
+
+  <h3>Current decision to change</h3>
+  <p>Most work ran from <strong>one long-lived interactive main session</strong> on a large model. That session read files, briefed role agents, checked their output and committed. Its context grew for hours and was written into the prompt cache again and again.</p>
+
+  <div class="figures">
+    <div><div class="lbl">Interactive sessions + their agents</div><div class="n">$799</div><div class="s">95% of the total</div></div>
+    <div><div class="lbl">Orchestrator workers</div><div class="n gold">$41.78</div><div class="s">84 tasks</div></div>
+    <div><div class="lbl">Cost per orchestrated task</div><div class="n gold">≈ $0.50</div><div class="s">fresh, short-lived worker</div></div>
+  </div>
+
+  <h3>Specific alternative</h3>
+  <p><strong>Make the orchestrator the default path, not the exception.</strong></p>
+  <ol class="steps">
+    <li><div><code>schedule.json</code> becomes the only way work enters the pipeline.</div></li>
+    <li><div><code>tools/orchestrator.py</code> starts a fresh, short-lived headless worker per task on Sonnet (Haiku for translation and text checks), given only that task's brief and the files its <code>touches</code> globs name.</div></li>
+    <li><div>The interactive session is kept for owner conversations and for writing task briefs; it never does the build work itself.</div></li>
+    <li><div>Each worker ends with a structured result line and a handoff file, so no session needs a growing context.</div></li>
+  </ol>
+</section>
+
+<!-- ======================= 05 ======================= -->
+<section class="section">
+  <div class="secnum">05</div>
+  <h2>Cost Analysis</h2>
+  <p class="lede">Measured from the token counts in every Claude Code session log of the project: 27,674 model calls from 24 October to 25 November 2026, each priced at Anthropic API list rates for its model (input, output, cache writes and cache reads at their own rates).</p>
+
+  <div class="figures">
+    <div><div class="lbl">Out-of-pocket</div><div class="n">$200</div><div class="s">Claude subscription, paid per year</div></div>
+    <div><div class="lbl">Actual run cost (API-equivalent)</div><div class="n gold">$841.07</div><div class="s">≈ $26 per day over 32 days</div></div>
+    <div><div class="lbl">Per scheduled task</div><div class="n">≈ $3.20</div><div class="s">264 tasks</div></div>
+  </div>
+
+  <h3>Where the money went</h3>
+  <div class="bar">
+    <div style="width:57.2%;background:#14161B"></div>
+    <div style="width:37.9%;background:#8A5D27"></div>
+    <div style="width:4.9%;background:#D4A35F"></div>
+  </div>
+  <div class="barkey">
+    <span><i style="background:#14161B"></i>Interactive main sessions $480.85</span>
+    <span><i style="background:#8A5D27"></i>Role agents started from them $318.46</span>
+    <span><i style="background:#D4A35F"></i>Orchestrator workers $41.78</span>
+  </div>
+
+  <table>
+    <tr><th>Model</th><th class="num">Calls</th><th class="num">Output tokens</th><th class="num">Cost</th></tr>
+    <tr><td><span class="badge sonnet">Claude Sonnet 5.5</span></td><td class="num">18,186</td><td class="num">13.8 M</td><td class="num">$433.35</td></tr>
+    <tr><td><span class="badge plain">Claude Opus 5.5</span></td><td class="num">3,153</td><td class="num">2.8 M</td><td class="num">$260.33</td></tr>
+    <tr><td><span class="badge plain">Claude Fable 5.1</span></td><td class="num">249</td><td class="num">0.3 M</td><td class="num">$84.17</td></tr>
+    <tr><td><span class="badge plain">Claude Fable 5.2</span></td><td class="num">276</td><td class="num">0.3 M</td><td class="num">$49.90</td></tr>
+    <tr><td><span class="badge haiku">Claude Haiku 5.5</span></td><td class="num">5,757</td><td class="num">7.4 M</td><td class="num">$13.32</td></tr>
+    <tr class="total"><td>Total</td><td class="num">27,674</td><td class="num">24.6 M</td><td class="num">$841.07</td></tr>
+  </table>
+  <p class="note">By kind of token: cache writes ≈ $333 (40%), cache reads ≈ $282 (34%), output ≈ $225 (27%). Work done in Codex (some Russian drafts and the text style-agent run) is not included.</p>
+
+  <div class="keep">
+  <h3>Most expensive pipeline step</h3>
+  <p>The <strong>interactive main session</strong> that orchestrated the agents cost <strong>$480.85 (57%)</strong>, mostly from re-sending and re-caching its long context rather than from output. Among the role agents, the gameplay-programmer cost the most:</p>
+  <div class="cards">
+    <div class="card"><div class="head"><div class="name">Gameplay Programmer</div><span class="badge sonnet">Sonnet</span></div>
+      <div class="lbl">Output</div><div class="txt">Core loop, routes, Prosperity, Bazaar, events in GDScript</div>
+      <div class="foot">248 runs<b>$109.81</b></div></div>
+    <div class="card"><div class="head"><div class="name">UI Programmer</div><span class="badge sonnet">Sonnet</span></div>
+      <div class="lbl">Output</div><div class="txt">Panels, top bar, skill screen, tutorial windows</div>
+      <div class="foot">145 runs<b>$46.57</b></div></div>
+    <div class="card"><div class="head"><div class="name">Story Designer</div><span class="badge sonnet">Sonnet</span></div>
+      <div class="lbl">Output</div><div class="txt">Events, gigs, endings, skill and screen texts</div>
+      <div class="foot">150 runs<b>$41.04</b></div></div>
+  </div>
+
+  </div>
+
+  <h3>Solo / small-team sustainability</h3>
+  <div class="panel">
+    <p><strong>Yes, on a subscription.</strong> A $200 flat fee covered work worth $841 at API rates: about 260 finished tasks and a playable game in a month.</p>
+    <p>On pay-as-you-go API billing, about $800 a month is still affordable for a small team, but 95% of it went to the expensive interactive style of work. The orchestrator path cost about $0.50 per task and the Haiku translation path a few cents per batch, so moving build work to short headless workers would bring the API cost down to the low hundreds per month.</p>
+  </div>
+</section>
+
+<!-- ======================= 06 ======================= -->
+<section class="section">
+  <div class="secnum">06</div>
+  <h2>Mid-Project Cost Reduction</h2>
+  <p class="lede">On 9 November 2026 the owner made a rule: all translation is done by Haiku agents working from one shared brief and glossary. The same job, translating the four market event chains (Military, Luxury, Minerals, Biotech) into Russian, was run both ways.</p>
+
+  <div class="figures">
+    <div><div class="lbl">Before · Sonnet</div><div class="n">$1.205</div><div class="s">71,431 output tokens · 4 runs</div></div>
+    <div><div class="lbl">After · Haiku</div><div class="n gold">$0.074</div><div class="s">72,089 output tokens · 2 runs</div></div>
+    <div><div class="lbl">Saving</div><div class="n gold">−94%</div><div class="s">same amount of text</div></div>
+  </div>
+
+  <table>
+    <tr><th style="width:30mm"></th><th>Before · 4 November 2026</th><th>After · 14 November 2026</th></tr>
+    <tr><td class="lab">Model</td><td><span class="badge sonnet">Claude Sonnet 5.5</span> story-designer</td><td><span class="badge haiku">Claude Haiku 5.5</span> translators</td></tr>
+    <tr><td class="lab">Approach</td><td>One agent per chain (4 runs). Each run re-read <code>CLAUDE.md</code>, <code>story/voice.md</code> and the full glossary before translating.</td><td>Two chains per run (2 runs), one hand-written-translation brief plus <code>story/ru/GLOSSARY.md</code>. Scripts may only look things up, never write text.</td></tr>
+    <tr><td class="lab">Output tokens</td><td>71,431</td><td>72,089</td></tr>
+    <tr><td class="lab">API cost</td><td><strong>$1.205</strong></td><td><strong>$0.074</strong></td></tr>
+  </table>
+
+  <h3>At full scale</h3>
+  <p>The full Russian localisation pass on 10 November used 25 Haiku agents (translate, repair and verify chunks) for <strong>$0.84 in total</strong>, each under $0.07. Each Sonnet group run it replaced cost $0.31 to $0.61.</p>
+</section>
+
+</body>
+</html>
