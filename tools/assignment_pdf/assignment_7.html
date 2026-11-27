@@ -363,6 +363,22 @@ ol.steps li::before {
     <tr><td class="lab">Art &amp; audio</td><td>Tool scripts write engine-ready files: texture atlases (<code>tools/make_*_atlas.gd</code>, headless Godot), planet textures, icons and UI (<code>tools/make_icons.py</code>, <code>tools/make_ui.py</code>) and the space ambience (<code>tools/make_ambient.py</code>).</td></tr>
     <tr><td class="lab">Unattended runs &amp; release</td><td><code>tools/orchestrator.py run</code> starts one headless <code>claude -p "/overnight-worker &lt;id&gt;"</code> per ready task in its own git worktree, then rebases, runs the tests and fast-forward merges each finished task; conflicts go to a <code>merge-resolver</code> agent. A headless Godot export builds the web version and <code>vercel --prod</code> publishes it.</td></tr>
   </table>
+  <p class="note"><strong>Manual steps between agent output and the engine: none.</strong> No one copies, converts or reformats agent output by hand; every format step above is a script or a runtime loader. The manual steps in section 03 are human control points (approval, review, QA, conflicts) and the release, not format work.</p>
+
+  <div class="keep">
+  <h3>Traceability example: one skill from task to screen</h3>
+  <p>The Military skill <strong>Quartermaster's Terms</strong> (text ids <code>SK_MIL_1_NAME</code>, <code>SK_MIL_1_FLAVOUR</code>), followed from the task to the running game:</p>
+  <table>
+    <tr><td class="lab">Task</td><td><code>T242</code> in <code>schedule.json</code>, “Skills: 15/10 branch identity, emotionally heavy wording”, <code>owner_agent: story-designer</code></td></tr>
+    <tr><td class="lab">Agent run</td><td>story-designer subagent <code>agent-afe2392580785558b</code> (“T242 skill wording rewrite”), Sonnet 5.5, 6 Nov 2026 16:39 UTC, 7 model calls, $0.222; listed in <code>reports/cost_2026-11-25.csv</code></td></tr>
+    <tr><td class="lab">Agent output</td><td><code>story/skills.md</code> lines 29–30: <code>SK_MIL_1_NAME | 24 | Skill screen, node name | Quartermaster's Terms</code> and the flavour line “The yard thanks you for the order. You do not ask what it is for.”</td></tr>
+    <tr><td class="lab">Handoff</td><td><code>handoffs/story-designer/2026-11-05-T242.json</code>: status done, 31 skill names and flavours rewritten, open questions for the owner</td></tr>
+    <tr><td class="lab">Commit</td><td><code>a6199564</code> “T242: skill names and flavour rewritten per branch”, 6 Nov 2026 11:39 (UTC−5), the minute the agent run ended; lines unchanged since (<code>git blame story/skills.md -L 29,30</code>)</td></tr>
+    <tr><td class="lab">Engine data</td><td><code>tools/build_story.py</code> writes the ids into <code>data/story_text.json</code>; <code>game/skill_screen.gd</code> reads them at runtime</td></tr>
+    <tr><td class="lab">In game</td><td>Screenshot below (<code>media/docs/trace_SK_MIL_1_in_game.png</code>): the node and the detail panel show the same name and flavour line</td></tr>
+  </table>
+  <img src="../../media/docs/trace_SK_MIL_1_in_game.png" alt="Quartermaster's Terms on the skill screen" style="width:100%;border:1px solid #E3E0DA;border-radius:4px;margin-top:3mm">
+  </div>
 </section>
 
 <!-- ======================= 03 ======================= -->
@@ -382,6 +398,7 @@ ol.steps li::before {
   </div>
 
   <h3>Manual steps that remain</h3>
+  <p>None of these is a format or integration step: agent output reaches the engine with no manual reformatting (section 02). The five below are control and release steps.</p>
   <ol class="steps">
     <li><div><strong>Owner approval of designs.</strong> By project rule, design and proposal tasks produce a proposal only; the owner approves it before any agent builds it.</div></li>
     <li><div><strong>Visual review.</strong> The owner looks at every visual result in the running game. Agents only take one screenshot to catch objective breakage (blank, clipped or overlapping text).</div></li>
@@ -409,8 +426,8 @@ ol.steps li::before {
   <p>Most work ran from <strong>one long-lived interactive main session</strong> on a large model. That session read files, briefed role agents, checked their output and committed. Its context grew for hours and was written into the prompt cache again and again.</p>
 
   <div class="figures">
-    <div><div class="lbl">Interactive sessions + their agents</div><div class="n">$799</div><div class="s">95% of the total</div></div>
-    <div><div class="lbl">Orchestrator workers</div><div class="n gold">$41.78</div><div class="s">84 tasks</div></div>
+    <div><div class="lbl">Interactive sessions + their agents</div><div class="n">$776.77</div><div class="s">95% of the total</div></div>
+    <div><div class="lbl">Orchestrator workers</div><div class="n gold">$41.77</div><div class="s">all orchestrated tasks</div></div>
     <div><div class="lbl">Cost per orchestrated task</div><div class="n gold">≈ $0.50</div><div class="s">fresh, short-lived worker</div></div>
   </div>
 
@@ -428,57 +445,58 @@ ol.steps li::before {
 <section class="section">
   <div class="secnum">05</div>
   <h2>Cost Analysis</h2>
-  <p class="lede">Measured from the token counts in every Claude Code session log of the project: 27,674 model calls from 24 October to 25 November 2026, each priced at Anthropic API list rates for its model (input, output, cache writes and cache reads at their own rates).</p>
+  <p class="lede">Counted by <code>tools/cost_report.py</code> from the token counts in every Claude Code session log of the project: 26,192 model calls from 28 October to 25 November 2026, each priced at Anthropic API list rates for its model (input, output, 5-minute and 1-hour cache writes and cache reads at their own rates).</p>
+  <p class="note"><strong>Evidence in the repo:</strong> <code>tools/cost_report.py</code> (rates inside), its summary <code>reports/cost_2026-11-25.json</code> and <code>reports/cost_2026-11-25.csv</code> with all 26,192 priced calls (time, model, agent, session file, message id, token counts, cost). Rerun: <code>python3 tools/cost_report.py</code>. <strong>Log retention:</strong> Claude Code deletes session logs after 30 days. The first count on 25 November still had 24–27 October and gave $841.07; by 27 November the oldest log left was from 28 October, so the figures here are $22.53 lower. The CSV keeps every call, so they no longer depend on the logs.</p>
 
   <div class="figures">
     <div><div class="lbl">Out-of-pocket</div><div class="n">$200</div><div class="s">Claude subscription, paid per year</div></div>
-    <div><div class="lbl">Actual run cost (API-equivalent)</div><div class="n gold">$841.07</div><div class="s">≈ $26 per day over 32 days</div></div>
-    <div><div class="lbl">Per scheduled task</div><div class="n">≈ $3.20</div><div class="s">264 tasks</div></div>
+    <div><div class="lbl">Actual run cost (API-equivalent)</div><div class="n gold">$818.54</div><div class="s">28 Oct – 25 Nov · $841.07 with 24–27 Oct</div></div>
+    <div><div class="lbl">Per scheduled task</div><div class="n">≈ $3.10</div><div class="s">264 tasks</div></div>
   </div>
 
   <h3>Where the money went</h3>
   <div class="bar">
-    <div style="width:57.2%;background:#14161B"></div>
-    <div style="width:37.9%;background:#8A5D27"></div>
-    <div style="width:4.9%;background:#D4A35F"></div>
+    <div style="width:57.8%;background:#14161B"></div>
+    <div style="width:37.1%;background:#8A5D27"></div>
+    <div style="width:5.1%;background:#D4A35F"></div>
   </div>
   <div class="barkey">
-    <span><i style="background:#14161B"></i>Interactive main sessions $480.85</span>
-    <span><i style="background:#8A5D27"></i>Role agents started from them $318.46</span>
-    <span><i style="background:#D4A35F"></i>Orchestrator workers $41.78</span>
+    <span><i style="background:#14161B"></i>Interactive main sessions $473.05</span>
+    <span><i style="background:#8A5D27"></i>Role agents started from them $303.72</span>
+    <span><i style="background:#D4A35F"></i>Orchestrator workers $41.77</span>
   </div>
 
   <table>
     <tr><th>Model</th><th class="num">Calls</th><th class="num">Output tokens</th><th class="num">Cost</th></tr>
-    <tr><td><span class="badge sonnet">Claude Sonnet 5.5</span></td><td class="num">18,186</td><td class="num">13.8 M</td><td class="num">$433.35</td></tr>
-    <tr><td><span class="badge plain">Claude Opus 5.5</span></td><td class="num">3,153</td><td class="num">2.8 M</td><td class="num">$260.33</td></tr>
+    <tr><td><span class="badge sonnet">Claude Sonnet 5.5</span></td><td class="num">17,059</td><td class="num">12.8 M</td><td class="num">$406.35</td></tr>
+    <tr><td><span class="badge plain">Claude Opus 5.5</span></td><td class="num">3,217</td><td class="num">2.9 M</td><td class="num">$265.54</td></tr>
     <tr><td><span class="badge plain">Claude Fable 5.1</span></td><td class="num">249</td><td class="num">0.3 M</td><td class="num">$84.17</td></tr>
     <tr><td><span class="badge plain">Claude Fable 5.2</span></td><td class="num">276</td><td class="num">0.3 M</td><td class="num">$49.90</td></tr>
-    <tr><td><span class="badge haiku">Claude Haiku 5.5</span></td><td class="num">5,757</td><td class="num">7.4 M</td><td class="num">$13.32</td></tr>
-    <tr class="total"><td>Total</td><td class="num">27,674</td><td class="num">24.6 M</td><td class="num">$841.07</td></tr>
+    <tr><td><span class="badge haiku">Claude Haiku 5.5</span></td><td class="num">5,391</td><td class="num">6.7 M</td><td class="num">$12.58</td></tr>
+    <tr class="total"><td>Total</td><td class="num">26,192</td><td class="num">23.0 M</td><td class="num">$818.54</td></tr>
   </table>
-  <p class="note">By kind of token: cache writes ≈ $333 (40%), cache reads ≈ $282 (34%), output ≈ $225 (27%). Work done in Codex (some Russian drafts and the text style-agent run) is not included.</p>
+  <p class="note">By kind of token: cache writes $324.13 (40%), cache reads $278.25 (34%), output $216.00 (26%), uncached input $0.16. Work done in Codex (some Russian drafts and the text style-agent run) is not included.</p>
 
   <div class="keep">
   <h3>Most expensive pipeline step</h3>
-  <p>The <strong>interactive main session</strong> that orchestrated the agents cost <strong>$480.85 (57%)</strong>, mostly from re-sending and re-caching its long context rather than from output. Among the role agents, the gameplay-programmer cost the most:</p>
+  <p>The <strong>interactive main session</strong> that orchestrated the agents cost <strong>$473.05 (58%)</strong>, mostly from re-sending and re-caching its long context rather than from output. Among the role agents, the gameplay-programmer cost the most:</p>
   <div class="cards">
     <div class="card"><div class="head"><div class="name">Gameplay Programmer</div><span class="badge sonnet">Sonnet</span></div>
       <div class="lbl">Output</div><div class="txt">Core loop, routes, Prosperity, Bazaar, events in GDScript</div>
-      <div class="foot">248 runs<b>$109.81</b></div></div>
+      <div class="foot">204 runs<b>$98.85</b></div></div>
     <div class="card"><div class="head"><div class="name">UI Programmer</div><span class="badge sonnet">Sonnet</span></div>
       <div class="lbl">Output</div><div class="txt">Panels, top bar, skill screen, tutorial windows</div>
-      <div class="foot">145 runs<b>$46.57</b></div></div>
+      <div class="foot">142 runs<b>$45.29</b></div></div>
     <div class="card"><div class="head"><div class="name">Story Designer</div><span class="badge sonnet">Sonnet</span></div>
       <div class="lbl">Output</div><div class="txt">Events, gigs, endings, skill and screen texts</div>
-      <div class="foot">150 runs<b>$41.04</b></div></div>
+      <div class="foot">136 runs<b>$36.49</b></div></div>
   </div>
 
   </div>
 
   <h3>Solo / small-team sustainability</h3>
   <div class="panel">
-    <p><strong>Yes, on a subscription.</strong> A $200 flat fee covered work worth $841 at API rates: about 260 finished tasks and a playable game in a month.</p>
+    <p><strong>Yes, on a subscription.</strong> A $200 flat fee covered work worth about $820 to $840 at API rates: about 260 finished tasks and a playable game in a month.</p>
     <p>On pay-as-you-go API billing, about $800 a month is still affordable for a small team, but 95% of it went to the expensive interactive style of work. The orchestrator path cost about $0.50 per task and the Haiku translation path a few cents per batch, so moving build work to short headless workers would bring the API cost down to the low hundreds per month.</p>
   </div>
 </section>
@@ -490,7 +508,7 @@ ol.steps li::before {
   <p class="lede">On 9 November 2026 the owner made a rule: all translation is done by Haiku agents working from one shared brief and glossary. The same job, translating the four market event chains (Military, Luxury, Minerals, Biotech) into Russian, was run both ways.</p>
 
   <div class="figures">
-    <div><div class="lbl">Before · Sonnet</div><div class="n">$1.205</div><div class="s">71,431 output tokens · 4 runs</div></div>
+    <div><div class="lbl">Before · Sonnet</div><div class="n">$1.206</div><div class="s">71,431 output tokens · 4 runs</div></div>
     <div><div class="lbl">After · Haiku</div><div class="n gold">$0.074</div><div class="s">72,089 output tokens · 2 runs</div></div>
     <div><div class="lbl">Saving</div><div class="n gold">−94%</div><div class="s">same amount of text</div></div>
   </div>
@@ -500,11 +518,12 @@ ol.steps li::before {
     <tr><td class="lab">Model</td><td><span class="badge sonnet">Claude Sonnet 5.5</span> story-designer</td><td><span class="badge haiku">Claude Haiku 5.5</span> translators</td></tr>
     <tr><td class="lab">Approach</td><td>One agent per chain (4 runs). Each run re-read <code>CLAUDE.md</code>, <code>story/voice.md</code> and the full glossary before translating.</td><td>Two chains per run (2 runs), one hand-written-translation brief plus <code>story/ru/GLOSSARY.md</code>. Scripts may only look things up, never write text.</td></tr>
     <tr><td class="lab">Output tokens</td><td>71,431</td><td>72,089</td></tr>
-    <tr><td class="lab">API cost</td><td><strong>$1.205</strong></td><td><strong>$0.074</strong></td></tr>
+    <tr><td class="lab">API cost</td><td><strong>$1.206</strong></td><td><strong>$0.074</strong></td></tr>
   </table>
+  <p class="note">Source: <code>reports/cost_2026-11-25.json</code>, key <code>translation_before_after</code>, which lists each of the six runs (session file, description, model, calls, output tokens, cost).</p>
 
   <h3>At full scale</h3>
-  <p>The full Russian localisation pass on 10 November used 25 Haiku agents (translate, repair and verify chunks) for <strong>$0.84 in total</strong>, each under $0.07. Each Sonnet group run it replaced cost $0.31 to $0.61.</p>
+  <p>The full Russian localisation pass on 10 November used 25 Haiku story-designer agents (translate, repair and verify chunks) for <strong>$0.84 in total</strong>, each under $0.07 (2026-11-10 rows with agent <code>story-designer</code> and model <code>claude-haiku-5-5</code> in the CSV). Each Sonnet group run it replaced cost $0.31 to $0.61.</p>
 </section>
 
 </body>
