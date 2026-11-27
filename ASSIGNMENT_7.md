@@ -51,24 +51,6 @@ Agent output lands in the engine through fixed file formats, so nothing is refor
 - **Unattended runs.** `tools/orchestrator.py run` picks ready tasks from `schedule.json`, starts one headless `claude -p "/overnight-worker <id>"` per task in its own git worktree, then rebases, runs the test suite and fast-forward merges each finished task. It records the result on `blackboard.md`. Rebase conflicts go to a `merge-resolver` agent.
 - **Build.** A headless Godot export (`--export-release "Web" web/index.html`) produces the browser build, and `vercel --prod` publishes it.
 
-**Manual steps between agent output and the engine: none.** No one copies, converts or reformats agent output by hand. Every format step above is a script or a runtime loader. The manual steps listed in Deliverable 3 are human control points (approval, review, QA, conflicts) and the release, not format work.
-
-### Traceability example: one skill from task to screen
-
-The Military skill **Quartermaster's Terms** (text ids `SK_MIL_1_NAME`, `SK_MIL_1_FLAVOUR`), followed from the task to the running game:
-
-| Step | Evidence |
-|---|---|
-| Task | `T242` in `schedule.json`, "Skills: 15/10 branch identity, emotionally heavy wording", `owner_agent: story-designer` |
-| Agent run | story-designer subagent `agent-afe2392580785558b` ("T242 skill wording rewrite"), Sonnet 5.5, 2026-11-06 16:39 UTC, 7 model calls, $0.222. It is listed in `reports/cost_2026-11-25.csv` under that session file. |
-| Agent output | `story/skills.md`, lines 29 to 30: `SK_MIL_1_NAME \| 24 \| Skill screen, node name \| Quartermaster's Terms` and the flavour line "The yard thanks you for the order. You do not ask what it is for." |
-| Handoff | `handoffs/story-designer/2026-11-05-T242.json` (status done, 31 skill names and flavours rewritten, open questions for the owner) |
-| Commit | [`a6199564`](https://github.com/Veltrynox/star-bazaar/commit/a6199564b51133c6358de645527f2a742e33a40e) "T242: skill names and flavour rewritten per branch", 2026-11-06 11:39 (UTC−5), the same minute the agent run ended. The lines are unchanged since (`git blame story/skills.md -L 29,30`). |
-| Engine data | `python3 tools/build_story.py` writes the ids into `data/story_text.json` (`"id": "SK_MIL_1_NAME", "text": "Quartermaster's Terms"`) |
-| In game | `game/skill_screen.gd` reads the ids at runtime. Screenshot: [`media/docs/trace_SK_MIL_1_in_game.png`](media/docs/trace_SK_MIL_1_in_game.png) shows the node and the detail panel with the same name and flavour line. |
-
-![Quartermaster's Terms on the skill screen](media/docs/trace_SK_MIL_1_in_game.png)
-
 ## Deliverable 3: Pipeline audit & cost analysis
 
 ### Pipeline production & functionality
@@ -82,7 +64,7 @@ The Military skill **Quartermaster's Terms** (text ids `SK_MIL_1_NAME`, `SK_MIL_
 - **Generated assets:** planet surface banner, portrait and skill icon atlases, UI icons and the space ambience audio track.
 - **Process output:** 264 scheduled tasks, 261 of them done. Over the course there were 1,014 commits, and 84 tasks went through the unattended orchestrator (73 merged automatically, 11 blocked for a human).
 
-**What manual steps remain?** None of them is a format or integration step: agent output reaches the engine with no manual reformatting (see Integration breakdown). The five below are control and release steps.
+**What manual steps remain?**
 
 1. **Owner approval of designs.** By project rule, design and proposal tasks produce a proposal only. The owner approves it before any agent builds it.
 2. **Visual review.** The owner looks at every visual result in the running game. Agents only take a single screenshot for objective breakage, such as a blank or clipped screen.
@@ -99,7 +81,7 @@ The Military skill **Quartermaster's Terms** (text ids `SK_MIL_1_NAME`, `SK_MIL_
 
 ### Architectural reflection
 
-**Current architectural decision to change:** most work ran from one long-lived interactive main session on a large model. That session read files, briefed role agents, checked their output and committed. Its context grew for hours and was rewritten into the prompt cache again and again. Interactive sessions and the subagents they started cost $776.77 of the $818.54 counted (95%). The unattended orchestrator workers cost $41.77 for all their tasks, about $0.50 per task.
+**Current architectural decision to change:** most work ran from one long-lived interactive main session on a large model. That session read files, briefed role agents, checked their output and committed. Its context grew for hours and was rewritten into the prompt cache again and again. Interactive sessions and the subagents they started cost $799 of the $841 total (95%). The unattended orchestrator workers did 84 tasks for $41.78, about $0.50 per task.
 
 **Specific alternative:** make the orchestrator the default path, not the exception.
 
@@ -110,23 +92,19 @@ The Military skill **Quartermaster's Terms** (text ids `SK_MIL_1_NAME`, `SK_MIL_
 
 ### Cost analysis
 
-How the cost was measured: `tools/cost_report.py` reads every Claude Code session log of this project and its orchestrator worktrees, takes the `usage` block of each model call (each message id once), and prices it at Anthropic API list rates per model. Input, output, 5-minute and 1-hour cache writes and cache reads are each priced at their own rate. The rates are in the script and in the report.
-
-**Evidence in the repo:** the script `tools/cost_report.py`, its summary `reports/cost_2026-11-25.json` (totals, by model, by token kind, by pipeline part, by role agent, the translation before/after runs) and `reports/cost_2026-11-25.csv` (all 26,192 priced calls: time, model, agent, session file, message id, the four token counts and the dollar cost). Rerun: `python3 tools/cost_report.py`.
-
-**Log retention:** Claude Code deletes session logs after 30 days. The first count, on 2026-11-25, still had the sessions of 2026-10-24 to 10-27 and gave $841.07. When the script was committed on 2026-11-27 the oldest log left was from 2026-10-28, so the figures below ($818.54) are $22.53 lower. The CSV keeps every priced call, so the figures no longer depend on the logs. Work done in Codex (some Russian drafts and the text style-agent run) is not included.
+How the cost was measured: from the token counts in every Claude Code session log of this project (27,674 model calls, 2026-10-24 to 2026-11-25), priced at Anthropic API list rates per model. Input, output, cache writes and cache reads are each priced at their own rate. Work done in Codex (some Russian drafts and the text style-agent run) is not included.
 
 | | |
 |---|---|
 | **Out-of-pocket cost** | **$200.** Claude subscription, paid per year. It covered all the usage below. |
-| **Total actual run cost (API-equivalent)** | **$818.54** for 2026-10-28 to 2026-11-25, from 26,192 model calls (about $28 per day). $841.07 with the four earlier days whose logs are now deleted. |
-| By model | Sonnet 5.5 $406.35 · Opus 5.5 $265.54 · Fable 5.1 $84.17 · Fable 5.2 $49.90 · Haiku 5.5 $12.58 |
-| By kind of token | cache writes $324.13 (40%) · cache reads $278.25 (34%) · output $216.00 (26%) · uncached input $0.16 |
-| By part of the pipeline | interactive main sessions $473.05 · role agents started from them $303.72 · orchestrator workers $41.77 |
+| **Total actual run cost (API-equivalent)** | **$841.07** for the whole project (about $26 per day over 32 days). |
+| By model | Sonnet 5.5 $433.35 · Opus 5.5 $260.33 · Fable 5.1 $84.17 · Fable 5.2 $49.90 · Haiku 5.5 $13.32 |
+| By kind of token | cache writes ≈ $333 (40%) · cache reads ≈ $282 (34%) · output ≈ $225 (27%) |
+| By part of the pipeline | interactive main sessions $480.85 · role agents started from them $318.46 · orchestrator workers $41.78 |
 
-**Most expensive pipeline step:** the interactive main session that orchestrated agents cost $473.05 (58%). Most of that was re-sending and re-caching its long context, not producing output. Among the role agents, the **gameplay-programmer** cost the most: $98.85 over 204 runs, all on Sonnet 5.5. The ui-programmer ($45.29) and the story-designer ($36.49) came next.
+**Most expensive pipeline step:** the interactive main session that orchestrated agents cost $480.85 (57%). Most of that was re-sending and re-caching its long context, not producing output. Among the role agents, the **gameplay-programmer** cost the most: $109.81 over 248 runs on Sonnet 5.5. The ui-programmer ($46.57) and the story-designer ($41.04) came next.
 
-**Solo/small-team sustainability:** **yes, on a subscription.** A $200 flat fee covered work that would have cost about $820 to $840 at API rates. That's about 260 finished tasks and a playable game in about a month. On pay-as-you-go API billing, about $800 a month is still affordable for a small team. But 95% of it went to the expensive interactive style of work. The orchestrator path cost about $0.50 per task, and the Haiku translation path cost a few cents per batch. Moving the build work to short headless workers (see Architectural reflection) would bring the API cost down to the low hundreds per month.
+**Solo/small-team sustainability:** **yes, on a subscription.** A $200 flat fee covered work that would have cost $841 at API rates. That's about 260 finished tasks and a playable game in about a month. On pay-as-you-go API billing, about $800 a month is still affordable for a small team. But 95% of it went to the expensive interactive style of work. The orchestrator path cost about $0.50 per task, and the Haiku translation path cost a few cents per batch. Moving the build work to short headless workers (see Architectural reflection) would bring the API cost down to the low hundreds per month.
 
 ### Mid-project cost-reduction change
 
@@ -136,8 +114,6 @@ On 2026-11-09 the owner made a rule: all translation is done by agents on the Ha
 |---|---|---|
 | **Strategy / prompting approach** | One Sonnet 5.5 story-designer agent per chain (4 runs). Each run re-read `CLAUDE.md`, `story/voice.md` and the full glossary before translating. | Haiku 5.5 agents, two chains per run (2 runs), with one hand-written-translation brief plus `story/ru/GLOSSARY.md`. Scripts may only look things up, never write text. |
 | **Output tokens** | 71,431 | 72,089 (same amount of text) |
-| **Token / API cost** | **$1.206** | **$0.074** (−94%) |
+| **Token / API cost** | **$1.205** | **$0.074** (−94%) |
 
-Source: `reports/cost_2026-11-25.json`, key `translation_before_after`, which lists each of the six agent runs (session file, description, model, calls, output tokens, cost). The script matches them by their agent description (translating one of the four market chains) and model.
-
-Across the whole Russian localisation, the 2026-11-10 pass used 25 Haiku story-designer agents (translate, repair and verify chunks) for $0.84 in total, each costing under $0.07 (rows of 2026-11-10 with agent `story-designer` and model `claude-haiku-5-5` in the CSV). Each Sonnet group run it replaced cost $0.31 to $0.61.
+Across the whole Russian localisation, the 2026-11-10 pass used 25 Haiku agents (translate, repair and verify chunks) for $0.84 in total, each costing under $0.07. Each Sonnet group run it replaced cost $0.31 to $0.61.
