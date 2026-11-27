@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-25",
+  "task": "generic-event",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-25-generic-event.md",
+    "handoffs/story-designer/2026-11-25-generic-event.json"
+  ],
+  "open_questions": [
+    "EV65 repeats the tag of EV05 (price up: Tillam, energy). Keep it, or move it to Ashgate, energy?",
+    "Duration: the body says for a few cycles. Does the economy designer agree?"
+  ],
+  "handoff": "Proposal only, nothing built. EV65 'The tanker that did not come', [price up: Tillam, energy], kind Q, body 255 characters, no digits. If the owner approves, add it to story/events.md after EV16 and run tools/build_story.py to write data/events.json. The economy designer sets size and duration. Existing tags already cover all 12 planet and good price combinations, so any new event repeats a tag; this one is the only supply-side story. Availability check was not run, as instructed; the text names only energy, visible from the start.",
+  "details": {}
+}
