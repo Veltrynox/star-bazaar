@@ -7,6 +7,7 @@ State lives in ../wt/_state/state.json (outside the repo).
 
   python3 tools/orchestrator.py run [--hours 8] [--max 4] [--poll 300] [--worker-timeout 120]
                                                     LOOP: merge -> start -> sleep, until idle, time up, or STOP_ORCHESTRATOR exists
+  python3 tools/orchestrator.py run --debug         SMOKE TEST (<20 s): one stub task through start/merge/board/cleanup in a throwaway repo ../wt/_orch_debug; no claude, no tests, real repo untouched
 
   python3 tools/orchestrator.py plan [--max 4]      DRY RUN: which tasks would run in parallel, which are skipped and why
   python3 tools/orchestrator.py infer [--write]     fill missing `touches` (file globs) in schedule.json from the task briefs
@@ -62,11 +63,12 @@ OPEN = {"queued", "partial"}
 TOOLS = "Bash,Read,Edit,Write,Glob,Grep,Agent,Skill"
 RESULT = "JOB_RESULT:"
 TOTAL = re.compile(r"TOTAL pass=(\d+) fail=(\d+)")
+DEBUG = False  # run --debug: sandbox repo, stub worker, stub tests (see debug_setup)
 
 
-def sh(cmd, cwd=ROOT, env=None, timeout=None):
+def sh(cmd, cwd=None, env=None, timeout=None):
     e = dict(os.environ, **(env or {}))
-    return subprocess.run(cmd, cwd=cwd, env=e, capture_output=True, text=True, timeout=timeout)
+    return subprocess.run(cmd, cwd=cwd or ROOT, env=e, capture_output=True, text=True, timeout=timeout)
 
 
 def branch():
@@ -225,6 +227,8 @@ def cmd_plan(args):
 
 
 def run_tests(cwd, tag):
+    if DEBUG:  # no test suite, no Godot: a fixed passing count
+        return {"pass": 1, "fail": 0, "code": 0, "fails": [], "output": "TOTAL pass=1 fail=0 (debug stub)\n"}
     SCRATCH.mkdir(parents=True, exist_ok=True)
     scratch = str(SCRATCH / f"test-home-{tag}")
     p = sh(["sh", "tools/tests/run.sh"], cwd=cwd, env={"STAR_TEST_SCRATCH": scratch, "TMPDIR": str(SCRATCH)}, timeout=1500)
@@ -277,7 +281,7 @@ def cmd_baseline(args):
 def cmd_start(args):
     if branch() in ("main", "") and not args.allow_main:
         sys.exit("refusing to run on branch main; pass --allow-main to override")
-    if shutil.which("claude") is None:
+    if not DEBUG and shutil.which("claude") is None:
         sys.exit("claude CLI not found on PATH")
     st = load_state()
     in_flight = {k for k, v in st["tasks"].items() if v["state"] in ("running", "finished", "blocked")}
@@ -304,6 +308,8 @@ def cmd_start(args):
         cmd += ["--dangerously-skip-permissions"] if args.skip_permissions else ["--permission-mode", "acceptEdits", "--allowedTools", TOOLS]
         if shutil.which("caffeinate"):
             cmd = ["caffeinate", "-i"] + cmd
+        if DEBUG:
+            cmd = debug_worker(tid)
         SCRATCH.mkdir(parents=True, exist_ok=True)
         scratch = str(SCRATCH / f"test-home-{tid}")
         f = open(log, "w")
@@ -337,6 +343,12 @@ def cmd_resume(args):
 
 
 def alive(pid):
+    if DEBUG:  # reap our own finished worker: an unreaped zombie still answers os.kill(pid, 0)
+        try:
+            if os.waitpid(pid, os.WNOHANG)[0] == pid:
+                return False
+        except ChildProcessError:
+            pass
     try:
         os.kill(pid, 0)
         return True
@@ -380,7 +392,7 @@ def cmd_status(args):
 def commit_board(tid, title, status, note, summary, extra_fail=""):
     """schedule.json + blackboard.md entry, committed alone. Returns an error string or None."""
     dirty = sh(["git", "status", "--porcelain", "--", "schedule.json", "blackboard.md"]).stdout.strip()
-    if dirty and shutil.which("claude") and commit_pending_board():
+    if dirty and not DEBUG and shutil.which("claude") and commit_pending_board():
         dirty = ""
     if dirty:
         return "schedule.json or blackboard.md has uncommitted changes in the main checkout; left untouched"
@@ -580,7 +592,7 @@ def rebase_with_auto_resolve(wt, base):
             files.remove("data/balance.json")
         if files:
             print(f"  {Path(wt).name}: conflicts in {', '.join(files)}; calling merge-resolver")
-            if shutil.which("claude") is None or not ai_resolve(wt, files):
+            if DEBUG or shutil.which("claude") is None or not ai_resolve(wt, files):
                 return r
         r = sh(["git", "rebase", "--continue"], cwd=wt, env={"GIT_EDITOR": "true"})
     return r
@@ -589,6 +601,8 @@ def rebase_with_auto_resolve(wt, base):
 def refresh_import(wt):
     """Rebuild Godot's class and import cache in a worktree (a rebase can bring new class_name scripts that the cloned
     .godot cache does not know, which makes the test script fail to parse)."""
+    if DEBUG:  # no Godot in the sandbox
+        return
     SCRATCH.mkdir(parents=True, exist_ok=True)
     gd = ROOT / "tools" / "godot" / "Godot.app" / "Contents" / "MacOS" / "Godot"
     sh([str(gd), "--headless", "--path", str(wt), "--import"],
@@ -654,7 +668,7 @@ def cmd_run(args):
     import time
     if branch() in ("main", "") and not args.allow_main:
         sys.exit("refusing to run on branch main; pass --allow-main to override")
-    if shutil.which("claude") is None:
+    if not DEBUG and shutil.which("claude") is None:
         sys.exit("claude CLI not found on PATH")
     deadline = time.time() + args.hours * 3600
     empty_streak = 0
@@ -725,6 +739,112 @@ def cmd_report(args):
     print("wrote", path)
 
 
+# ---------- run --debug: smoke test of the orchestrator's own plumbing ----------
+
+DEBUG_MARK = ".orchestrator-debug"  # the sandbox is only ever deleted if it carries this marker
+
+
+def debug_worker(tid):
+    """Stub for `claude -p /overnight-worker`: one trivial commit on task/<id>, then the result line."""
+    return ["sh", "-c", f"mkdir -p debug && echo 'stub output for {tid}' > debug/{tid}.txt && git add debug && "
+                        f"git commit -q -m '{tid}: debug stub commit' && echo '{RESULT} done | debug stub commit for {tid}'"]
+
+
+def debug_setup():
+    """Fresh tiny git repo in ../wt/_orch_debug with one queued task; every path constant points into it. Returns the task id."""
+    global DEBUG, ROOT, WT_DIR, OUT, SCRATCH, STATE, SCHEDULE, STOP_FILE
+    box = WT_DIR / "_orch_debug"
+    if box.exists():
+        if not (box / DEBUG_MARK).exists():
+            sys.exit(f"{box} exists but is not an orchestrator debug sandbox (no {DEBUG_MARK}); left untouched")
+        shutil.rmtree(box)
+    repo, tid = box / "repo", "T0"
+    (repo / "tools").mkdir(parents=True)
+    (box / "hooks").mkdir()  # empty hooks dir: no global or repo hook runs in the sandbox
+    (box / DEBUG_MARK).write_text("throwaway sandbox of `tools/orchestrator.py run --debug`; deleted on every debug run\n")
+    for k in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"):
+        os.environ.pop(k, None)
+    shutil.copy2(Path(__file__).resolve().parent / "blackboard.py", repo / "tools" / "blackboard.py")
+    (repo / ".gitignore").write_text("logs/\nreports/\n")
+    (repo / "blackboard.md").write_text("# Main agent blackboard\n\n## Do not repeat\n- debug sandbox\n\n## Left to do\n- debug sandbox\n")
+    task = {"task_id": tid, "title": "Debug stub task", "owner_agent": "gameplay-programmer", "status": "queued",
+            "depends_on": [], "touches": ["debug/**"], "brief": "Orchestrator smoke test: the stub worker commits debug/T0.txt."}
+    (repo / "schedule.json").write_text(json.dumps({"done_task_ids": [], "tasks": [task]}, indent=2))
+    for c in (["git", "init", "-q", "-b", "debug"], ["git", "config", "user.name", "orchestrator-debug"],
+              ["git", "config", "user.email", "orchestrator-debug@localhost"], ["git", "config", "commit.gpgsign", "false"],
+              ["git", "config", "core.hooksPath", str(box / "hooks")], ["git", "add", "-A"], ["git", "commit", "-q", "-m", "debug sandbox base"]):
+        r = sh(c, cwd=repo)
+        if r.returncode != 0:
+            sys.exit(f"debug sandbox setup failed at {' '.join(c)}: {r.stderr.strip()}")
+    DEBUG, ROOT, WT_DIR = True, repo, box / "wt"
+    OUT, SCRATCH, STATE = repo / "logs" / "orchestrator", WT_DIR / "_scratch", WT_DIR / "_state" / "state.json"
+    SCHEDULE, STOP_FILE = repo / "schedule.json", repo / "STOP_ORCHESTRATOR"
+    return tid
+
+
+def debug_run(args):
+    """run --debug: the real loop once, end to end, on the sandbox. Prints PASS/FAIL; returns the exit code."""
+    import time
+    t0 = time.time()
+    real_root, real_state = ROOT, STATE
+
+    def real_snapshot():
+        cmds = (["git", "rev-parse", "HEAD"], ["git", "branch", "--show-current"], ["git", "for-each-ref"], ["git", "worktree", "list"],
+                ["git", "status", "--porcelain", "--", "schedule.json", "blackboard.md"])
+        st_file = real_state.stat().st_mtime_ns if real_state.exists() else None
+        return [sh(c, cwd=real_root).stdout for c in cmds] + [st_file]
+
+    before = real_snapshot()
+    tid = debug_setup()
+    args.poll, args.max, args.allow_main = 1, 1, False
+
+    class Tee:
+        def __init__(self, out):
+            self.out, self.buf = out, []
+
+        def write(self, s):
+            self.buf.append(s)
+            return self.out.write(s)
+
+        def flush(self):
+            self.out.flush()
+
+    tee, real_out = Tee(sys.stdout), sys.stdout
+    sys.stdout, crash = tee, None
+    try:
+        cmd_run(args)
+    except (Exception, SystemExit) as e:
+        crash = f"{type(e).__name__}: {e}"
+    finally:
+        sys.stdout = real_out
+    out = "".join(tee.buf)
+    elapsed = time.time() - t0
+    v = load_state()["tasks"].get(tid, {})
+    sched = {t["task_id"]: t for t in load_schedule()["tasks"]}.get(tid, {})
+    base_log = sh(["git", "log", "--format=%s", "debug", "--"]).stdout.splitlines()
+    head_files = set(sh(["git", "show", "--name-only", "--format=", "HEAD"]).stdout.split())
+    checks = [
+        ("loop ran without error", crash is None, crash or ""),
+        ("worker stub reported done", (v.get("result") or "").startswith("done"), v.get("result") or "no result line"),
+        ("task merged (state merged, schedule done, stub commit on base)",
+         v.get("state") == "merged" and sched.get("status") == "done" and f"{tid}: debug stub commit" in base_log,
+         f"state={v.get('state')} schedule={sched.get('status')}"),
+        ("board commit present (schedule.json + blackboard.md only)",
+         bool(base_log) and base_log[0] == f"{tid}: done by orchestrator [no-gdd] [no-tests]" and head_files == {"schedule.json", "blackboard.md"}
+         and sh([sys.executable, "tools/blackboard.py", "--check"]).returncode == 0, base_log[0] if base_log else "no commits"),
+        ("worktree removed", not (WT_DIR / tid).exists() and str(WT_DIR / tid) not in sh(["git", "worktree", "list"]).stdout, str(WT_DIR / tid)),
+        ("branch removed", not sh(["git", "branch", "--list", f"task/{tid}"]).stdout.strip(), f"task/{tid}"),
+        ("run ended with nothing left", "nothing left to start" in out, ""),
+        ("real repo untouched (HEAD, branch, refs, worktrees, board files, state.json)", real_snapshot() == before, ""),
+        ("under 20 s", elapsed < 20, f"{elapsed:.1f} s"),
+    ]
+    ok = all(c[1] for c in checks)
+    print(f"\nDEBUG {'PASS' if ok else 'FAIL'} in {elapsed:.1f} s (sandbox {ROOT})")
+    for name, good, detail in checks:
+        print(f"  {'ok  ' if good else 'FAIL'} {name}" + ("" if good or not detail else f": {detail}"))
+    return 0 if ok else 1
+
+
 def main():
     sys.stdout.reconfigure(line_buffering=True)  # progress lines show up at once when piped to a log
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -740,7 +860,11 @@ def main():
         p.add_argument("--write", action="store_true")
         p.add_argument("--allow-main", action="store_true")
         p.add_argument("--skip-permissions", action="store_true")
+        if name == "run":
+            p.add_argument("--debug", action="store_true", help="smoke test in a throwaway sandbox repo (see module docstring)")
     args = ap.parse_args()
+    if getattr(args, "debug", False):
+        sys.exit(debug_run(args))
     args.fn(args)
 
 
